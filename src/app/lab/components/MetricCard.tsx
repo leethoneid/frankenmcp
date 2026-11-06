@@ -1,9 +1,24 @@
-interface MetricCardProps {
+/**
+ * @file MetricCard.tsx
+ * @description Reusable presentational card component for displaying large numerical metrics
+ * with semantic color-coding, units, descriptions, and optional prefixes.
+ */
+
+/**
+ * Properties for the MetricCard component.
+ */
+export interface MetricCardProps {
+  /** Metric label displayed above the value (e.g. "Tools Loaded") */
   label: string;
+  /** Numerical value of the metric to display and format */
   value: number;
+  /** Unit descriptor displayed beneath the number (e.g. "tools", "tokens", "ms") */
   unit: string;
+  /** Descriptive context explaining what the metric represents */
   description: string;
+  /** Semantic accent color theme for the number and border */
   color: 'green' | 'purple' | 'cyan' | 'yellow';
+  /** Optional prefix prepended to formatted number (e.g. "~") */
   prefix?: string;
 }
 
@@ -14,6 +29,9 @@ const colorClasses: Record<'green' | 'purple' | 'cyan' | 'yellow', string> = {
   yellow: 'text-yellow-400 border-yellow-900/30',
 };
 
+/**
+ * MetricCard component renders a single metric inside a stylized card container.
+ */
 export default function MetricCard({
   label,
   value,
@@ -36,5 +54,3 @@ export default function MetricCard({
     </div>
   );
 }
-
-export type { MetricCardProps };

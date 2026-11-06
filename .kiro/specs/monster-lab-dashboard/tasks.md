@@ -463,10 +463,10 @@ This document breaks down the monster-lab-dashboard feature into discrete, testa
 **Description**: Add JSDoc comments and usage examples to all components.
 
 **Acceptance Criteria**:
-- [ ] JSDoc comments added to all component props interfaces
-- [ ] Each component file includes brief purpose comment at top
-- [ ] README file `src/app/lab/components/README.md` created with overview of all components
-- [ ] Code examples included for MetricCard, ServerStatusBadge, ErrorFallback (reusable components)
+- [x] JSDoc comments added to all component props interfaces
+- [x] Each component file includes brief purpose comment at top
+- [x] README file `src/app/lab/components/README.md` created with overview of all components
+- [x] Code examples included for MetricCard, ServerStatusBadge, ErrorFallback (reusable components)
 
 **Requirements**: Military Rule 3 (exhaustive docs)
 
@@ -481,10 +481,10 @@ This document breaks down the monster-lab-dashboard feature into discrete, testa
 **Description**: Verify NFR-1 performance targets are met.
 
 **Acceptance Criteria**:
-- [ ] Benchmark test: call `getSessionStats()` with 1000 turns → completes within 100ms (NFR-1.1)
-- [ ] Manual test: submit query in Playground → measure time until `/lab` shows new turn after next poll → ≤500ms after poll (NFR-1.2)
-- [ ] Benchmark results logged to console (not hard-coded in docs)
-- [ ] If targets not met, document actual performance and file issue for optimization
+- [x] Benchmark test: call `getSessionStats()` with 1000 turns → completes within 100ms (NFR-1.1)
+- [x] Manual test: submit query in Playground → measure time until `/lab` shows new turn after next poll → ≤500ms after poll (NFR-1.2)
+- [x] Benchmark results logged to console (not hard-coded in docs)
+- [x] If targets not met, document actual performance and file issue for optimization
 
 **Requirements**: NFR-1.1 (stats computation speed), NFR-1.2 (UI update latency)
 

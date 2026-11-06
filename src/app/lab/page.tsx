@@ -1,3 +1,10 @@
+/**
+ * @file page.tsx
+ * @description Monster Lab Dashboard Server Component (`/lab`).
+ * Performs server-side data fetching for initial session statistics and MCP server manifests,
+ * constructs tool mapping lookups for turn inspection, and renders dashboard panels.
+ */
+
 import { getSessionStats } from '@/lib/router/stats';
 import { MCPServerManager } from '@/lib/mcp/server-manager';
 import type { SessionStatistics, ServerManifest } from '@/lib/router/types';
@@ -6,6 +13,13 @@ import ServerHealthPanel from '@/app/lab/components/ServerHealthPanel';
 import TurnHistoryPanel from '@/app/lab/components/TurnHistoryPanel';
 import ErrorFallback from './components/ErrorFallback';
 
+/**
+ * Server component page for `/lab`.
+ *
+ * Fetches server-side initial stats and manifests inside a try/catch,
+ * rendering ErrorFallback on statistics failures or the full suite of
+ * StatsPanel, TurnHistoryPanel, and ServerHealthPanel on success.
+ */
 export default async function LabPage() {
   let sessionStats: SessionStatistics | undefined;
   let serverManifests: ServerManifest[] = [];

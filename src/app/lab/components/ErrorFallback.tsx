@@ -1,7 +1,24 @@
+/**
+ * @file ErrorFallback.tsx
+ * @description Graceful error boundary fallback component for the Monster Lab Dashboard.
+ * Displays a friendly user warning when dashboard statistics fail to load,
+ * along with collapsible error details in development mode.
+ */
+
+/**
+ * Props for the ErrorFallback component.
+ */
 interface ErrorFallbackProps {
+  /** Optional error object captured during stats retrieval or page rendering. */
   error?: Error;
 }
 
+/**
+ * Renders an error banner indicating statistics could not be loaded.
+ *
+ * @param props Component properties containing optional error details
+ * @returns JSX element rendering the fallback UI
+ */
 export default function ErrorFallback({ error }: ErrorFallbackProps) {
   return (
     <div className="border border-red-500 rounded-lg p-8 bg-red-900/10 text-center">
