@@ -165,6 +165,9 @@ export class MCPServerManager {
     const targetEntries = Array.from(this.servers.values()).filter((e) => !e.config.disabled);
 
     if (targetEntries.length === 0) {
+      if (this.servers.size > 0) {
+        throw new AllServersUnavailableError(Array.from(this.servers.keys()));
+      }
       return;
     }
 
