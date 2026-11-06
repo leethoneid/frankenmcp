@@ -29,12 +29,12 @@ This document breaks down the monster-lab-dashboard feature into discrete, testa
 **Description**: Add `toolFilter` and `reasoning` fields to `TurnStatistics` type in router-core.
 
 **Acceptance Criteria**:
-- [ ] `src/lib/router/types.ts` updated with two new fields in `TurnStatistics`:
+- [x] `src/lib/router/types.ts` updated with two new fields in `TurnStatistics`:
   - `toolFilter: { serverID: string; includedTools: string[] }[]` (required)
   - `reasoning?: string` (optional)
-- [ ] Type definition matches `RoutingDecision` shape for `toolFilter`
-- [ ] JSDoc comments added explaining fields
-- [ ] TypeScript compilation passes with no errors
+- [x] Type definition matches `RoutingDecision` shape for `toolFilter`
+- [x] JSDoc comments added explaining fields
+- [x] TypeScript compilation passes with no errors
 
 **Requirements**: FR-1.2 (loaded tools display), FR-1.3 (trimmed tools display), FR-1.4 (reasoning display)
 
@@ -49,11 +49,11 @@ This document breaks down the monster-lab-dashboard feature into discrete, testa
 **Description**: Modify `computeTurnStats` function in `src/lib/router/stats.ts` to copy `toolFilter` and `reasoning` from `RoutingDecision` into `TurnStatistics`.
 
 **Acceptance Criteria**:
-- [ ] `computeTurnStats` function signature accepts `RoutingDecision` as input (or extracts fields from it)
-- [ ] Function copies `toolFilter` array from decision to turn stats (deep copy to avoid mutation)
-- [ ] Function copies optional `reasoning` field from decision to turn stats
-- [ ] Unit test: call `computeTurnStats` with mock decision → verify output contains both fields
-- [ ] Integration test: record real turn via `recordTurn` → verify `getSessionStats().turns[0]` contains `toolFilter` and `reasoning`
+- [x] `computeTurnStats` function signature accepts `RoutingDecision` as input (or extracts fields from it)
+- [x] Function copies `toolFilter` array from decision to turn stats (deep copy to avoid mutation)
+- [x] Function copies optional `reasoning` field from decision to turn stats
+- [x] Unit test: call `computeTurnStats` with mock decision → verify output contains both fields
+- [x] Integration test: record real turn via `recordTurn` → verify `getSessionStats().turns[0]` contains `toolFilter` and `reasoning`
 
 **Requirements**: FR-1.2, FR-1.3, FR-1.4
 
@@ -68,12 +68,12 @@ This document breaks down the monster-lab-dashboard feature into discrete, testa
 **Description**: Add `lastStatusChangeAt` and `lastError` fields to `ServerManifest` type in router-core.
 
 **Acceptance Criteria**:
-- [ ] `src/lib/router/types.ts` updated with two new fields in `ServerManifest`:
+- [x] `src/lib/router/types.ts` updated with two new fields in `ServerManifest`:
   - `lastStatusChangeAt?: number` (timestamp in milliseconds)
   - `lastError?: string` (error message)
-- [ ] Fields marked as optional (backward compatible)
-- [ ] JSDoc comments explain purpose
-- [ ] TypeScript compilation passes
+- [x] Fields marked as optional (backward compatible)
+- [x] JSDoc comments explain purpose
+- [x] TypeScript compilation passes
 
 **Requirements**: FR-4.3 (error reason display), FR-4.4 (offline duration)
 
@@ -88,15 +88,15 @@ This document breaks down the monster-lab-dashboard feature into discrete, testa
 **Description**: Modify `MCPServerManager` in `src/lib/mcp/server-manager.ts` to record timestamps and errors when server status changes.
 
 **Acceptance Criteria**:
-- [ ] Internal server tracking structure stores `lastStatusChangeAt` timestamp
-- [ ] When server status flips (e.g., connected → error), `lastStatusChangeAt` is set to `Date.now()`
-- [ ] Internal server tracking structure stores `lastError` string
-- [ ] When connection or health check fails, `lastError` is set to error message
-- [ ] `getServerManifests()` method returns manifests with both fields populated
-- [ ] `runHealthCheckRound()` method is public (or made public if private)
-- [ ] Unit test: flip server status → verify `lastStatusChangeAt` updated
-- [ ] Unit test: simulate connection failure → verify `lastError` contains message
-- [ ] Integration test: kill demo server subprocess → verify manifest reflects error and timestamp
+- [x] Internal server tracking structure stores `lastStatusChangeAt` timestamp
+- [x] When server status flips (e.g., connected → error), `lastStatusChangeAt` is set to `Date.now()`
+- [x] Internal server tracking structure stores `lastError` string
+- [x] When connection or health check fails, `lastError` is set to error message
+- [x] `getServerManifests()` method returns manifests with both fields populated
+- [x] `runHealthCheckRound()` method is public (or made public if private)
+- [x] Unit test: flip server status → verify `lastStatusChangeAt` updated
+- [x] Unit test: simulate connection failure → verify `lastError` contains message
+- [x] Integration test: kill demo server subprocess → verify manifest reflects error and timestamp
 
 **Requirements**: FR-4.2 (fast disconnect detection), FR-4.3, FR-4.4, AC-4 (10s detection bound)
 
@@ -113,13 +113,13 @@ This document breaks down the monster-lab-dashboard feature into discrete, testa
 **Description**: Create API route that returns `getSessionStats()` output for client polling.
 
 **Acceptance Criteria**:
-- [ ] File `src/app/api/lab/session-stats/route.ts` created
-- [ ] `GET` handler calls `getSessionStats()` and returns JSON response
-- [ ] Response structure: `{ stats: SessionStatistics }`
-- [ ] Error handling: if `getSessionStats()` throws, return 500 with error message
-- [ ] Manual test: `curl http://localhost:3000/api/lab/session-stats` returns valid JSON
-- [ ] Unit test: mock `getSessionStats()` to return mock data → verify API returns same data
-- [ ] Unit test: mock `getSessionStats()` to throw error → verify API returns 500
+- [x] File `src/app/api/lab/session-stats/route.ts` created
+- [x] `GET` handler calls `getSessionStats()` and returns JSON response
+- [x] Response structure: `{ stats: SessionStatistics }`
+- [x] Error handling: if `getSessionStats()` throws, return 500 with error message
+- [x] Manual test: `curl http://localhost:3000/api/lab/session-stats` returns valid JSON
+- [x] Unit test: mock `getSessionStats()` to return mock data → verify API returns same data
+- [x] Unit test: mock `getSessionStats()` to throw error → verify API returns 500
 
 **Requirements**: FR-3.1 to FR-3.6 (session aggregates), Design Decision 2 (polling)
 
@@ -134,14 +134,14 @@ This document breaks down the monster-lab-dashboard feature into discrete, testa
 **Description**: Create API route that actively checks server health and returns manifests.
 
 **Acceptance Criteria**:
-- [ ] File `src/app/api/lab/server-status/route.ts` created
-- [ ] `GET` handler calls `MCPServerManager.getInstance()`
-- [ ] Handler calls `manager.runHealthCheckRound()` before returning manifests (active health check)
-- [ ] Handler calls `manager.getServerManifests()` and returns JSON response
-- [ ] Response structure: `{ manifests: ServerManifest[] }`
-- [ ] Error handling: if manager throws, return 500 with error message
-- [ ] Manual test: `curl http://localhost:3000/api/lab/server-status` returns manifests with timestamps
-- [ ] Integration test: kill demo server → call API → verify manifest shows error + timestamp within 10s
+- [x] File `src/app/api/lab/server-status/route.ts` created
+- [x] `GET` handler calls `MCPServerManager.getInstance()`
+- [x] Handler calls `manager.runHealthCheckRound()` before returning manifests (active health check)
+- [x] Handler calls `manager.getServerManifests()` and returns JSON response
+- [x] Response structure: `{ manifests: ServerManifest[] }`
+- [x] Error handling: if manager throws, return 500 with error message
+- [x] Manual test: `curl http://localhost:3000/api/lab/server-status` returns manifests with timestamps
+- [x] Integration test: kill demo server → call API → verify manifest shows error + timestamp within 10s
 
 **Requirements**: FR-4.1 (server status display), FR-4.2 (status change detection), AC-4 (10s detection)
 
