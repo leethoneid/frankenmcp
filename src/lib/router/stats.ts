@@ -29,7 +29,12 @@ export function recordTurn(stats: TurnStatistics): void {
     throw new Error('[Stats] TurnStatistics contains non-numeric metric values');
   }
 
-  sessionTurns.push({ ...stats });
+  sessionTurns.push({
+    ...stats,
+    toolFilter: stats.toolFilter
+      ? stats.toolFilter.map((f) => ({ serverID: f.serverID, includedTools: [...f.includedTools] }))
+      : [],
+  });
 }
 
 /**
@@ -165,7 +170,13 @@ export function computeTurnStats(
   const tokenSavings = estimateTokenSavings(trimmedSchemas);
   const estimatedTokensSaved = tokenSavings !== null ? tokenSavings : 0;
 
-  return {
+  // Copy toolFilter and optional reasoning from RoutingDecision (Task 1.2)
+  const toolFilter = decision.toolFilter.map((f) => ({
+    serverID: f.serverID,
+    includedTools: [...f.includedTools],
+  }));
+
+  const turnStats: TurnStatistics = {
     turnID,
     timestamp: Date.now(),
     intent,
@@ -174,7 +185,14 @@ export function computeTurnStats(
     toolsTrimmed,
     estimatedTokensSaved,
     routingTimeMs,
+    toolFilter,
   };
+
+  if (decision.reasoning !== undefined) {
+    turnStats.reasoning = decision.reasoning;
+  }
+
+  return turnStats;
 }
 
 /**

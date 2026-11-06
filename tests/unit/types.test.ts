@@ -111,12 +111,16 @@ describe('Phase 1 - Task 1.2: TypeScript Type Definitions & Error Classes', () =
       toolsLoaded: 2,
       toolsTrimmed: 3,
       estimatedTokensSaved: 300,
-      routingTimeMs: 45
+      routingTimeMs: 45,
+      toolFilter: [{ serverID: 'notes', includedTools: ['read_note', 'list_notes'] }],
+      reasoning: 'Selected notes tools',
     };
 
     expect(stats.toolsLoaded).toBe(2);
     expect(stats.toolsTrimmed).toBe(3);
     expect(stats.selectedServers).toEqual(['notes']);
+    expect(stats.toolFilter).toHaveLength(1);
+    expect(stats.reasoning).toBe('Selected notes tools');
   });
 
   it('can typecheck complex ServerManifest and RoutingDecision structures', () => {
@@ -138,7 +142,9 @@ describe('Phase 1 - Task 1.2: TypeScript Type Definitions & Error Classes', () =
       name: 'Notes Server',
       transport: 'stdio',
       tools: [tool],
-      status: 'connected'
+      status: 'connected',
+      lastStatusChangeAt: 1700000000000,
+      lastError: 'Handshake timeout',
     };
 
     const decision: RoutingDecision = {
@@ -153,6 +159,8 @@ describe('Phase 1 - Task 1.2: TypeScript Type Definitions & Error Classes', () =
     };
 
     expect(manifest.tools[0].name).toBe('create_note');
+    expect(manifest.lastStatusChangeAt).toBe(1700000000000);
+    expect(manifest.lastError).toBe('Handshake timeout');
     expect(decision.toolFilter[0].includedTools).toContain('create_note');
   });
 });

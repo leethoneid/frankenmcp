@@ -200,4 +200,63 @@ describe('Phase 2 - Task 2.2: MCPServerManager', () => {
     expect(client.disconnect).toHaveBeenCalled();
     expect(manager.getServerManifests()).toHaveLength(0);
   });
+
+  it('Phase 1 - Task 1.4: tracks lastStatusChangeAt when status flips and records lastError on health check failure', async () => {
+    const client = createMockClient(
+      { id: 'sick', name: 'Sick Server', transport: 'stdio' },
+      { failPing: true }
+    );
+
+    const manager = new MCPServerManager(() => client);
+    manager.registerServer({ id: 'sick', name: 'Sick Server', transport: 'stdio', command: 'node' });
+
+    const initialManifest = manager.getServerManifests().find((m) => m.id === 'sick');
+    expect(initialManifest).toBeDefined();
+    expect(initialManifest?.status).toBe('disconnected');
+    expect(initialManifest?.lastStatusChangeAt).toBeDefined();
+    expect(initialManifest?.lastError).toBeUndefined();
+
+    const initialChangeAt = initialManifest!.lastStatusChangeAt!;
+
+    // Small delay to ensure timestamp progression
+    await new Promise((resolve) => setTimeout(resolve, 5));
+
+    await manager.connectServer('sick');
+    const connectedManifest = manager.getServerManifests().find((m) => m.id === 'sick');
+    expect(connectedManifest?.status).toBe('connected');
+    expect(connectedManifest!.lastStatusChangeAt!).toBeGreaterThan(initialChangeAt);
+    expect(connectedManifest?.lastError).toBeUndefined();
+
+    const connectedChangeAt = connectedManifest!.lastStatusChangeAt!;
+
+    await new Promise((resolve) => setTimeout(resolve, 5));
+
+    // Health check ping fails
+    await manager.runHealthCheckRound();
+    const errorManifest = manager.getServerManifests().find((m) => m.id === 'sick');
+    expect(errorManifest?.status).toBe('error');
+    expect(errorManifest!.lastStatusChangeAt!).toBeGreaterThan(connectedChangeAt);
+    expect(errorManifest?.lastError).toContain('Ping timeout');
+  });
+
+  it('Phase 1 - Task 1.4: records lastError when initial connection attempts fail', async () => {
+    const client = createMockClient(
+      { id: 'failing', name: 'Failing Server', transport: 'stdio' },
+      { connectFailsTimes: 5 }
+    );
+
+    const manager = new MCPServerManager(() => client);
+    manager.registerServer({ id: 'failing', name: 'Failing Server', transport: 'stdio', command: 'node' });
+
+    await expect(
+      manager.connectServer('failing', { maxRetries: 2, initialDelayMs: 5 })
+    ).rejects.toThrow();
+
+    const manifests = manager.getServerManifests();
+    const failingManifest = manifests.find((m) => m.id === 'failing');
+    expect(failingManifest).toBeDefined();
+    expect(failingManifest?.status).toBe('error');
+    expect(failingManifest?.lastError).toContain('Connection attempt');
+    expect(failingManifest?.lastStatusChangeAt).toBeDefined();
+  });
 });

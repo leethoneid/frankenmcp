@@ -28,6 +28,8 @@ describe('Phase 4 - Task 4.1: Statistics Calculation', () => {
       toolsTrimmed: 3,
       estimatedTokensSaved: 150,
       routingTimeMs: 40,
+      toolFilter: [{ serverID: 'notes', includedTools: ['read_note', 'list_notes'] }],
+      reasoning: 'Selected notes tools',
     };
 
     recordTurn(turn1);
@@ -39,6 +41,8 @@ describe('Phase 4 - Task 4.1: Statistics Calculation', () => {
     expect(stats.totalToolsTrimmed).toBe(3);
     expect(stats.totalTokensSaved).toBe(150);
     expect(stats.averageRoutingTimeMs).toBe(40);
+    expect(stats.turns[0].toolFilter).toEqual([{ serverID: 'notes', includedTools: ['read_note', 'list_notes'] }]);
+    expect(stats.turns[0].reasoning).toBe('Selected notes tools');
   });
 
   it('aggregates multiple turns across session with accurate sums and average routing time', () => {
@@ -51,6 +55,7 @@ describe('Phase 4 - Task 4.1: Statistics Calculation', () => {
       toolsTrimmed: 3,
       estimatedTokensSaved: 150,
       routingTimeMs: 40,
+      toolFilter: [{ serverID: 'notes', includedTools: ['read_note', 'list_notes'] }],
     };
 
     const turn2: TurnStatistics = {
@@ -62,6 +67,7 @@ describe('Phase 4 - Task 4.1: Statistics Calculation', () => {
       toolsTrimmed: 4,
       estimatedTokensSaved: 220,
       routingTimeMs: 60,
+      toolFilter: [{ serverID: 'calculator', includedTools: ['add'] }],
     };
 
     const turn3: TurnStatistics = {
@@ -73,6 +79,7 @@ describe('Phase 4 - Task 4.1: Statistics Calculation', () => {
       toolsTrimmed: 2,
       estimatedTokensSaved: 110,
       routingTimeMs: 50,
+      toolFilter: [{ serverID: 'tasks', includedTools: ['list_tasks', 'read_task', 'create_task'] }],
     };
 
     recordTurn(turn1);
@@ -199,6 +206,7 @@ describe('Phase 4 - Task 4.2: Statistics Display Fail-Safe', () => {
       toolsTrimmed: 3,
       estimatedTokensSaved: null as unknown as number,
       routingTimeMs: 30,
+      toolFilter: [{ serverID: 'notes', includedTools: ['read_note'] }],
     };
 
     const html = renderToStaticMarkup(React.createElement(StatsDisplay, { stats: turnWithNullSavings }));
@@ -220,6 +228,7 @@ describe('Phase 4 - Task 4.2: Statistics Display Fail-Safe', () => {
       toolsTrimmed: 2,
       estimatedTokensSaved: 100,
       routingTimeMs: 30,
+      toolFilter: [],
     };
 
     const html = renderToStaticMarkup(React.createElement(StatsDisplay, { stats: invalidStats }));
@@ -233,5 +242,56 @@ describe('Phase 4 - Task 4.2: Statistics Display Fail-Safe', () => {
     expect(formatTokenSavings(null)).toBe('Token savings unavailable');
     expect(formatTokenSavings(undefined)).toBe('Token savings unavailable');
     expect(formatTokenSavings(NaN)).toBe('Token savings unavailable');
+  });
+
+  it('Phase 1 - Task 1.2: computeTurnStats copies toolFilter and reasoning from RoutingDecision', () => {
+    const mockDecision: RoutingDecision = {
+      selectedServers: ['notes', 'calculator'],
+      toolFilter: [
+        { serverID: 'notes', includedTools: ['create_note', 'read_note'] },
+        { serverID: 'calculator', includedTools: ['add'] },
+      ],
+      reasoning: 'Selected notes and calculator based on composite query',
+    };
+
+    const mockManifests: ServerManifest[] = [
+      {
+        id: 'notes',
+        name: 'Notes',
+        transport: 'stdio',
+        status: 'connected',
+        tools: [
+          { name: 'create_note', description: '', inputSchema: { type: 'object' } },
+          { name: 'read_note', description: '', inputSchema: { type: 'object' } },
+          { name: 'delete_note', description: '', inputSchema: { type: 'object' } },
+        ],
+      },
+      {
+        id: 'calculator',
+        name: 'Calculator',
+        transport: 'stdio',
+        status: 'connected',
+        tools: [{ name: 'add', description: '', inputSchema: { type: 'object' } }],
+      },
+    ];
+
+    const turn = computeTurnStats('turn-100', 'add a note and 2+2', mockDecision, mockManifests, 45);
+
+    expect(turn.toolFilter).toEqual([
+      { serverID: 'notes', includedTools: ['create_note', 'read_note'] },
+      { serverID: 'calculator', includedTools: ['add'] },
+    ]);
+    expect(turn.reasoning).toBe('Selected notes and calculator based on composite query');
+
+    // Verify deep copy (modifying mockDecision does not mutate turn.toolFilter)
+    mockDecision.toolFilter[0].includedTools.push('delete_note');
+    expect(turn.toolFilter[0].includedTools).toEqual(['create_note', 'read_note']);
+
+    // Verify recording into session history preserves new fields
+    resetSessionStats();
+    recordTurn(turn);
+    const session = getSessionStats();
+    expect(session.turns[0].toolFilter).toEqual(turn.toolFilter);
+    expect(session.turns[0].reasoning).toBe(turn.reasoning);
   });
 });
