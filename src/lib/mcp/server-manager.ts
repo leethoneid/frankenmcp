@@ -2,6 +2,7 @@ import {
   ServerConfig,
   ServerManifest,
   ServerStatus,
+  ToolSchema,
   AllServersUnavailableError,
   ToolInvocationError,
   ServerConnectionError,
@@ -223,6 +224,34 @@ export class MCPServerManager {
       ...entry.manifest,
       tools: [...entry.manifest.tools],
     }));
+  }
+
+  /**
+   * Look up a cached tool schema across registered servers (or within a specific server).
+   */
+  public getToolSchema(toolName: string, serverID?: string): ToolSchema | undefined {
+    for (const entry of this.servers.values()) {
+      if (serverID && entry.config.id !== serverID) {
+        continue;
+      }
+      const tool = entry.manifest.tools.find((t) => t.name === toolName);
+      if (tool) {
+        return tool;
+      }
+    }
+    return undefined;
+  }
+
+  /**
+   * Refresh tool schemas from all connected MCP servers via client.listTools().
+   */
+  public async refreshAllSchemas(): Promise<void> {
+    for (const entry of this.servers.values()) {
+      if (entry.status === 'connected' && entry.client) {
+        const tools = await entry.client.listTools();
+        entry.manifest.tools = tools;
+      }
+    }
   }
 
   /**
