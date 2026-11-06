@@ -1,3 +1,19 @@
 {
-  "mcpServers": {}
+  "mcpServers": {
+    "notes": {
+      "command": "node",
+      "args": ["src/mcp-servers/notes/index.mjs"],
+      "disabled": false
+    },
+    "tasks": {
+      "command": "node",
+      "args": ["src/mcp-servers/tasks/index.mjs"],
+      "disabled": false
+    },
+    "calculator": {
+      "command": "node",
+      "args": ["src/mcp-servers/calculator/index.mjs"],
+      "disabled": false
+    }
+  }
 }

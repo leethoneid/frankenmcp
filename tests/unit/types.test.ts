@@ -50,12 +50,13 @@ describe('Phase 1 - Task 1.1: Project Structure Setup', () => {
     }
   });
 
-  it('should have .kiro/settings/mcp.json with empty mcpServers object', () => {
+  it('should have .kiro/settings/mcp.json with mcpServers configuration object', () => {
     const configPath = path.resolve(process.cwd(), '.kiro/settings/mcp.json');
     const raw = fs.readFileSync(configPath, 'utf-8');
     const parsed = JSON.parse(raw);
     expect(parsed).toHaveProperty('mcpServers');
-    expect(parsed.mcpServers).toEqual({});
+    expect(typeof parsed.mcpServers).toBe('object');
+    expect(parsed.mcpServers).not.toBeNull();
   });
 });
 
