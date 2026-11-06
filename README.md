@@ -8,6 +8,13 @@
 
 ---
 
+## 💡 How it works
+Most AI agents choke when you connect several MCP servers at once: every server's full tool list is loaded into the model's context before it does anything — connect five servers and the model reads 100+ tool definitions first. FrankenMCP puts a dynamic router in the middle: for each request it picks only the relevant server(s) and trims the rest, so the model only ever sees the tools it needs. The trimmed schemas are real context tokens saved, shown live in the Monster Lab dashboard.
+
+The router does the triage, not the calling: it decides *which tools the model gets to see*. The model still chooses the tool, supplies the arguments, and makes the call.
+
+---
+
 ## ⚡ 60-Second Quickstart (Zero-Config)
 
 You can run the playground locally in under 60 seconds without API keys or external services:
