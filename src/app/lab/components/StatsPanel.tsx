@@ -1,14 +1,32 @@
 'use client';
 
+/**
+ * @file StatsPanel.tsx
+ * @description Real-time aggregated metrics display for Monster Lab Dashboard.
+ * Polls `/api/lab/session-stats` every 5 seconds and renders four key routing
+ * efficiency metrics: Tools Loaded, Tools Trimmed, Tokens Saved, and Avg Routing Time.
+ */
+
 import { useState, useEffect } from 'react';
 import type { SessionStatistics } from '@/lib/router/types';
 import MetricCard from './MetricCard';
 
+/**
+ * Props for the StatsPanel component.
+ */
 export interface StatsPanelProps {
+  /** Initial session statistics rendered from the Server Component page. */
   initialStats: SessionStatistics;
+  /** Optional initial error message if SSR stats retrieval had issues. */
   initialError?: string | null;
 }
 
+/**
+ * Client component that displays the aggregate metrics grid and periodically polls for updates.
+ *
+ * @param props Component properties containing initial statistics and error state
+ * @returns JSX grid of MetricCard components
+ */
 export default function StatsPanel({ initialStats, initialError = null }: StatsPanelProps) {
   const [stats, setStats] = useState(initialStats);
   const [pollError, setPollError] = useState<string | null>(initialError);

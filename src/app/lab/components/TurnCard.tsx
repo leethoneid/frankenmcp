@@ -1,14 +1,33 @@
 'use client';
 
+/**
+ * @file TurnCard.tsx
+ * @description Collapsible turn card displaying details of an individual routing decision.
+ * Displays preview header with summary metrics (loaded/trimmed counts, tokens saved, routing time)
+ * and an expandable drawer with full intent, per-server loaded/trimmed tool names, and routing reasoning.
+ */
+
 import { useState } from 'react';
 import type { TurnStatistics } from '@/lib/router/types';
 
+/**
+ * Props for the TurnCard component.
+ */
 export interface TurnCardProps {
+  /** Statistics for the routing turn to display. */
   turn: TurnStatistics;
+  /** Optional lookup mapping server IDs to full list of tool names to compute trimmed tool names. */
   allServerTools?: Map<string, string[]>;
+  /** Optional initial expanded state (useful for tests or default open). Default: false. */
   initialExpanded?: boolean;
 }
 
+/**
+ * Collapsible card showing summarized and detailed views of a routing decision.
+ *
+ * @param props Component properties containing turn statistics, tool mapping, and initial expansion state
+ * @returns JSX element representing the card
+ */
 export default function TurnCard({
   turn,
   allServerTools,

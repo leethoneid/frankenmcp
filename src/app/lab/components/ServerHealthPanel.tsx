@@ -1,14 +1,33 @@
 'use client';
 
+/**
+ * @file ServerHealthPanel.tsx
+ * @description Real-time MCP Server health and connectivity monitor panel.
+ * Displays connection state for all registered MCP servers, tool counts,
+ * error details, and offline duration, polling `/api/lab/server-status` every 5 seconds.
+ */
+
 import { useState, useEffect } from 'react';
 import type { ServerManifest } from '@/lib/router/types';
 import ServerStatusBadge from './ServerStatusBadge';
 
+/**
+ * Props for the ServerHealthPanel component.
+ */
 export interface ServerHealthPanelProps {
+  /** Initial server manifests passed from SSR. */
   initialManifests: ServerManifest[];
+  /** Optional initial error message if initial fetch failed. */
   initialError?: string | null;
 }
 
+/**
+ * Formats duration since a timestamp into a human-readable duration string (e.g., "2m 15s" or "45s").
+ *
+ * @param lastChangeAt Timestamp in ms of the last status change
+ * @param now Current timestamp in ms (defaults to Date.now())
+ * @returns Human-readable duration string
+ */
 export function formatOfflineDuration(lastChangeAt?: number, now = Date.now()): string {
   if (!lastChangeAt) return '';
   const seconds = Math.max(0, Math.floor((now - lastChangeAt) / 1000));
@@ -17,6 +36,12 @@ export function formatOfflineDuration(lastChangeAt?: number, now = Date.now()): 
   return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
 }
 
+/**
+ * Client component rendering status and diagnostic cards for each configured MCP server.
+ *
+ * @param props Component properties containing initial server manifests and optional error state
+ * @returns JSX element containing the server health list
+ */
 export default function ServerHealthPanel({
   initialManifests,
   initialError = null,

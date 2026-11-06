@@ -1,14 +1,32 @@
 'use client';
 
+/**
+ * @file TurnHistoryPanel.tsx
+ * @description Chronological turn history panel displaying recent routing decisions.
+ * Polls `/api/lab/session-stats` every 5 seconds to update turns list,
+ * displaying the latest 20 turns in reverse chronological order with expandable details.
+ */
+
 import { useState, useEffect } from 'react';
 import type { TurnStatistics } from '@/lib/router/types';
 import TurnCard from './TurnCard';
 
+/**
+ * Props for the TurnHistoryPanel component.
+ */
 export interface TurnHistoryPanelProps {
+  /** Initial array of routing turn statistics from SSR. */
   initialTurns: TurnStatistics[];
+  /** Optional lookup mapping serverID to its complete list of tool names (for deducing trimmed tools). */
   allServerTools?: Map<string, string[]>;
 }
 
+/**
+ * Client component displaying turn history cards with scrollable feed and real-time polling.
+ *
+ * @param props Component properties containing initial turn statistics and optional tool mappings
+ * @returns JSX element containing the turn history feed or empty state message
+ */
 export default function TurnHistoryPanel({ initialTurns, allServerTools }: TurnHistoryPanelProps) {
   const [turns, setTurns] = useState<TurnStatistics[]>(initialTurns || []);
 
