@@ -158,14 +158,14 @@ This document breaks down the monster-lab-dashboard feature into discrete, testa
 **Description**: Create reusable metric display component for large numbers with color coding.
 
 **Acceptance Criteria**:
-- [ ] File `src/app/lab/components/MetricCard.tsx` created
-- [ ] Props: `label`, `value`, `unit`, `description`, `color`, optional `prefix`
-- [ ] Color prop supports: `green`, `purple`, `cyan`, `yellow`
-- [ ] Renders large number (`text-4xl font-bold`) with semantic color
-- [ ] Renders label, unit, and description with Tailwind classes
-- [ ] Component tests: verify each color class applied correctly
-- [ ] Component tests: verify prefix displayed when provided
-- [ ] Component tests: verify number formatted with `toLocaleString()`
+- [x] File `src/app/lab/components/MetricCard.tsx` created
+- [x] Props: `label`, `value`, `unit`, `description`, `color`, optional `prefix`
+- [x] Color prop supports: `green`, `purple`, `cyan`, `yellow`
+- [x] Renders large number (`text-4xl font-bold`) with semantic color
+- [x] Renders label, unit, and description with Tailwind classes
+- [x] Component tests: verify each color class applied correctly
+- [x] Component tests: verify prefix displayed when provided
+- [x] Component tests: verify number formatted with `toLocaleString()`
 
 **Requirements**: FR-5.2 (prominent metrics), NFR-3.1 (clarity)
 
@@ -180,12 +180,12 @@ This document breaks down the monster-lab-dashboard feature into discrete, testa
 **Description**: Create status indicator component with icon and color coding.
 
 **Acceptance Criteria**:
-- [ ] File `src/app/lab/components/ServerStatusBadge.tsx` created
-- [ ] Props: `status: ServerStatus`
-- [ ] Renders icon + label: 🟢 Connected (green), 🟡 Starting (yellow), 🔴 Error/Offline (red)
-- [ ] Uses semantic Tailwind color classes
-- [ ] Component tests: verify each status renders correct icon and color
-- [ ] Component tests: verify disconnected and error both show red
+- [x] File `src/app/lab/components/ServerStatusBadge.tsx` created
+- [x] Props: `status: ServerStatus`
+- [x] Renders icon + label: 🟢 Connected (green), 🟡 Starting (yellow), 🔴 Error/Offline (red)
+- [x] Uses semantic Tailwind color classes
+- [x] Component tests: verify each status renders correct icon and color
+- [x] Component tests: verify disconnected and error both show red
 
 **Requirements**: FR-4.1 (server status display), FR-5.5 (semantic colors)
 
@@ -200,14 +200,14 @@ This document breaks down the monster-lab-dashboard feature into discrete, testa
 **Description**: Create graceful error display for statistics failures.
 
 **Acceptance Criteria**:
-- [ ] File `src/app/lab/components/ErrorFallback.tsx` created
-- [ ] Props: optional `error: Error`
-- [ ] Renders "⚠️ Stats Unavailable" heading with red styling
-- [ ] Renders user-friendly message: "Unable to load routing statistics. Please check server logs."
-- [ ] In development mode (`process.env.NODE_ENV === 'development'`), shows error details in collapsible `<details>`
-- [ ] In production mode, hides error details
-- [ ] Component tests: verify "Stats unavailable" always displayed
-- [ ] Component tests: verify error details shown only in dev mode
+- [x] File `src/app/lab/components/ErrorFallback.tsx` created
+- [x] Props: optional `error: Error`
+- [x] Renders "⚠️ Stats Unavailable" heading with red styling
+- [x] Renders user-friendly message: "Unable to load routing statistics. Please check server logs."
+- [x] In development mode (`process.env.NODE_ENV === 'development'`), shows error details in collapsible `<details>`
+- [x] In production mode, hides error details
+- [x] Component tests: verify "Stats unavailable" always displayed
+- [x] Component tests: verify error details shown only in dev mode
 
 **Requirements**: FR-2.6 (stats failure display), NFR-2.1 (error handling)
 
