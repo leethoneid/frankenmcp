@@ -4,7 +4,10 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import MetricCard from '@/app/lab/components/MetricCard';
 import ServerStatusBadge from '@/app/lab/components/ServerStatusBadge';
 import ErrorFallback from '@/app/lab/components/ErrorFallback';
-import type { ServerStatus } from '@/lib/router/types';
+import StatsPanel from '@/app/lab/components/StatsPanel';
+import TurnHistoryPanel from '@/app/lab/components/TurnHistoryPanel';
+import TurnCard from '@/app/lab/components/TurnCard';
+import type { ServerStatus, SessionStatistics, TurnStatistics } from '@/lib/router/types';
 
 describe('Phase 3 - Lab UI Components Unit Tests', () => {
   describe('Task 3.1: MetricCard Component', () => {
@@ -151,6 +154,223 @@ describe('Phase 3 - Lab UI Components Unit Tests', () => {
       expect(html).toContain('Stats Unavailable');
       expect(html).not.toContain('<details');
       expect(html).not.toContain('Error details (dev only)');
+    });
+  });
+});
+
+describe('Phase 5 - Statistics Display Components Unit Tests', () => {
+  describe('Task 5.1: StatsPanel Component', () => {
+    const mockInitialStats: SessionStatistics = {
+      totalToolsLoaded: 12,
+      totalToolsTrimmed: 28,
+      totalTokensSaved: 3450,
+      averageRoutingTimeMs: 18.5,
+      turns: [],
+    };
+
+    it('displays initial session statistics across all 4 metric cards with responsive grid classes', () => {
+      const html = renderToStaticMarkup(<StatsPanel initialStats={mockInitialStats} />);
+
+      // Grid classes
+      expect(html).toContain('grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4');
+
+      // Metric card 1: Tools Loaded
+      expect(html).toContain('Tools Loaded');
+      expect(html).toContain('12');
+      expect(html).toContain('Total tools loaded into context');
+
+      // Metric card 2: Tools Trimmed
+      expect(html).toContain('Tools Trimmed');
+      expect(html).toContain('28');
+      expect(html).toContain('Total tools excluded from selected servers');
+
+      // Metric card 3: Tokens Saved
+      expect(html).toContain('Tokens Saved');
+      expect(html).toContain('~3,450');
+      expect(html).toContain('Estimated context tokens saved');
+
+      // Metric card 4: Avg Routing Time
+      expect(html).toContain('Avg Routing Time');
+      expect(html).toContain('18.5');
+      expect(html).toContain('Average decision latency');
+
+      // No error banner by default
+      expect(html).not.toContain('bg-yellow-900/20');
+    });
+
+    it('renders warning banner when pollError is present', () => {
+      const html = renderToStaticMarkup(
+        <StatsPanel initialStats={mockInitialStats} initialError="Unable to refresh statistics" />
+      );
+
+      expect(html).toContain('bg-yellow-900/20');
+      expect(html).toContain('border-yellow-500');
+      expect(html).toContain('text-yellow-300');
+      expect(html).toContain('Unable to refresh statistics');
+    });
+  });
+
+  describe('Task 5.2: TurnHistoryPanel Component', () => {
+    it('shows empty state message when turns array is empty', () => {
+      const html = renderToStaticMarkup(<TurnHistoryPanel initialTurns={[]} />);
+
+      expect(html).toContain('Turn History');
+      expect(html).toContain('No routing decisions yet. Submit a query in the Playground to see statistics.');
+    });
+
+    it('displays singular label "1 turn" when exactly 1 turn exists', () => {
+      const singleTurn: TurnStatistics = {
+        turnID: 'turn-single-1',
+        intent: 'add a note',
+        timestamp: 1700000000000,
+        selectedServers: ['notes'],
+        toolsLoaded: 1,
+        toolsTrimmed: 4,
+        estimatedTokensSaved: 120,
+        routingTimeMs: 15,
+        toolFilter: [{ serverID: 'notes', includedTools: ['create_note'] }],
+      };
+
+      const html = renderToStaticMarkup(<TurnHistoryPanel initialTurns={[singleTurn]} />);
+
+      expect(html).toContain('Turn History (1 turn)');
+      expect(html).not.toContain('1 turns');
+      expect(html).toContain('add a note');
+    });
+
+    it('displays plural label and limits view to the 20 most recent turns (newest first) out of 25', () => {
+      const turns25: TurnStatistics[] = Array.from({ length: 25 }, (_, idx) => ({
+        turnID: `turn-${idx + 1}`,
+        intent: `Query number ${idx + 1}`,
+        timestamp: 1700000000000 + idx * 1000,
+        selectedServers: ['notes'],
+        toolsLoaded: 1,
+        toolsTrimmed: 2,
+        estimatedTokensSaved: 50,
+        routingTimeMs: 10,
+        toolFilter: [],
+      }));
+
+      const html = renderToStaticMarkup(<TurnHistoryPanel initialTurns={turns25} />);
+
+      // Total count in header shows full count
+      expect(html).toContain('Turn History (25 turns)');
+
+      // Most recent (turn 25) is rendered
+      expect(html).toContain('Query number 25');
+
+      // Turn 6 (20th from the end) is rendered
+      expect(html).toContain('Query number 6');
+
+      // Older turns (1 through 5) are excluded from the slice(-20)
+      expect(html).not.toContain('Query number 1"');
+      expect(html).not.toContain('Query number 5"');
+    });
+  });
+
+  describe('Task 5.3: TurnCard Component', () => {
+    const fullTurn: TurnStatistics = {
+      turnID: 'turn-card-1',
+      intent: 'This is a long user intent that definitely exceeds fifty characters in length to test truncation',
+      timestamp: 1700000000000,
+      selectedServers: ['notes', 'calculator'],
+      toolsLoaded: 2,
+      toolsTrimmed: 8,
+      estimatedTokensSaved: 950,
+      routingTimeMs: 32,
+      toolFilter: [
+        { serverID: 'notes', includedTools: ['read_note'] },
+        { serverID: 'calculator', includedTools: ['add'] },
+      ],
+      reasoning: 'Notes matched for document reading, calculator matched for arithmetic',
+    };
+
+    const serverToolsMap = new Map<string, string[]>([
+      ['notes', ['read_note', 'create_note', 'list_notes', 'update_note', 'delete_note']],
+      ['calculator', ['add', 'subtract', 'multiply', 'divide', 'convert_units']],
+    ]);
+
+    it('renders collapsed view with truncated intent (>50 chars), selected servers, key metrics, and ▶ toggle', () => {
+      const html = renderToStaticMarkup(<TurnCard turn={fullTurn} allServerTools={serverToolsMap} />);
+
+      // Truncated intent (50 chars + '...')
+      expect(html).toContain('This is a long user intent that definitely exceeds...');
+      expect(html).not.toContain('to test truncation&quot;');
+
+      // Server list and metrics
+      expect(html).toContain('notes, calculator');
+      expect(html).toContain('2 loaded');
+      expect(html).toContain('8 trimmed');
+      expect(html).toContain('~950 tokens saved');
+      expect(html).toContain('32ms');
+
+      // Collapsed toggle icon
+      expect(html).toContain('▶');
+      expect(html).not.toContain('▼');
+
+      // Expanded content is hidden
+      expect(html).not.toContain('Full Intent:');
+      expect(html).not.toContain('Tools by Server:');
+      expect(html).not.toContain('Routing Reasoning:');
+    });
+
+    it('renders short intent without truncation in collapsed view', () => {
+      const shortTurn: TurnStatistics = {
+        ...fullTurn,
+        intent: 'Short query',
+      };
+
+      const html = renderToStaticMarkup(<TurnCard turn={shortTurn} />);
+      expect(html).toContain('&quot;Short query&quot;');
+      expect(html).not.toContain('Short query...');
+    });
+
+    it('renders expanded view with full intent, loaded and trimmed tool lists, and reasoning', () => {
+      const html = renderToStaticMarkup(
+        <TurnCard turn={fullTurn} allServerTools={serverToolsMap} initialExpanded={true} />
+      );
+
+      // Expanded toggle icon
+      expect(html).toContain('▼');
+
+      // Full intent
+      expect(html).toContain('Full Intent:');
+      expect(html).toContain(fullTurn.intent);
+
+      // Per-server tools: loaded (✓ green)
+      expect(html).toContain('Tools by Server:');
+      expect(html).toContain('✓ Loaded: read_note');
+      expect(html).toContain('✓ Loaded: add');
+
+      // Per-server tools: trimmed (✗ purple, line-through)
+      expect(html).toContain('✗ Trimmed: create_note, list_notes, update_note, delete_note');
+      expect(html).toContain('✗ Trimmed: subtract, multiply, divide, convert_units');
+      expect(html).toContain('text-purple-400 text-xs line-through opacity-60');
+
+      // Reasoning
+      expect(html).toContain('Routing Reasoning:');
+      expect(html).toContain('Notes matched for document reading, calculator matched for arithmetic');
+      expect(html).toContain('italic');
+    });
+
+    it('renders gracefully without crashing when toolFilter and reasoning are absent', () => {
+      const minimalTurn: TurnStatistics = {
+        turnID: 'turn-min',
+        intent: 'Minimal turn',
+        timestamp: 1700000000000,
+        selectedServers: [],
+        toolsLoaded: 0,
+        toolsTrimmed: 0,
+        estimatedTokensSaved: 0,
+        routingTimeMs: 5,
+        toolFilter: [],
+      };
+
+      const html = renderToStaticMarkup(<TurnCard turn={minimalTurn} initialExpanded={true} />);
+
+      expect(html).toContain('Minimal turn');
+      expect(html).not.toContain('Tools by Server:');
+      expect(html).not.toContain('Routing Reasoning:');
     });
   });
 });
