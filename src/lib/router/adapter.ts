@@ -1,5 +1,6 @@
 import { ChildProcess } from 'child_process';
 import { MCPClient } from '@/lib/mcp/client';
+import { recordTurn } from './stats';
 import {
   RoutingDecision,
   SearchResult,
@@ -443,15 +444,17 @@ export async function routeIntent(
   }
   routingCache.set(cacheKey, decision);
 
-  // Record turn statistics if hook is provided
+  // Calculate and record turn statistics via recordTurn() (Task 4.1)
+  const stats = calculateTurnStats(
+    options.turnID || `turn-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    intent,
+    decision,
+    availableServers,
+    routingTimeMs
+  );
+  recordTurn(stats);
+
   if (options.onTurnRecorded) {
-    const stats = calculateTurnStats(
-      options.turnID || `turn-${Date.now()}`,
-      intent,
-      decision,
-      availableServers,
-      routingTimeMs
-    );
     options.onTurnRecorded(stats);
   }
 
