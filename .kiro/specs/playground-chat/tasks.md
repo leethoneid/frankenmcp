@@ -222,17 +222,17 @@ This document breaks down the playground-chat feature into discrete, testable ta
 **Description**: Create lazy singleton module for server initialization.
 
 **Acceptance Criteria**:
-- [ ] File `src/lib/server/init.ts` created (server-only module)
-- [ ] Function `ensureServersInitialized()` checks `initialized` flag
-- [ ] If not initialized:
+- [x] File `src/lib/server/init.ts` created (server-only module)
+- [x] Function `ensureServersInitialized()` checks `initialized` flag
+- [x] If not initialized:
   - Calls `MCPServerManager.getInstance()`
   - Calls `manager.loadAndRegisterConfig('.kiro/settings/mcp.json')`
   - Calls `await manager.connectAll()`
   - Sets `initialized = true`
-- [ ] If already initialized, returns immediately (no-op)
-- [ ] Function is idempotent (safe to call multiple times)
-- [ ] Unit test: first call initializes servers, second call is no-op
-- [ ] Integration test: call from API route, verify servers connected
+- [x] If already initialized, returns immediately (no-op)
+- [x] Function is idempotent (safe to call multiple times)
+- [x] Unit test: first call initializes servers, second call is no-op
+- [x] Integration test: call from API route, verify servers connected
 
 **Requirements**: Server initialization, FR-6.2 (verify demo servers connected)
 
@@ -247,25 +247,25 @@ This document breaks down the playground-chat feature into discrete, testable ta
 **Description**: Create server-side module with hardcoded regex patterns for extracting tool arguments from queries.
 
 **Acceptance Criteria**:
-- [ ] File `src/lib/server/extractToolArguments.ts` created (server-only module)
-- [ ] Function `extractToolArguments(query: string, toolName: string, serverID: string): Record<string, any> | null`
-- [ ] **Notes server patterns**:
+- [x] File `src/lib/server/extractToolArguments.ts` created (server-only module)
+- [x] Function `extractToolArguments(query: string, toolName: string, serverID: string): Record<string, any> | null`
+- [x] **Notes server patterns**:
   - `create_note`: match "Add/create a note about/titled X" → `{title: X, content: X}`
   - `list_notes`: return `{}`
   - Other note tools: return `null` (ID extraction not demo-ready)
-- [ ] **Tasks server patterns**:
+- [x] **Tasks server patterns**:
   - `create_task`: match "Add/create task X" → `{title: X, priority: 'medium'}`
   - `list_tasks`: return `{}`
   - Other task tools: return `null`
-- [ ] **Calculator server patterns**:
+- [x] **Calculator server patterns**:
   - `add`: match "A + B" → `{a: parseFloat(A), b: parseFloat(B)}`
   - `subtract`: match "A - B" → `{a: parseFloat(A), b: parseFloat(B)}`
   - `multiply`: match "A * B" or "A × B" → `{a, b}`
   - `divide`: match "A / B" or "A ÷ B" → `{a, b}`
-- [ ] If no pattern matches, return `null`
-- [ ] Unit tests: each pattern with matching query → verify correct args
-- [ ] Unit tests: each pattern with non-matching query → verify `null`
-- [ ] Unit tests: calculator with various number formats (int, float)
+- [x] If no pattern matches, return `null`
+- [x] Unit tests: each pattern with matching query → verify correct args
+- [x] Unit tests: each pattern with non-matching query → verify `null`
+- [x] Unit tests: calculator with various number formats (int, float)
 
 **Requirements**: FR-3.1 (derive arguments), FR-3.2 (no pattern match error), AC-2 (note extraction), AC-3 (calculator extraction)
 
@@ -282,31 +282,31 @@ This document breaks down the playground-chat feature into discrete, testable ta
 ---
 
 **Acceptance Criteria**:
-- [ ] File `src/app/api/playground/chat/route.ts` created
-- [ ] `POST` handler accepts `{ query: string }` from request body
-- [ ] Validation: empty query → return 400 with error message
-- [ ] Calls `await ensureServersInitialized()` (Task 3.1)
-- [ ] Calls `MCPServerManager.getInstance().getServerManifests()`
-- [ ] Filters manifests to `status === 'connected'` only
-- [ ] If zero connected servers → return 503 with "All servers offline" error
-- [ ] Tracks disconnected servers for warnings
-- [ ] Calls `routeIntent(query, connectedManifests)` (auto-records turn internally)
-- [ ] Calls `getSessionStats()` to retrieve last recorded turn
-- [ ] For each tool in `decision.toolFilter`:
+- [x] File `src/app/api/playground/chat/route.ts` created
+- [x] `POST` handler accepts `{ query: string }` from request body
+- [x] Validation: empty query → return 400 with error message
+- [x] Calls `await ensureServersInitialized()` (Task 3.1)
+- [x] Calls `MCPServerManager.getInstance().getServerManifests()`
+- [x] Filters manifests to `status === 'connected'` only
+- [x] If zero connected servers → return 503 with "All servers offline" error
+- [x] Tracks disconnected servers for warnings
+- [x] Calls `routeIntent(query, connectedManifests)` (auto-records turn internally)
+- [x] Calls `getSessionStats()` to retrieve last recorded turn
+- [x] For each tool in `decision.toolFilter`:
   - Calls `extractToolArguments(query, toolName, serverID)` (Task 3.2)
   - If args is `null`: records error "Unable to extract arguments for [tool]"
   - If args exists: calls `manager.invokeToolCall(serverID, toolName, args)` (sequential)
   - On success: push `{serverID, toolName, status: 'success', result}` to toolResults
   - On error: push `{serverID, toolName, status: 'error', error: message}` to toolResults
-- [ ] Builds `Turn` response object with routing stats from recorded turn and tool results
-- [ ] Includes `warnings` array if disconnected servers exist
-- [ ] Returns JSON response with Turn object
-- [ ] Error handling: catches all errors, returns 500 with error message
-- [ ] Unit test: valid query → verify Turn returned with routing + results
-- [ ] Unit test: empty query → verify 400 error
-- [ ] Unit test: all servers offline → verify 503 error
-- [ ] Unit test: no arg pattern match → verify tool error in results
-- [ ] Integration test: real query with demo servers → verify complete Turn
+- [x] Builds `Turn` response object with routing stats from recorded turn and tool results
+- [x] Includes `warnings` array if disconnected servers exist
+- [x] Returns JSON response with Turn object
+- [x] Error handling: catches all errors, returns 500 with error message
+- [x] Unit test: valid query → verify Turn returned with routing + results
+- [x] Unit test: empty query → verify 400 error
+- [x] Unit test: all servers offline → verify 503 error
+- [x] Unit test: no arg pattern match → verify tool error in results
+- [x] Integration test: real query with demo servers → verify complete Turn
 
 **Requirements**: FR-2.1 to FR-2.8 (routing), FR-3.1 to FR-3.8 (tool execution), FR-5.1 to FR-5.4 (turn recording), FR-6.4 (disconnected warning)
 
@@ -321,9 +321,9 @@ This document breaks down the playground-chat feature into discrete, testable ta
 **Description**: Create client-side orchestration component that submits queries to API and displays conversation.
 
 **Acceptance Criteria**:
-- [ ] File `src/app/playground/components/ChatContainer.tsx` created as Client Component
-- [ ] State: `turns: Turn[]`, `isProcessing: boolean`, `currentError: string | null`
-- [ ] Function `handleSubmit(query: string)`:
+- [x] File `src/app/playground/components/ChatContainer.tsx` created as Client Component
+- [x] State: `turns: Turn[]`, `isProcessing: boolean`, `currentError: string | null`
+- [x] Function `handleSubmit(query: string)`:
   - Set `isProcessing = true`
   - POST to `/api/playground/chat` with `{ query }`
   - If response OK: parse Turn JSON, append to `turns` array
@@ -331,14 +331,14 @@ This document breaks down the playground-chat feature into discrete, testable ta
   - If error includes "Router unavailable": set `currentError` for banner
   - Catch network errors: create error turn
   - Set `isProcessing = false`
-- [ ] Function `handleExampleClick(query: string)`:
+- [x] Function `handleExampleClick(query: string)`:
   - Populate input field (via callback to InputBar)
   - Do NOT auto-submit
-- [ ] Renders: `<ConversationHistory>` and `<InputBar>`
-- [ ] If `currentError` is set: display prominent red banner at top
-- [ ] Component tests: successful API response, API error, network error
-- [ ] Component tests: RouterUnavailable error → verify banner shown
-- [ ] Integration test: call API route, verify turn appended to state
+- [x] Renders: `<ConversationHistory>` and `<InputBar>`
+- [x] If `currentError` is set: display prominent red banner at top
+- [x] Component tests: successful API response, API error, network error
+- [x] Component tests: RouterUnavailable error → verify banner shown
+- [x] Integration test: call API route, verify turn appended to state
 
 **Requirements**: FR-2.1 to FR-2.8 (routing flow via API), FR-4.1 to FR-4.5 (conversation history), NFR-2.3 (router crash handling)
 

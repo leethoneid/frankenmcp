@@ -1,0 +1,34 @@
+/**
+ * @file init.ts
+ * @description Lazy server initialization module for demo MCP servers.
+ * Connects pre-configured stdio servers on demand in server-side API routes.
+ */
+
+import path from 'path';
+import { MCPServerManager } from '@/lib/mcp/server-manager';
+
+let initialized = false;
+
+/**
+ * Ensures demo MCP servers are loaded from configuration and connected.
+ * Subsequent calls are no-ops (idempotent).
+ */
+export async function ensureServersInitialized(): Promise<void> {
+  if (initialized) {
+    return;
+  }
+
+  const manager = MCPServerManager.getInstance();
+  const configPath = path.resolve(process.cwd(), '.kiro', 'settings', 'mcp.json');
+  manager.loadAndRegisterConfig(configPath);
+  await manager.connectAll();
+
+  initialized = true;
+}
+
+/**
+ * Reset initialization state for test isolation.
+ */
+export function _resetServerInitForTesting(): void {
+  initialized = false;
+}
