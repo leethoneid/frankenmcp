@@ -15,6 +15,8 @@ interface ManagedServerEntry {
   client: MCPClient | null;
   status: ServerStatus;
   manifest: ServerManifest;
+  lastStatusChangeAt?: number;
+  lastError?: string;
 }
 
 export type ClientFactory = (config: ServerConfig) => MCPClient;
@@ -57,6 +59,30 @@ export class MCPServerManager {
   }
 
   /**
+   * Helper to atomically transition server status, record timestamp of status change,
+   * and update or clear lastError.
+   */
+  private updateServerStatus(entry: ManagedServerEntry, newStatus: ServerStatus, error?: unknown): void {
+    const statusChanged = entry.status !== newStatus;
+    if (statusChanged) {
+      entry.status = newStatus;
+      entry.manifest.status = newStatus;
+      const now = Date.now();
+      entry.lastStatusChangeAt = now;
+      entry.manifest.lastStatusChangeAt = now;
+    }
+
+    if (error !== undefined) {
+      const errMsg = error instanceof Error ? error.message : String(error);
+      entry.lastError = errMsg;
+      entry.manifest.lastError = errMsg;
+    } else if (newStatus === 'connected') {
+      entry.lastError = undefined;
+      entry.manifest.lastError = undefined;
+    }
+  }
+
+  /**
    * Register an MCP server configuration into the pool.
    */
   public registerServer(config: ServerConfig): void {
@@ -65,12 +91,14 @@ export class MCPServerManager {
       this.unregisterServer(config.id).catch(() => {});
     }
 
+    const now = Date.now();
     const manifest: ServerManifest = {
       id: config.id,
       name: config.name,
       transport: config.transport,
       tools: [],
       status: 'disconnected',
+      lastStatusChangeAt: now,
     };
 
     this.servers.set(config.id, {
@@ -78,6 +106,7 @@ export class MCPServerManager {
       client: null,
       status: 'disconnected',
       manifest,
+      lastStatusChangeAt: now,
     });
   }
 
@@ -110,16 +139,14 @@ export class MCPServerManager {
     }
 
     if (entry.config.disabled) {
-      entry.status = 'disconnected';
-      entry.manifest.status = 'disconnected';
+      this.updateServerStatus(entry, 'disconnected');
       return;
     }
 
     const maxRetries = options.maxRetries ?? 3;
     const initialDelayMs = options.initialDelayMs ?? 100;
 
-    entry.status = 'starting';
-    entry.manifest.status = 'starting';
+    this.updateServerStatus(entry, 'starting');
 
     let lastError: unknown = null;
 
@@ -132,8 +159,7 @@ export class MCPServerManager {
         await entry.client.connect();
         const tools = await entry.client.listTools();
 
-        entry.status = 'connected';
-        entry.manifest.status = 'connected';
+        this.updateServerStatus(entry, 'connected');
         entry.manifest.tools = tools;
         return;
       } catch (err) {
@@ -151,8 +177,7 @@ export class MCPServerManager {
     }
 
     // All retries failed
-    entry.status = 'error';
-    entry.manifest.status = 'error';
+    this.updateServerStatus(entry, 'error', lastError);
     console.error(`[MCPServerManager] Failed to connect to server '${serverID}' after ${maxRetries} attempts:`, lastError);
     throw new ServerConnectionError(serverID, lastError);
   }
@@ -226,6 +251,8 @@ export class MCPServerManager {
     return Array.from(this.servers.values()).map((entry) => ({
       ...entry.manifest,
       tools: [...entry.manifest.tools],
+      lastStatusChangeAt: entry.lastStatusChangeAt,
+      lastError: entry.lastError,
     }));
   }
 
@@ -305,8 +332,7 @@ export class MCPServerManager {
           await entry.client.ping();
         } catch (err) {
           console.warn(`[MCPServerManager] Health check ping failed for server '${serverID}':`, err);
-          entry.status = 'error';
-          entry.manifest.status = 'error';
+          this.updateServerStatus(entry, 'error', err);
           if (entry.client) {
             await entry.client.disconnect().catch(() => {});
             entry.client = null;
@@ -345,8 +371,7 @@ export class MCPServerManager {
         await entry.client.disconnect().catch(() => {});
         entry.client = null;
       }
-      entry.status = 'disconnected';
-      entry.manifest.status = 'disconnected';
+      this.updateServerStatus(entry, 'disconnected');
     });
 
     await Promise.all(disconnectPromises);

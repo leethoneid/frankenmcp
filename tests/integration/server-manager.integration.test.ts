@@ -60,4 +60,43 @@ describe('Phase 2 - Task 2.2 Integration: MCPServerManager with Real Stdio Subpr
     await manager.shutdown();
     expect(manager.getServerStatus('real-stdio-echo')).toBe('disconnected');
   }, 15000);
+
+  it('Phase 1 - Task 1.4 Integration: reflects error and updated timestamp when subprocess terminates unexpectedly', async () => {
+    manager = new MCPServerManager();
+
+    const notesPath = path.resolve(process.cwd(), 'src', 'mcp-servers', 'notes', 'index.mjs');
+    manager.registerServer({
+      id: 'notes-kill-test',
+      name: 'Notes Kill Test',
+      transport: 'stdio',
+      command: 'node',
+      args: [notesPath],
+    });
+
+    await manager.connectServer('notes-kill-test');
+    expect(manager.getServerStatus('notes-kill-test')).toBe('connected');
+
+    const connectedManifest = manager.getServerManifests().find((m) => m.id === 'notes-kill-test')!;
+    const connectedAt = connectedManifest.lastStatusChangeAt!;
+
+    // Access underlying client & child process
+    const entry = (manager as unknown as { servers: Map<string, { client: { transport?: { _process?: { kill: (signal: string) => void } } } }> }).servers.get('notes-kill-test');
+    const childProc = entry?.client?.transport?._process;
+    expect(childProc).toBeDefined();
+
+    // Small delay to ensure timestamp progression
+    await new Promise((resolve) => setTimeout(resolve, 5));
+
+    // Kill the subprocess to simulate sudden failure
+    childProc!.kill('SIGTERM');
+
+    // Run health check round to detect the termination
+    await manager.runHealthCheckRound();
+
+    const deadManifest = manager.getServerManifests().find((m) => m.id === 'notes-kill-test')!;
+    expect(deadManifest.status).toBe('error');
+    expect(deadManifest.lastStatusChangeAt!).toBeGreaterThan(connectedAt);
+    expect(deadManifest.lastError).toBeDefined();
+    expect(deadManifest.lastError!.length).toBeGreaterThan(0);
+  }, 15000);
 });

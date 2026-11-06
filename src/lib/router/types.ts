@@ -54,6 +54,14 @@ export interface ServerManifest {
   transport: 'stdio' | 'sse' | 'http';
   tools: ToolSchema[];
   status: ServerStatus;
+  /**
+   * Timestamp in milliseconds when the server status last transitioned.
+   */
+  lastStatusChangeAt?: number;
+  /**
+   * Error message captured during the most recent connection or health-check failure.
+   */
+  lastError?: string;
 }
 
 /**
@@ -118,6 +126,17 @@ export interface TurnStatistics {
    * Time in milliseconds taken to perform routing.
    */
   routingTimeMs: number;
+  /**
+   * Per-server tool inclusion filters for this turn (same shape as RoutingDecision.toolFilter).
+   */
+  toolFilter: {
+    serverID: string;
+    includedTools: string[];
+  }[];
+  /**
+   * Optional explanation or score summary for the routing decision.
+   */
+  reasoning?: string;
 }
 
 /**
