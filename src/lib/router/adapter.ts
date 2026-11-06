@@ -1,6 +1,6 @@
 import { ChildProcess } from 'child_process';
 import { MCPClient } from '@/lib/mcp/client';
-import { recordTurn } from './stats';
+import { recordTurn, computeTurnStats } from './stats';
 import {
   RoutingDecision,
   SearchResult,
@@ -334,47 +334,10 @@ export function deriveRoutingDecision(
  * - toolsLoaded: tools loaded into context (count of tools included in decision)
  * - toolsTrimmed: excluded tools from selected servers only ((total tools in selected servers) - toolsLoaded)
  * - estimatedTokensSaved: ceil(character count of trimmed schemas / 4)
+ *
+ * Delegates directly to computeTurnStats in stats.ts to keep a single canonical implementation.
  */
-export function calculateTurnStats(
-  turnID: string,
-  intent: string,
-  decision: RoutingDecision,
-  allServers: ServerManifest[],
-  routingTimeMs: number
-): TurnStatistics {
-  const serverMap = new Map(allServers.map((s) => [s.id, s]));
-  let toolsLoaded = 0;
-  let totalToolsInSelectedServers = 0;
-  let trimmedSchemasCharCount = 0;
-
-  for (const filter of decision.toolFilter) {
-    toolsLoaded += filter.includedTools.length;
-    const server = serverMap.get(filter.serverID);
-    if (server) {
-      totalToolsInSelectedServers += server.tools.length;
-      const includedSet = new Set(filter.includedTools);
-      for (const tool of server.tools) {
-        if (!includedSet.has(tool.name)) {
-          trimmedSchemasCharCount += JSON.stringify(tool).length;
-        }
-      }
-    }
-  }
-
-  const toolsTrimmed = totalToolsInSelectedServers - toolsLoaded;
-  const estimatedTokensSaved = Math.ceil(trimmedSchemasCharCount / 4);
-
-  return {
-    turnID,
-    timestamp: Date.now(),
-    intent,
-    selectedServers: decision.selectedServers,
-    toolsLoaded,
-    toolsTrimmed,
-    estimatedTokensSaved,
-    routingTimeMs,
-  };
-}
+export const calculateTurnStats = computeTurnStats;
 
 /**
  * Build deterministic cache key for (intent + server set).
