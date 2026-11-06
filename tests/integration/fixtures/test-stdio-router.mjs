@@ -37,19 +37,24 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const query = String(request.params.arguments?.query || '').toLowerCase();
 
     let results = [];
-    if (query.includes('note')) {
+    if (query.includes('__empty__') || query === '') {
+      results = [];
+    } else if (query.includes('note')) {
       results = [
         { tool: 'create_note', server: 'notes', score: 0.95, description: 'Create note' },
         { tool: 'read_note', server: 'notes', score: 0.88, description: 'Read note' },
       ];
-    } else if (query.includes('calc') || query.includes('add') || query.includes('math')) {
+    } else if (query.includes('task') || query.includes('todo')) {
+      results = [
+        { tool: 'list_tasks', server: 'tasks', score: 0.94, description: 'List tasks' },
+        { tool: 'create_task', server: 'tasks', score: 0.85, description: 'Create task' },
+      ];
+    } else if (query.includes('calc') || query.includes('add') || query.includes('math') || query.includes('15') || query.includes('27')) {
       results = [
         { tool: 'add', server: 'calculator', score: 0.91, description: 'Add two numbers' },
       ];
     } else {
-      results = [
-        { tool: 'list_notes', server: 'notes', score: 0.5, description: 'List notes' },
-      ];
+      results = [];
     }
 
     return {
