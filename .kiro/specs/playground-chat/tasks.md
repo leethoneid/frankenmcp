@@ -378,9 +378,9 @@ This document breaks down the playground-chat feature into discrete, testable ta
 **Description**: Ensure `NoRelevantToolsError` from API is displayed gracefully.
 
 **Acceptance Criteria**:
-- [ ] API route (Task 3.3) already catches `NoRelevantToolsError` and returns error response
-- [ ] `ChatContainer.handleSubmit` creates error turn from API error response
-- [ ] Integration test: mock `routeIntent` in API to throw `NoRelevantToolsError` → verify error displayed in turn
+- [x] API route (Task 3.3) already catches `NoRelevantToolsError` and returns error response
+- [x] `ChatContainer.handleSubmit` creates error turn from API error response
+- [x] Integration test: mock `routeIntent` in API to throw `NoRelevantToolsError` → verify error displayed in turn
 
 **Requirements**: FR-2.7 (no relevant tools error), AC-6 (query with no tools)
 
@@ -395,13 +395,13 @@ This document breaks down the playground-chat feature into discrete, testable ta
 **Description**: Handle `RouterUnavailableError` by displaying prominent banner and disabling input.
 
 **Acceptance Criteria**:
-- [ ] API route returns 500 with "Router unavailable" error message
-- [ ] `ChatContainer.handleSubmit` checks error message for "Router unavailable"
-- [ ] If detected, sets `currentError` state
-- [ ] Banner displayed at top of page: red background, prominent text, "Router unavailable. Please restart the application."
-- [ ] While `currentError` is set, `<InputBar>` receives `disabled={true}`
-- [ ] Component test: simulate API error with "Router unavailable" → verify banner and disabled input
-- [ ] Integration test: mock API to return RouterUnavailable → verify UI response
+- [x] API route returns 500 with "Router unavailable" error message
+- [x] `ChatContainer.handleSubmit` checks error message for "Router unavailable"
+- [x] If detected, sets `currentError` state
+- [x] Banner displayed at top of page: red background, prominent text, "Router unavailable. Please restart the application."
+- [x] While `currentError` is set, `<InputBar>` receives `disabled={true}`
+- [x] Component test: simulate API error with "Router unavailable" → verify banner and disabled input
+- [x] Integration test: mock API to return RouterUnavailable → verify UI response
 
 **Requirements**: FR-2.8 (routing errors), NFR-2.3 (router crash handling)
 
@@ -416,11 +416,11 @@ This document breaks down the playground-chat feature into discrete, testable ta
 **Description**: Add timeout logic to API route tool execution to prevent indefinite hangs.
 
 **Acceptance Criteria**:
-- [ ] In API route `POST` handler (Task 3.3):
+- [x] In API route `POST` handler (Task 3.3):
   - Wrap each `invokeToolCall` with `Promise.race` against 10-second timeout
   - If timeout occurs, push error: `{status: 'error', error: 'Tool execution timed out'}`
   - Continue executing remaining tools sequentially
-- [ ] Unit test: mock `invokeToolCall` to hang indefinitely → verify timeout after 10s, error recorded in results
+- [x] Unit test: mock `invokeToolCall` to hang indefinitely → verify timeout after 10s, error recorded in results
 
 **Requirements**: NFR-2.2 (tool timeout)
 
@@ -435,11 +435,11 @@ This document breaks down the playground-chat feature into discrete, testable ta
 **Description**: Ensure disconnected servers are filtered and warnings displayed.
 
 **Acceptance Criteria**:
-- [ ] API route (Task 3.3) already filters manifests to `status === 'connected'`
-- [ ] API route includes `warnings` array in Turn response for disconnected servers
-- [ ] `TurnDisplay` component displays warnings prominently (e.g., yellow banner)
-- [ ] Component test: Turn with warnings → verify warnings displayed
-- [ ] Integration test: mock one server as disconnected → submit query → verify warning in Turn response and UI
+- [x] API route (Task 3.3) already filters manifests to `status === 'connected'`
+- [x] API route includes `warnings` array in Turn response for disconnected servers
+- [x] `TurnDisplay` component displays warnings prominently (e.g., yellow banner)
+- [x] Component test: Turn with warnings → verify warnings displayed
+- [x] Integration test: mock one server as disconnected → submit query → verify warning in Turn response and UI
 
 **Requirements**: FR-6.4 (server disconnection warning), AC-5 (manual disconnect test)
 

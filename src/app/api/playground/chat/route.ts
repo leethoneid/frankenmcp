@@ -10,7 +10,24 @@ import { MCPServerManager } from '@/lib/mcp/server-manager';
 import { routeIntent } from '@/lib/router/adapter';
 import { getSessionStats } from '@/lib/router/stats';
 import { extractToolArguments } from '@/lib/server/extractToolArguments';
+import {
+  NoRelevantToolsError,
+  RouterUnavailableError,
+  RoutingTimeoutError,
+} from '@/lib/router/types';
 import type { Turn, ToolResult } from '@/app/playground/types';
+
+const DEFAULT_TOOL_TIMEOUT_MS = 10000;
+
+function getToolTimeoutMs(): number {
+  if (process.env.PLAYGROUND_TOOL_TIMEOUT_MS) {
+    const parsed = parseInt(process.env.PLAYGROUND_TOOL_TIMEOUT_MS, 10);
+    if (!isNaN(parsed) && parsed > 0) {
+      return parsed;
+    }
+  }
+  return DEFAULT_TOOL_TIMEOUT_MS;
+}
 
 export async function POST(request: Request) {
   try {
@@ -67,8 +84,20 @@ export async function POST(request: Request) {
             continue;
           }
 
+          let timeoutHandle: NodeJS.Timeout | undefined;
+          const timeoutPromise = new Promise<never>((_, reject) => {
+            timeoutHandle = setTimeout(
+              () => reject(new Error('Tool execution timed out')),
+              getToolTimeoutMs()
+            );
+          });
+
           try {
-            const result = await manager.invokeToolCall(filter.serverID, toolName, args);
+            const result = await Promise.race([
+              manager.invokeToolCall(filter.serverID, toolName, args),
+              timeoutPromise,
+            ]);
+            clearTimeout(timeoutHandle);
             toolResults.push({
               serverID: filter.serverID,
               toolName,
@@ -76,11 +105,13 @@ export async function POST(request: Request) {
               result,
             });
           } catch (error) {
+            clearTimeout(timeoutHandle);
+            const errorMsg = error instanceof Error ? error.message : 'Tool execution failed';
             toolResults.push({
               serverID: filter.serverID,
               toolName,
               status: 'error',
-              error: error instanceof Error ? error.message : 'Tool execution failed',
+              error: errorMsg,
             });
           }
         }
@@ -109,6 +140,45 @@ export async function POST(request: Request) {
     return NextResponse.json(turn);
   } catch (error) {
     console.error('Playground API error:', error);
+
+    if (
+      error instanceof RouterUnavailableError ||
+      (error instanceof Error &&
+        (error.name === 'RouterUnavailableError' ||
+          error.message.includes('Router unavailable') ||
+          error.message.includes('Router process failed to start')))
+    ) {
+      return NextResponse.json(
+        { error: 'Router unavailable. Please restart the application.' },
+        { status: 500 }
+      );
+    }
+
+    if (
+      error instanceof NoRelevantToolsError ||
+      (error instanceof Error &&
+        (error.name === 'NoRelevantToolsError' ||
+          error.message.includes('No relevant tools found')))
+    ) {
+      return NextResponse.json(
+        { error: 'No relevant tools found for this query' },
+        { status: 404 }
+      );
+    }
+
+    if (
+      error instanceof RoutingTimeoutError ||
+      (error instanceof Error &&
+        (error.name === 'RoutingTimeoutError' ||
+          error.message.includes('Routing timeout') ||
+          error.message.includes('did not respond within')))
+    ) {
+      return NextResponse.json(
+        { error: 'Routing timed out. Please try again.' },
+        { status: 504 }
+      );
+    }
+
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }

@@ -27,6 +27,22 @@ export default function TurnDisplay({ turn }: TurnDisplayProps) {
         <div className="text-lg text-gray-100 font-medium">{turn.userQuery}</div>
       </div>
 
+      {/* Server Warnings */}
+      {turn.warnings && turn.warnings.length > 0 && (
+        <div
+          role="region"
+          aria-label="Server Warnings"
+          className="bg-yellow-950/40 border border-yellow-600/50 text-yellow-300 rounded-lg p-3 text-sm space-y-1"
+        >
+          {turn.warnings.map((warning, idx) => (
+            <div key={idx} className="flex items-center gap-2">
+              <span className="select-none">⚠️</span>
+              <span>{warning}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Routing Stats */}
       {turn.routing && <RoutingStatsCard routing={turn.routing} />}
 

@@ -4,6 +4,10 @@ import * as serverInit from '@/lib/server/init';
 import * as routerAdapter from '@/lib/router/adapter';
 import * as routerStats from '@/lib/router/stats';
 import { MCPServerManager } from '@/lib/mcp/server-manager';
+import {
+  NoRelevantToolsError,
+  RouterUnavailableError,
+} from '@/lib/router/types';
 import type { ServerManifest, RoutingDecision, SessionStatistics } from '@/lib/router/types';
 
 describe('Playground Chat - Task 3.3: API Route POST /api/playground/chat', () => {
@@ -270,5 +274,142 @@ describe('Playground Chat - Task 3.3: API Route POST /api/playground/chat', () =
     expect(res.status).toBe(500);
     const data = await res.json();
     expect(data.error).toBe('Router subprocess crashed');
+  });
+
+  it('Task 5.1: catches NoRelevantToolsError and returns 404 with error message', async () => {
+    vi.spyOn(serverInit, 'ensureServersInitialized').mockResolvedValue();
+
+    const manager = MCPServerManager.getInstance();
+    vi.spyOn(manager, 'getServerManifests').mockReturnValue([
+      { id: 'notes', name: 'Notes', transport: 'stdio', status: 'connected', tools: [] },
+    ] as ServerManifest[]);
+
+    vi.spyOn(routerAdapter, 'routeIntent').mockRejectedValue(
+      new NoRelevantToolsError('find a unicorn')
+    );
+
+    const res = await POST(new Request('http://localhost/api/playground/chat', {
+      method: 'POST',
+      body: JSON.stringify({ query: 'find a unicorn' }),
+    }));
+
+    expect(res.status).toBe(404);
+    const data = await res.json();
+    expect(data.error).toBe('No relevant tools found for this query');
+  });
+
+  it('Task 5.2: catches RouterUnavailableError and returns 500 with restart message', async () => {
+    vi.spyOn(serverInit, 'ensureServersInitialized').mockResolvedValue();
+
+    const manager = MCPServerManager.getInstance();
+    vi.spyOn(manager, 'getServerManifests').mockReturnValue([
+      { id: 'notes', name: 'Notes', transport: 'stdio', status: 'connected', tools: [] },
+    ] as ServerManifest[]);
+
+    vi.spyOn(routerAdapter, 'routeIntent').mockRejectedValue(
+      new RouterUnavailableError(new Error('Process exit 1'))
+    );
+
+    const res = await POST(new Request('http://localhost/api/playground/chat', {
+      method: 'POST',
+      body: JSON.stringify({ query: 'Add a note' }),
+    }));
+
+    expect(res.status).toBe(500);
+    const data = await res.json();
+    expect(data.error).toBe('Router unavailable. Please restart the application.');
+  });
+
+  it('Task 5.3: times out hung tool after timeout duration, records error, and continues sequentially', async () => {
+    vi.spyOn(serverInit, 'ensureServersInitialized').mockResolvedValue();
+
+    const manifests: ServerManifest[] = [
+      {
+        id: 'calculator',
+        name: 'Calculator',
+        transport: 'stdio',
+        status: 'connected',
+        tools: [
+          { name: 'multiply', description: 'Hangs', inputSchema: { type: 'object' } },
+          { name: 'add', description: 'Fast', inputSchema: { type: 'object' } },
+        ],
+      },
+    ];
+
+    const manager = MCPServerManager.getInstance();
+    vi.spyOn(manager, 'getServerManifests').mockReturnValue(manifests);
+
+    const prevTimeout = process.env.PLAYGROUND_TOOL_TIMEOUT_MS;
+    process.env.PLAYGROUND_TOOL_TIMEOUT_MS = '50';
+
+    try {
+      vi.spyOn(manager, 'invokeToolCall').mockImplementation(async (_serverID, toolName) => {
+        if (toolName === 'multiply') {
+          // Hangs indefinitely
+          return new Promise(() => {});
+        }
+        return { sum: 10 };
+      });
+
+      const decision: RoutingDecision = {
+        selectedServers: ['calculator'],
+        toolFilter: [
+          {
+            serverID: 'calculator',
+            includedTools: ['multiply', 'add'],
+          },
+        ],
+      };
+      vi.spyOn(routerAdapter, 'routeIntent').mockResolvedValue(decision);
+
+      vi.spyOn(routerStats, 'getSessionStats').mockReturnValue({
+        turns: [
+          {
+            turnID: 'turn-timeout-test',
+            timestamp: Date.now(),
+            intent: 'Calculate 10 * 20 and 5 + 5',
+            selectedServers: ['calculator'],
+            toolsLoaded: 2,
+            toolsTrimmed: 3,
+            estimatedTokensSaved: 100,
+            routingTimeMs: 10,
+            toolFilter: decision.toolFilter,
+          },
+        ],
+        totalToolsLoaded: 2,
+        totalToolsTrimmed: 3,
+        totalTokensSaved: 100,
+        averageRoutingTimeMs: 10,
+      });
+
+      const res = await POST(
+        new Request('http://localhost/api/playground/chat', {
+          method: 'POST',
+          body: JSON.stringify({ query: 'Calculate 10 * 20 and 5 + 5' }),
+        })
+      );
+
+      expect(res.status).toBe(200);
+      const data = await res.json();
+      expect(data.toolResults).toHaveLength(2);
+      expect(data.toolResults[0]).toEqual({
+        serverID: 'calculator',
+        toolName: 'multiply',
+        status: 'error',
+        error: 'Tool execution timed out',
+      });
+      expect(data.toolResults[1]).toEqual({
+        serverID: 'calculator',
+        toolName: 'add',
+        status: 'success',
+        result: { sum: 10 },
+      });
+    } finally {
+      if (prevTimeout !== undefined) {
+        process.env.PLAYGROUND_TOOL_TIMEOUT_MS = prevTimeout;
+      } else {
+        delete process.env.PLAYGROUND_TOOL_TIMEOUT_MS;
+      }
+    }
   });
 });

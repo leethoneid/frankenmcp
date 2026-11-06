@@ -1,7 +1,7 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
-import ChatContainer from '@/app/playground/components/ChatContainer';
+import ChatContainer, { sendChatQuery } from '@/app/playground/components/ChatContainer';
 import InputBar from '@/app/playground/components/InputBar';
 import ConversationHistory from '@/app/playground/components/ConversationHistory';
 import type { Turn } from '@/app/playground/types';
@@ -96,5 +96,73 @@ describe('Playground Chat - Task 3.4: ChatContainer Component', () => {
   it('verifies ChatContainer is strictly client-side and does not invoke server managers directly', () => {
     // Assert ChatContainer exports as a client component
     expect(typeof ChatContainer).toBe('function');
+  });
+
+  describe('Task 5.1 & 5.2 & 5.4: Error handling & banners', () => {
+    it('Task 5.1: sendChatQuery returns error on 404 NoRelevantToolsError response without setting router unavailable', async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 404,
+        json: async () => ({ error: 'No relevant tools found for this query' }),
+      });
+      vi.stubGlobal('fetch', mockFetch);
+
+      const result = await sendChatQuery('/api/playground/chat', 'unrelated fantasy query');
+      expect(result.error).toBe('No relevant tools found for this query');
+      expect(result.isRouterUnavailable).toBe(false);
+      expect(result.turn).toBeUndefined();
+
+      vi.unstubAllGlobals();
+    });
+
+    it('Task 5.2: sendChatQuery detects Router unavailable on 500 error response', async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+        json: async () => ({ error: 'Router unavailable. Please restart the application.' }),
+      });
+      vi.stubGlobal('fetch', mockFetch);
+
+      const result = await sendChatQuery('/api/playground/chat', 'calculate 1+1');
+      expect(result.error).toBe('Router unavailable. Please restart the application.');
+      expect(result.isRouterUnavailable).toBe(true);
+
+      vi.unstubAllGlobals();
+    });
+
+    it('Task 5.2: ChatContainer displays prominent red banner and disables input when router is unavailable', () => {
+      const html = renderToStaticMarkup(
+        <ChatContainer
+          initialError="Router unavailable. Please restart the application."
+        />
+      );
+
+      // Red prominent banner
+      expect(html).toContain('role="alert"');
+      expect(html).toContain('bg-red-950/80');
+      expect(html).toContain('border-red-500');
+      expect(html).toContain('Router unavailable. Please restart the application.');
+
+      // InputBar disabled
+      expect(html).toContain('disabled=""');
+    });
+
+    it('Task 5.4: ChatContainer displays warning banner for disconnected servers in turns', () => {
+      const turnWithWarning: Turn = {
+        id: 'turn-warn-ui',
+        timestamp: 1700000000000,
+        userQuery: 'Do something with notes',
+        warnings: ["Server 'tasks' unavailable"],
+      };
+
+      const html = renderToStaticMarkup(
+        <ChatContainer initialTurns={[turnWithWarning]} />
+      );
+
+      expect(html).toContain('tasks');
+      expect(html).toContain('unavailable');
+      expect(html).toContain('bg-yellow-950/40');
+      expect(html).toContain('border-yellow-600/50');
+    });
   });
 });
