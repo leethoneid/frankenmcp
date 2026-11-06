@@ -123,13 +123,13 @@ console.log(`Average Routing Time: ${stats.averageRoutingTimeMs} ms`);
 
 ## 5. Fail-Loud Error Hierarchy
 
-Every error thrown in this package extends `FrankenMCPError` and carries diagnostic context:
+Every error thrown in this package extends `Error` directly and carries diagnostic context:
 
-- `ServerConnectionError`: An MCP server failed to connect after 3 exponential backoff retries.
 - `RouterUnavailableError`: The `mcp-dynamic-router` child process failed to spawn or exited abnormally.
 - `RoutingTimeoutError`: Router search took longer than 2000ms.
 - `InvalidRoutingDecisionError`: Router stdout returned malformed or unparseable JSON-RPC output.
 - `NoRelevantToolsError`: Router search returned zero matching tools for the query.
-- `AllServersUnavailableError`: Zero servers could be reached or all registered servers are disabled.
+- `ServerConnectionError`: An MCP server failed to connect after 3 exponential backoff retries.
 - `ToolInvocationError`: A tool call failed on the MCP server child process.
 - `MCPConfigParseError`: `.kiro/settings/mcp.json` is missing or contains invalid schema fields.
+- `AllServersUnavailableError`: Zero servers could be reached or all registered servers are disabled.
