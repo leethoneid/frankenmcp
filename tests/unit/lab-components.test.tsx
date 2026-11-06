@@ -7,7 +7,8 @@ import ErrorFallback from '@/app/lab/components/ErrorFallback';
 import StatsPanel from '@/app/lab/components/StatsPanel';
 import TurnHistoryPanel from '@/app/lab/components/TurnHistoryPanel';
 import TurnCard from '@/app/lab/components/TurnCard';
-import type { ServerStatus, SessionStatistics, TurnStatistics } from '@/lib/router/types';
+import ServerHealthPanel, { formatOfflineDuration } from '@/app/lab/components/ServerHealthPanel';
+import type { ServerStatus, SessionStatistics, TurnStatistics, ServerManifest } from '@/lib/router/types';
 
 describe('Phase 3 - Lab UI Components Unit Tests', () => {
   describe('Task 3.1: MetricCard Component', () => {
@@ -371,6 +372,123 @@ describe('Phase 5 - Statistics Display Components Unit Tests', () => {
       expect(html).toContain('Minimal turn');
       expect(html).not.toContain('Tools by Server:');
       expect(html).not.toContain('Routing Reasoning:');
+    });
+  });
+
+  describe('Task 6.1: ServerHealthPanel Component', () => {
+    it('formatOfflineDuration computes Xm Ys and Xs correctly', () => {
+      const now = 1700000100000;
+      expect(formatOfflineDuration(undefined, now)).toBe('');
+      expect(formatOfflineDuration(now - 45000, now)).toBe('45s');
+      expect(formatOfflineDuration(now - 135000, now)).toBe('2m 15s');
+      expect(formatOfflineDuration(now - 3600000, now)).toBe('60m 0s');
+    });
+
+    it('shows red warning banner when all servers are offline or empty', () => {
+      const offlineManifests: ServerManifest[] = [
+        {
+          id: 'server-1',
+          name: 'Server 1',
+          transport: 'stdio',
+          tools: [],
+          status: 'error',
+          lastError: 'Connection refused',
+        },
+        {
+          id: 'server-2',
+          name: 'Server 2',
+          transport: 'stdio',
+          tools: [],
+          status: 'disconnected',
+        },
+      ];
+
+      const html = renderToStaticMarkup(<ServerHealthPanel initialManifests={offlineManifests} />);
+
+      expect(html).toContain('⚠️ All servers offline — cannot route requests');
+      expect(html).toContain('bg-red-900/20');
+      expect(html).toContain('border-red-500');
+      expect(html).toContain('text-red-300');
+    });
+
+    it('renders connected server with tool count and does not show all-offline banner', () => {
+      const mixedManifests: ServerManifest[] = [
+        {
+          id: 'notes',
+          name: 'Notes Server',
+          transport: 'stdio',
+          tools: [
+            { name: 'read_note', description: '', inputSchema: { type: 'object' } },
+            { name: 'create_note', description: '', inputSchema: { type: 'object' } },
+          ],
+          status: 'connected',
+        },
+        {
+          id: 'tasks',
+          name: 'Tasks Server',
+          transport: 'stdio',
+          tools: [],
+          status: 'error',
+          lastError: 'Process terminated',
+        },
+      ];
+
+      const html = renderToStaticMarkup(<ServerHealthPanel initialManifests={mixedManifests} />);
+
+      expect(html).not.toContain('⚠️ All servers offline');
+      expect(html).toContain('Notes Server');
+      expect(html).toContain('2 tools');
+      expect(html).toContain('Tasks Server');
+      expect(html).toContain('Process terminated');
+    });
+
+    it('renders lastError and computed offline duration for error/disconnected servers', () => {
+      const now = Date.now();
+      const manifests: ServerManifest[] = [
+        {
+          id: 'sick-server',
+          name: 'Sick Server',
+          transport: 'stdio',
+          tools: [],
+          status: 'error',
+          lastError: 'Subprocess crashed with SIGTERM',
+          lastStatusChangeAt: now - 75000,
+        },
+      ];
+
+      const html = renderToStaticMarkup(<ServerHealthPanel initialManifests={manifests} />);
+
+      expect(html).toContain('Sick Server');
+      expect(html).toContain('Subprocess crashed with SIGTERM');
+      expect(html).toContain('Offline for 1m 15s');
+    });
+
+    it('renders "Starting..." for server in starting status', () => {
+      const startingManifests: ServerManifest[] = [
+        {
+          id: 'booting-srv',
+          name: 'Booting Server',
+          transport: 'stdio',
+          tools: [],
+          status: 'starting',
+        },
+      ];
+
+      const html = renderToStaticMarkup(<ServerHealthPanel initialManifests={startingManifests} />);
+
+      expect(html).toContain('Booting Server');
+      expect(html).toContain('Starting...');
+    });
+
+    it('renders yellow warning banner when initialError / pollError is set', () => {
+      const html = renderToStaticMarkup(
+        <ServerHealthPanel initialManifests={[]} initialError="Unable to refresh server status" />
+      );
+
+      expect(html).toContain('bg-yellow-900/20');
+      expect(html).toContain('border-yellow-500');
+      expect(html).toContain('text-yellow-300');
+      expect(html).toContain('Unable to refresh server status');
     });
   });
 });

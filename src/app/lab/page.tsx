@@ -25,6 +25,14 @@ export default async function LabPage() {
     }
   }
 
+  const allServerTools = new Map<string, string[]>();
+  for (const manifest of serverManifests) {
+    allServerTools.set(
+      manifest.id,
+      manifest.tools.map((t) => t.name)
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100">
       <header className="border-b border-green-900/30 px-8 py-6">
@@ -42,7 +50,10 @@ export default async function LabPage() {
         ) : (
           <>
             <StatsPanel initialStats={sessionStats} />
-            <TurnHistoryPanel initialTurns={sessionStats.turns} />
+            <TurnHistoryPanel
+              initialTurns={sessionStats.turns}
+              allServerTools={allServerTools}
+            />
           </>
         )}
 
