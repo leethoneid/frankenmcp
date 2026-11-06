@@ -250,17 +250,17 @@ This document breaks down the monster-lab-dashboard feature into discrete, testa
 **Description**: Create client component that displays session aggregates with auto-refresh.
 
 **Acceptance Criteria**:
-- [ ] File `src/app/lab/components/StatsPanel.tsx` created as Client Component (`"use client"`)
-- [ ] Props: `initialStats: SessionStatistics`
-- [ ] State: `stats` initialized from `initialStats`
-- [ ] `useEffect` polls `/api/lab/session-stats` every 5 seconds
-- [ ] On poll success, updates `stats` state
-- [ ] On poll failure, sets `pollError` state and displays warning banner
-- [ ] Renders 4 `<MetricCard>` components: Tools Loaded, Tools Trimmed, Tokens Saved, Avg Time
-- [ ] Responsive grid: 1 col mobile, 2 col tablet, 4 col desktop
-- [ ] Component test: verify initial stats displayed correctly
-- [ ] Component test: mock fetch to return updated stats → verify state updated
-- [ ] Component test: mock fetch error → verify warning banner shown
+- [x] File `src/app/lab/components/StatsPanel.tsx` created as Client Component (`"use client"`)
+- [x] Props: `initialStats: SessionStatistics`
+- [x] State: `stats` initialized from `initialStats`
+- [x] `useEffect` polls `/api/lab/session-stats` every 5 seconds
+- [x] On poll success, updates `stats` state
+- [x] On poll failure, sets `pollError` state and displays warning banner
+- [x] Renders 4 `<MetricCard>` components: Tools Loaded, Tools Trimmed, Tokens Saved, Avg Time
+- [x] Responsive grid: 1 col mobile, 2 col tablet, 4 col desktop
+- [x] Component test: verify initial stats displayed correctly
+- [x] Component test: mock fetch to return updated stats → verify state updated
+- [x] Component test: mock fetch error → verify warning banner shown
 
 **Requirements**: FR-3.1 to FR-3.6 (session aggregates), NFR-1.2 (updates within 500ms of poll)
 
@@ -275,17 +275,17 @@ This document breaks down the monster-lab-dashboard feature into discrete, testa
 **Description**: Create client component that displays scrollable turn list with auto-refresh.
 
 **Acceptance Criteria**:
-- [ ] File `src/app/lab/components/TurnHistoryPanel.tsx` created as Client Component
-- [ ] Props: `initialTurns: TurnStatistics[]`
-- [ ] State: `turns` initialized from `initialTurns`
-- [ ] `useEffect` polls `/api/lab/session-stats` every 5 seconds, updates `turns` from `stats.turns`
-- [ ] Displays most recent 20 turns, newest first (reverse slice)
-- [ ] If `turns.length === 0`, shows empty state message: "No routing decisions yet..."
-- [ ] Renders each turn as `<TurnCard>` in scrollable container (`max-h-[600px] overflow-y-auto`)
-- [ ] Header shows total turn count with correct singular/plural label
-- [ ] Component test: empty turns → verify empty state message
-- [ ] Component test: 25 turns → verify only 20 displayed
-- [ ] Component test: 1 turn → verify "1 turn" not "1 turns"
+- [x] File `src/app/lab/components/TurnHistoryPanel.tsx` created as Client Component
+- [x] Props: `initialTurns: TurnStatistics[]`
+- [x] State: `turns` initialized from `initialTurns`
+- [x] `useEffect` polls `/api/lab/session-stats` every 5 seconds, updates `turns` from `stats.turns`
+- [x] Displays most recent 20 turns, newest first (reverse slice)
+- [x] If `turns.length === 0`, shows empty state message: "No routing decisions yet..."
+- [x] Renders each turn as `<TurnCard>` in scrollable container (`max-h-[600px] overflow-y-auto`)
+- [x] Header shows total turn count with correct singular/plural label
+- [x] Component test: empty turns → verify empty state message
+- [x] Component test: 25 turns → verify only 20 displayed
+- [x] Component test: 1 turn → verify "1 turn" not "1 turns"
 
 **Requirements**: FR-6.1 to FR-6.5 (turn history), NFR-3.2 (empty state)
 
@@ -300,23 +300,23 @@ This document breaks down the monster-lab-dashboard feature into discrete, testa
 **Description**: Create expandable turn detail component with tool lists and reasoning.
 
 **Acceptance Criteria**:
-- [ ] File `src/app/lab/components/TurnCard.tsx` created as Client Component
-- [ ] Props: `turn: TurnStatistics`, optional `allServerTools: Map<string, string[]>`
-- [ ] State: `expanded` boolean for expand/collapse
-- [ ] Collapsed view shows: timestamp, intent preview (first 50 chars), selected servers, key metrics
-- [ ] Click toggles `expanded` state
-- [ ] Expanded view shows: full intent, per-server tool lists (loaded + trimmed), reasoning
-- [ ] For each server in `turn.toolFilter`:
+- [x] File `src/app/lab/components/TurnCard.tsx` created as Client Component
+- [x] Props: `turn: TurnStatistics`, optional `allServerTools: Map<string, string[]>`
+- [x] State: `expanded` boolean for expand/collapse
+- [x] Collapsed view shows: timestamp, intent preview (first 50 chars), selected servers, key metrics
+- [x] Click toggles `expanded` state
+- [x] Expanded view shows: full intent, per-server tool lists (loaded + trimmed), reasoning
+- [x] For each server in `turn.toolFilter`:
   - Display server ID
   - Display loaded tools (✓ green) from `includedTools`
   - Compute trimmed tools: `allServerTools.get(serverID)` minus `includedTools`
   - Display trimmed tools (✗ purple, line-through, opacity-60)
-- [ ] If `turn.reasoning` exists, display reasoning text in italic
-- [ ] Component test: click to expand → verify expanded content shown
-- [ ] Component test: intent >50 chars → verify truncated in collapsed view
-- [ ] Component test: turn with `toolFilter` → verify loaded/trimmed lists rendered correctly
-- [ ] Component test: turn with `reasoning` → verify reasoning displayed
-- [ ] Component test: turn without `toolFilter` or `reasoning` → no crash, graceful fallback
+- [x] If `turn.reasoning` exists, display reasoning text in italic
+- [x] Component test: click to expand → verify expanded content shown
+- [x] Component test: intent >50 chars → verify truncated in collapsed view
+- [x] Component test: turn with `toolFilter` → verify loaded/trimmed lists rendered correctly
+- [x] Component test: turn with `reasoning` → verify reasoning displayed
+- [x] Component test: turn without `toolFilter` or `reasoning` → no crash, graceful fallback
 
 **Requirements**: FR-1.1 to FR-1.6 (per-turn visualization), FR-6.2 to FR-6.4 (turn details)
 

@@ -5,23 +5,7 @@ import * as statsModule from '@/lib/router/stats';
 import { MCPServerManager } from '@/lib/mcp/server-manager';
 import type { SessionStatistics, ServerManifest, TurnStatistics } from '@/lib/router/types';
 
-// Mock the three panel components that will be built in Phase 5 and Phase 6
-vi.mock('@/app/lab/components/StatsPanel', () => ({
-  default: ({ initialStats }: { initialStats: SessionStatistics }) => (
-    <div data-testid="stats-panel">
-      StatsPanel: loaded={initialStats?.totalToolsLoaded}
-    </div>
-  ),
-}));
-
-vi.mock('@/app/lab/components/TurnHistoryPanel', () => ({
-  default: ({ initialTurns }: { initialTurns: TurnStatistics[] }) => (
-    <div data-testid="turn-history-panel">
-      TurnHistoryPanel: count={initialTurns?.length}
-    </div>
-  ),
-}));
-
+// Mock ServerHealthPanel which is built in Phase 6
 vi.mock('@/app/lab/components/ServerHealthPanel', () => ({
   default: ({ initialManifests }: { initialManifests: ServerManifest[] }) => (
     <div data-testid="server-health-panel">
@@ -30,7 +14,7 @@ vi.mock('@/app/lab/components/ServerHealthPanel', () => ({
   ),
 }));
 
-// Import LabPage after the mocks are defined
+// Import LabPage which uses real StatsPanel, TurnHistoryPanel, ErrorFallback
 import LabPage from '@/app/lab/page';
 
 describe('Phase 4 - Task 4.1: Lab Page Integration Tests', () => {
@@ -81,9 +65,17 @@ describe('Phase 4 - Task 4.1: Lab Page Integration Tests', () => {
     expect(html).toContain('text-green-400');
     expect(html).toContain('bg-gray-950');
 
-    // Verify sub-components rendered with initial data
-    expect(html).toContain('StatsPanel: loaded=4');
-    expect(html).toContain('TurnHistoryPanel: count=1');
+    // Verify real StatsPanel rendered
+    expect(html).toContain('Tools Loaded');
+    expect(html).toContain('4');
+    expect(html).toContain('Tools Trimmed');
+    expect(html).toContain('6');
+
+    // Verify real TurnHistoryPanel rendered
+    expect(html).toContain('Turn History (1 turn)');
+    expect(html).toContain('check tasks and calculate budget');
+
+    // Verify ServerHealthPanel rendered
     expect(html).toContain('ServerHealthPanel: count=1');
 
     // Verify error fallback is NOT rendered
@@ -115,8 +107,8 @@ describe('Phase 4 - Task 4.1: Lab Page Integration Tests', () => {
     expect(html).toContain('Unable to load routing statistics. Please check server logs.');
 
     // Verify stats panels are not rendered
-    expect(html).not.toContain('StatsPanel:');
-    expect(html).not.toContain('TurnHistoryPanel:');
+    expect(html).not.toContain('Tools Loaded');
+    expect(html).not.toContain('Turn History');
 
     // Verify ServerHealthPanel is still rendered
     expect(html).toContain('ServerHealthPanel: count=1');
