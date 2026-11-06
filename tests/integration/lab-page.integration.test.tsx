@@ -3,21 +3,10 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import * as statsModule from '@/lib/router/stats';
 import { MCPServerManager } from '@/lib/mcp/server-manager';
-import type { SessionStatistics, ServerManifest, TurnStatistics } from '@/lib/router/types';
-
-// Mock ServerHealthPanel which is built in Phase 6
-vi.mock('@/app/lab/components/ServerHealthPanel', () => ({
-  default: ({ initialManifests }: { initialManifests: ServerManifest[] }) => (
-    <div data-testid="server-health-panel">
-      ServerHealthPanel: count={initialManifests?.length}
-    </div>
-  ),
-}));
-
-// Import LabPage which uses real StatsPanel, TurnHistoryPanel, ErrorFallback
+import type { TurnStatistics } from '@/lib/router/types';
 import LabPage from '@/app/lab/page';
 
-describe('Phase 4 - Task 4.1: Lab Page Integration Tests', () => {
+describe('Phase 4 & 6 - Lab Page Integration Tests', () => {
   beforeEach(async () => {
     vi.restoreAllMocks();
     statsModule.resetSessionStats();
@@ -71,12 +60,13 @@ describe('Phase 4 - Task 4.1: Lab Page Integration Tests', () => {
     expect(html).toContain('Tools Trimmed');
     expect(html).toContain('6');
 
-    // Verify real TurnHistoryPanel rendered
+    // Verify real TurnHistoryPanel rendered with turn
     expect(html).toContain('Turn History (1 turn)');
     expect(html).toContain('check tasks and calculate budget');
 
-    // Verify ServerHealthPanel rendered
-    expect(html).toContain('ServerHealthPanel: count=1');
+    // Verify real ServerHealthPanel rendered with registered server
+    expect(html).toContain('MCP Server Health');
+    expect(html).toContain('Mock Notes Server');
 
     // Verify error fallback is NOT rendered
     expect(html).not.toContain('Stats Unavailable');
@@ -110,7 +100,8 @@ describe('Phase 4 - Task 4.1: Lab Page Integration Tests', () => {
     expect(html).not.toContain('Tools Loaded');
     expect(html).not.toContain('Turn History');
 
-    // Verify ServerHealthPanel is still rendered
-    expect(html).toContain('ServerHealthPanel: count=1');
+    // Verify real ServerHealthPanel is still rendered
+    expect(html).toContain('MCP Server Health');
+    expect(html).toContain('Mock Tasks Server');
   });
 });

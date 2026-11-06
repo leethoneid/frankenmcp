@@ -232,7 +232,7 @@ This document breaks down the monster-lab-dashboard feature into discrete, testa
 - [x] Always renders `<ServerHealthPanel initialManifests={manifests} />`
 - [x] Header: "🧪 Monster Lab Dashboard" with green accent
 - [x] Dark theme background (`bg-gray-950`)
-- [ ] Manual test: navigate to `/lab` → page loads without crash
+- [x] Manual test: navigate to `/lab` → page loads without crash
 - [x] Integration test: mock `getSessionStats()` error → verify ErrorFallback shown
 
 **Requirements**: FR-5.1 (dark theme), AC-1 (navigate to /lab), NFR-2.1 (error handling)
@@ -333,24 +333,24 @@ This document breaks down the monster-lab-dashboard feature into discrete, testa
 **Description**: Create client component that displays real-time server health with active polling.
 
 **Acceptance Criteria**:
-- [ ] File `src/app/lab/components/ServerHealthPanel.tsx` created as Client Component
-- [ ] Props: `initialManifests: ServerManifest[]`
-- [ ] State: `manifests` initialized from `initialManifests`, `pollError` for errors
-- [ ] `useEffect` polls `/api/lab/server-status` every 5 seconds
-- [ ] On poll success, updates `manifests` state
-- [ ] On poll failure, sets `pollError` and displays yellow warning banner
-- [ ] Function `formatOfflineDuration(lastChangeAt)` computes "Xm Ys" from timestamp
-- [ ] For each manifest:
+- [x] File `src/app/lab/components/ServerHealthPanel.tsx` created as Client Component
+- [x] Props: `initialManifests: ServerManifest[]`
+- [x] State: `manifests` initialized from `initialManifests`, `pollError` for errors
+- [x] `useEffect` polls `/api/lab/server-status` every 5 seconds
+- [x] On poll success, updates `manifests` state
+- [x] On poll failure, sets `pollError` and displays yellow warning banner
+- [x] Function `formatOfflineDuration(lastChangeAt)` computes "Xm Ys" from timestamp
+- [x] For each manifest:
   - Renders `<ServerStatusBadge status={manifest.status} />`
   - Renders server name (monospace font)
   - If connected: shows tool count
   - If error/disconnected: shows `lastError || 'Connection failed'` + offline duration
   - If starting: shows "Starting..."
-- [ ] If all servers offline: shows red warning banner "⚠️ All servers offline — cannot route requests"
-- [ ] Component test: all servers offline → verify warning banner shown
-- [ ] Component test: manifest with `lastStatusChangeAt` → verify offline duration computed correctly
-- [ ] Component test: manifest with `lastError` → verify error message displayed
-- [ ] Component test: poll error → verify error banner shown, last known state preserved
+- [x] If all servers offline: shows red warning banner "⚠️ All servers offline — cannot route requests"
+- [x] Component test: all servers offline → verify warning banner shown
+- [x] Component test: manifest with `lastStatusChangeAt` → verify offline duration computed correctly
+- [x] Component test: manifest with `lastError` → verify error message displayed
+- [x] Component test: poll error → verify error banner shown, last known state preserved
 
 **Requirements**: FR-4.1 to FR-4.6 (server health), AC-4 (10s detection), NFR-2.2 (poll retry)
 
