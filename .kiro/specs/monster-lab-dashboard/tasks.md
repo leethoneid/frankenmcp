@@ -224,16 +224,16 @@ This document breaks down the monster-lab-dashboard feature into discrete, testa
 **Description**: Create main dashboard page with server-side initial data fetch.
 
 **Acceptance Criteria**:
-- [ ] File `src/app/lab/page.tsx` created as Server Component
-- [ ] Server-side calls `getSessionStats()` and `MCPServerManager.getInstance().getServerManifests()`
-- [ ] Try/catch wrapper handles `getSessionStats()` errors gracefully
-- [ ] If stats error, renders `<ErrorFallback error={error} />`
-- [ ] If stats succeed, passes `initialStats` to `<StatsPanel>` and `initialTurns` to `<TurnHistoryPanel>`
-- [ ] Always renders `<ServerHealthPanel initialManifests={manifests} />`
-- [ ] Header: "🧪 Monster Lab Dashboard" with green accent
-- [ ] Dark theme background (`bg-gray-950`)
+- [x] File `src/app/lab/page.tsx` created as Server Component
+- [x] Server-side calls `getSessionStats()` and `MCPServerManager.getInstance().getServerManifests()`
+- [x] Try/catch wrapper handles `getSessionStats()` errors gracefully
+- [x] If stats error, renders `<ErrorFallback error={error} />`
+- [x] If stats succeed, passes `initialStats` to `<StatsPanel>` and `initialTurns` to `<TurnHistoryPanel>`
+- [x] Always renders `<ServerHealthPanel initialManifests={manifests} />`
+- [x] Header: "🧪 Monster Lab Dashboard" with green accent
+- [x] Dark theme background (`bg-gray-950`)
 - [ ] Manual test: navigate to `/lab` → page loads without crash
-- [ ] Integration test: mock `getSessionStats()` error → verify ErrorFallback shown
+- [x] Integration test: mock `getSessionStats()` error → verify ErrorFallback shown
 
 **Requirements**: FR-5.1 (dark theme), AC-1 (navigate to /lab), NFR-2.1 (error handling)
 
