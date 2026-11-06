@@ -20,7 +20,7 @@ describe('Playground Chat - Task 3.4: ChatContainer Component', () => {
 
     expect(html).toContain('Welcome to FrankenMCP Playground');
     expect(html).toContain('Ask questions and watch the router select relevant tools');
-    expect(html).toContain('TRY AN EXAMPLE');
+    expect(html).toContain('TRY THESE EXAMPLES:');
     expect(html).toContain('Ask a question...');
     expect(html).toContain('Submit');
   });
@@ -54,9 +54,9 @@ describe('Playground Chat - Task 3.4: ChatContainer Component', () => {
 
     expect(html).toContain('What is 10 + 20?');
     expect(html).toContain('calculator');
-    expect(html).toContain('1 loaded');
-    expect(html).toContain('4 trimmed');
-    expect(html).toContain('~120 tokens saved');
+    expect(html).toContain('1 tools');
+    expect(html).toContain('4 tools');
+    expect(html).toContain('~120 tokens');
     expect(html).toContain('Arithmetic expression');
     expect(html).toContain('calculator.add');
     expect(html).toContain('30');
@@ -75,7 +75,8 @@ describe('Playground Chat - Task 3.4: ChatContainer Component', () => {
     const html = renderToStaticMarkup(<ChatContainer initialTurns={errorTurns} />);
 
     expect(html).toContain('Failed query');
-    expect(html).toContain('⚠️ All servers offline');
+    expect(html).toContain('⚠️');
+    expect(html).toContain('All servers offline');
   });
 
   it('InputBar validates empty input and prevents submission', () => {

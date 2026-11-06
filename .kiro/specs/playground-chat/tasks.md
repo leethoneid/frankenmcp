@@ -29,12 +29,12 @@ This document breaks down the playground-chat feature into discrete, testable ta
 **Description**: Define TypeScript types for conversation state management.
 
 **Acceptance Criteria**:
-- [ ] File `src/app/playground/types.ts` created
-- [ ] `Turn` interface defined with fields: id, timestamp, userQuery, routing, toolResults, error
-- [ ] `routing` subtype includes: selectedServers, toolsLoaded, toolsTrimmed, estimatedTokensSaved, reasoning
-- [ ] `toolResults` array type includes: serverID, toolName, status ('success' | 'error'), result, error
-- [ ] Types exported for use in components
-- [ ] TypeScript compilation passes
+- [x] File `src/app/playground/types.ts` created
+- [x] `Turn` interface defined with fields: id, timestamp, userQuery, routing, toolResults, error
+- [x] `routing` subtype includes: selectedServers, toolsLoaded, toolsTrimmed, estimatedTokensSaved, reasoning
+- [x] `toolResults` array type includes: serverID, toolName, status ('success' | 'error'), result, error
+- [x] Types exported for use in components
+- [x] TypeScript compilation passes
 
 **Requirements**: Infrastructure for FR-4 (conversation history)
 
@@ -49,11 +49,11 @@ This document breaks down the playground-chat feature into discrete, testable ta
 **Description**: Create error display component for tool failures and routing errors.
 
 **Acceptance Criteria**:
-- [ ] File `src/app/playground/components/ErrorMessage.tsx` created
-- [ ] Props: `message: string`
-- [ ] Renders red-bordered box with error icon and message
-- [ ] Styling: `border-red-700/50 bg-red-900/10 text-red-300`
-- [ ] Component test: verify message displayed with correct styling
+- [x] File `src/app/playground/components/ErrorMessage.tsx` created
+- [x] Props: `message: string`
+- [x] Renders red-bordered box with error icon and message
+- [x] Styling: `border-red-700/50 bg-red-900/10 text-red-300`
+- [x] Component test: verify message displayed with correct styling
 
 **Requirements**: NFR-2.1 (error display)
 
@@ -68,11 +68,11 @@ This document breaks down the playground-chat feature into discrete, testable ta
 **Description**: Create loading spinner component for async operations.
 
 **Acceptance Criteria**:
-- [ ] File `src/app/playground/components/LoadingIndicator.tsx` created
-- [ ] Props: `message?: string` (e.g., "Routing...", "Executing tools...")
-- [ ] Renders spinning icon + optional message
-- [ ] Styling: purple accent consistent with Playground theme
-- [ ] Component test: verify spinner and message displayed
+- [x] File `src/app/playground/components/LoadingIndicator.tsx` created
+- [x] Props: `message?: string` (e.g., "Routing...", "Executing tools...")
+- [x] Renders spinning icon + optional message
+- [x] Styling: purple accent consistent with Playground theme
+- [x] Component test: verify spinner and message displayed
 
 **Requirements**: FR-2.1 (loading indicator during routing)
 
@@ -87,12 +87,12 @@ This document breaks down the playground-chat feature into discrete, testable ta
 **Description**: Create component to display routing decision summary.
 
 **Acceptance Criteria**:
-- [ ] File `src/app/playground/components/RoutingStatsCard.tsx` created
-- [ ] Props: `routing` object with selectedServers, toolsLoaded, toolsTrimmed, estimatedTokensSaved, reasoning
-- [ ] Displays servers (purple), loaded (green), trimmed (purple), saved (cyan) with color coding
-- [ ] Optional reasoning displayed in italic text
-- [ ] Component tests: verify all fields displayed, verify color classes
-- [ ] Component tests: verify reasoning shown when present, hidden when absent
+- [x] File `src/app/playground/components/RoutingStatsCard.tsx` created
+- [x] Props: `routing` object with selectedServers, toolsLoaded, toolsTrimmed, estimatedTokensSaved, reasoning
+- [x] Displays servers (purple), loaded (green), trimmed (purple), saved (cyan) with color coding
+- [x] Optional reasoning displayed in italic text
+- [x] Component tests: verify all fields displayed, verify color classes
+- [x] Component tests: verify reasoning shown when present, hidden when absent
 
 **Requirements**: FR-2.2 to FR-2.6 (routing decision display)
 
@@ -107,14 +107,14 @@ This document breaks down the playground-chat feature into discrete, testable ta
 **Description**: Create component to display individual tool execution result.
 
 **Acceptance Criteria**:
-- [ ] File `src/app/playground/components/ToolResultCard.tsx` created as Client Component
-- [ ] Props: `result` object with serverID, toolName, status, result, error
-- [ ] Success: green border, JSON pretty-printed result
-- [ ] Error: red border, error message displayed
-- [ ] Long results (>500 chars): collapsible with "Show more" button
-- [ ] State: `expanded` boolean for collapse/expand
-- [ ] Component tests: success result, error result, collapsible behavior
-- [ ] Component tests: verify border color based on status
+- [x] File `src/app/playground/components/ToolResultCard.tsx` created as Client Component
+- [x] Props: `result` object with serverID, toolName, status, result, error
+- [x] Success: green border, JSON pretty-printed result
+- [x] Error: red border, error message displayed
+- [x] Long results (>500 chars): collapsible with "Show more" button
+- [x] State: `expanded` boolean for collapse/expand
+- [x] Component tests: success result, error result, collapsible behavior
+- [x] Component tests: verify border color based on status
 
 **Requirements**: FR-3.3 (display tool results), FR-3.4 (display tool errors), NFR-3.3 (collapsible long results)
 
@@ -129,14 +129,14 @@ This document breaks down the playground-chat feature into discrete, testable ta
 **Description**: Create empty state component with example queries.
 
 **Acceptance Criteria**:
-- [ ] File `src/app/playground/components/WelcomeMessage.tsx` created
-- [ ] Props: `onExampleClick: (query: string) => void`
-- [ ] Displays welcome heading and value proposition (one sentence)
-- [ ] Displays 3 example queries: one for notes, one for tasks, one for calculator
-- [ ] Each example shows query text and which server it routes to
-- [ ] Clicking example calls `onExampleClick` with query text (does NOT auto-submit)
-- [ ] Component tests: verify 3 examples rendered
-- [ ] Component tests: click example → verify callback called with correct query
+- [x] File `src/app/playground/components/WelcomeMessage.tsx` created
+- [x] Props: `onExampleClick: (query: string) => void`
+- [x] Displays welcome heading and value proposition (one sentence)
+- [x] Displays 3 example queries: one for notes, one for tasks, one for calculator
+- [x] Each example shows query text and which server it routes to
+- [x] Clicking example calls `onExampleClick` with query text (does NOT auto-submit)
+- [x] Component tests: verify 3 examples rendered
+- [x] Component tests: click example → verify callback called with correct query
 
 **Requirements**: FR-7.1 to FR-7.4 (example queries & onboarding)
 
@@ -153,15 +153,15 @@ This document breaks down the playground-chat feature into discrete, testable ta
 **Description**: Create text input component with validation and submit handling.
 
 **Acceptance Criteria**:
-- [ ] File `src/app/playground/components/InputBar.tsx` created as Client Component
-- [ ] Props: `onSubmit: (query: string) => Promise<void>`, `disabled: boolean`
-- [ ] Controlled input with local state
-- [ ] Submit on Enter key (Shift+Enter adds newline if multi-line input in future)
-- [ ] Validation: empty query → show error "Please enter a query"
-- [ ] Validation: query >1000 chars → show error "Query too long (max 1000 characters)"
-- [ ] On successful submit: call `onSubmit`, clear input field
-- [ ] While `disabled=true`: input and button grayed out, not clickable
-- [ ] Component tests: valid submit, empty submit, long submit, disabled state
+- [x] File `src/app/playground/components/InputBar.tsx` created as Client Component
+- [x] Props: `onSubmit: (query: string) => Promise<void>`, `disabled: boolean`
+- [x] Controlled input with local state
+- [x] Submit on Enter key (Shift+Enter adds newline if multi-line input in future)
+- [x] Validation: empty query → show error "Please enter a query"
+- [x] Validation: query >1000 chars → show error "Query too long (max 1000 characters)"
+- [x] On successful submit: call `onSubmit`, clear input field
+- [x] While `disabled=true`: input and button grayed out, not clickable
+- [x] Component tests: valid submit, empty submit, long submit, disabled state
 
 **Requirements**: FR-1.1 to FR-1.5 (query submission), AC-1 (input field visible)
 
@@ -176,14 +176,14 @@ This document breaks down the playground-chat feature into discrete, testable ta
 **Description**: Create component to display a single conversation turn.
 
 **Acceptance Criteria**:
-- [ ] File `src/app/playground/components/TurnDisplay.tsx` created
-- [ ] Props: `turn: Turn` (from types)
-- [ ] Displays user query with emoji (🙋) and timestamp
-- [ ] If `turn.routing` exists: renders `<RoutingStatsCard routing={turn.routing} />`
-- [ ] If `turn.toolResults` exists: renders list of `<ToolResultCard>` for each result
-- [ ] If `turn.error` exists: renders `<ErrorMessage message={turn.error} />`
-- [ ] Visual sections clearly separated (borders or background colors)
-- [ ] Component tests: turn with routing only, turn with results, turn with error
+- [x] File `src/app/playground/components/TurnDisplay.tsx` created
+- [x] Props: `turn: Turn` (from types)
+- [x] Displays user query with emoji (🙋) and timestamp
+- [x] If `turn.routing` exists: renders `<RoutingStatsCard routing={turn.routing} />`
+- [x] If `turn.toolResults` exists: renders list of `<ToolResultCard>` for each result
+- [x] If `turn.error` exists: renders `<ErrorMessage message={turn.error} />`
+- [x] Visual sections clearly separated (borders or background colors)
+- [x] Component tests: turn with routing only, turn with results, turn with error
 
 **Requirements**: FR-4.3 (display turn components), FR-4.5 (visually distinct sections)
 
@@ -198,14 +198,14 @@ This document breaks down the playground-chat feature into discrete, testable ta
 **Description**: Create scrollable list of turns with auto-scroll.
 
 **Acceptance Criteria**:
-- [ ] File `src/app/playground/components/ConversationHistory.tsx` created as Client Component
-- [ ] Props: `turns: Turn[]`, `onExampleClick: (query: string) => void`
-- [ ] If `turns.length === 0`: renders `<WelcomeMessage onExampleClick={onExampleClick} />`
-- [ ] If `turns.length > 0`: renders scrollable list with each `<TurnDisplay turn={turn} />`
-- [ ] Auto-scroll to bottom when new turn added (using `useEffect` + `scrollIntoView`)
-- [ ] Scroll container: `overflow-y-auto` with sufficient height
-- [ ] Component tests: empty state, non-empty state, auto-scroll behavior
-- [ ] Integration test: add turn programmatically → verify scroll position at bottom
+- [x] File `src/app/playground/components/ConversationHistory.tsx` created as Client Component
+- [x] Props: `turns: Turn[]`, `onExampleClick: (query: string) => void`
+- [x] If `turns.length === 0`: renders `<WelcomeMessage onExampleClick={onExampleClick} />`
+- [x] If `turns.length > 0`: renders scrollable list with each `<TurnDisplay turn={turn} />`
+- [x] Auto-scroll to bottom when new turn added (using `useEffect` + `scrollIntoView`)
+- [x] Scroll container: `overflow-y-auto` with sufficient height
+- [x] Component tests: empty state, non-empty state, auto-scroll behavior
+- [x] Integration test: add turn programmatically → verify scroll position at bottom
 
 **Requirements**: FR-4.1 (scrollable history), FR-4.2 (append new turns), FR-7.1 (welcome message when empty)
 
