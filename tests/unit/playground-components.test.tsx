@@ -237,6 +237,25 @@ describe('Playground Chat - Phase 1 & 2 UI Components Unit Tests', () => {
       expect(html).not.toContain('📊 Routing Decision');
       expect(html).not.toContain('🔧 Tool Results');
     });
+
+    it('renders prominent yellow warning banner when turn contains warnings (Task 5.4)', () => {
+      const turnWithWarnings: Turn = {
+        id: 'turn-warn',
+        timestamp: 1700000000000,
+        userQuery: 'Search notes',
+        warnings: ["Server 'tasks' unavailable", "Server 'calendar' unavailable"],
+      };
+
+      const html = renderToStaticMarkup(<TurnDisplay turn={turnWithWarnings} />);
+
+      expect(html).toContain('⚠️');
+      expect(html).toContain('tasks');
+      expect(html).toContain('calendar');
+      expect(html).toContain('unavailable');
+      expect(html).toContain('bg-yellow-950/40');
+      expect(html).toContain('border-yellow-600/50');
+      expect(html).toContain('text-yellow-300');
+    });
   });
 
   describe('Task 2.3: ConversationHistory Component', () => {
