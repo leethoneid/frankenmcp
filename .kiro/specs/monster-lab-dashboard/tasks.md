@@ -367,18 +367,18 @@ This document breaks down the monster-lab-dashboard feature into discrete, testa
 **Description**: End-to-end test that records real turns and verifies dashboard displays exact matching numbers.
 
 **Acceptance Criteria**:
-- [ ] Test file `tests/integration/lab-real-data.test.ts` created
-- [ ] Test spawns 3 demo MCP servers (notes, tasks, calculator)
-- [ ] Test records 3 real routing turns using actual `routeIntent` and `recordTurn` (or `computeTurnStats`)
-- [ ] Test does NOT use mocks; uses real `getSessionStats()` output
-- [ ] Test renders `/lab` page (or calls API routes)
-- [ ] Test extracts displayed numbers from rendered output
-- [ ] Test asserts: `displayedToolsLoaded === getSessionStats().totalToolsLoaded`
-- [ ] Test asserts: `displayedToolsTrimmed === getSessionStats().totalToolsTrimmed`
-- [ ] Test asserts: `displayedTokensSaved === getSessionStats().totalTokensSaved`
-- [ ] Test asserts: `displayedAvgTime === getSessionStats().averageRoutingTimeMs`
-- [ ] Test passes consistently (no flakes)
-- [ ] Test teardown: terminate all subprocesses, verify clean shutdown
+- [x] Test file `tests/integration/lab-real-data.test.ts` created
+- [x] Test spawns 3 demo MCP servers (notes, tasks, calculator)
+- [x] Test records 3 real routing turns using actual `routeIntent` and `recordTurn` (or `computeTurnStats`)
+- [x] Test does NOT use mocks; uses real `getSessionStats()` output
+- [x] Test renders `/lab` page (or calls API routes)
+- [x] Test extracts displayed numbers from rendered output
+- [x] Test asserts: `displayedToolsLoaded === getSessionStats().totalToolsLoaded`
+- [x] Test asserts: `displayedToolsTrimmed === getSessionStats().totalToolsTrimmed`
+- [x] Test asserts: `displayedTokensSaved === getSessionStats().totalTokensSaved`
+- [x] Test asserts: `displayedAvgTime === getSessionStats().averageRoutingTimeMs`
+- [x] Test passes consistently (no flakes)
+- [x] Test teardown: terminate all subprocesses, verify clean shutdown
 
 **Requirements**: NFR-4.1 (real data test), AC-7 (displayed numbers match source)
 
@@ -393,15 +393,15 @@ This document breaks down the monster-lab-dashboard feature into discrete, testa
 **Description**: Comprehensive unit tests for all dashboard components.
 
 **Acceptance Criteria**:
-- [ ] Test file `tests/unit/lab-components.test.ts` created (or separate files per component)
-- [ ] MetricCard tests: verify color classes, prefix, number formatting
-- [ ] ServerStatusBadge tests: verify each status icon and color
-- [ ] ErrorFallback tests: verify "Stats unavailable" shown, dev/prod mode handling
-- [ ] StatsPanel tests: verify initial stats, polling updates, error banner
-- [ ] TurnHistoryPanel tests: verify empty state, 20-turn limit, singular/plural labels
-- [ ] TurnCard tests: verify expand/collapse, tool lists, reasoning, truncation
-- [ ] ServerHealthPanel tests: verify offline warning, duration formatting, error display
-- [ ] All tests pass with ≥90% coverage on component logic
+- [x] Test file `tests/unit/lab-components.test.ts` created (or separate files per component)
+- [x] MetricCard tests: verify color classes, prefix, number formatting
+- [x] ServerStatusBadge tests: verify each status icon and color
+- [x] ErrorFallback tests: verify "Stats unavailable" shown, dev/prod mode handling
+- [x] StatsPanel tests: verify initial stats, polling updates, error banner
+- [x] TurnHistoryPanel tests: verify empty state, 20-turn limit, singular/plural labels
+- [x] TurnCard tests: verify expand/collapse, tool lists, reasoning, truncation
+- [x] ServerHealthPanel tests: verify offline warning, duration formatting, error display
+- [x] All tests pass with ≥90% coverage on component logic
 
 **Requirements**: NFR-4.2 (failure state testing), NFR-4.3 (server status testing)
 
@@ -416,15 +416,15 @@ This document breaks down the monster-lab-dashboard feature into discrete, testa
 **Description**: Unit tests for both API routes.
 
 **Acceptance Criteria**:
-- [ ] Test file `tests/unit/lab-api-routes.test.ts` created
-- [ ] Test `/api/lab/session-stats`:
+- [x] Test file `tests/unit/lab-api-routes.test.ts` created
+- [x] Test `/api/lab/session-stats`:
   - Mock `getSessionStats()` to return mock data → verify JSON response matches
   - Mock `getSessionStats()` to throw error → verify 500 response with error message
-- [ ] Test `/api/lab/server-status`:
+- [x] Test `/api/lab/server-status`:
   - Mock `MCPServerManager` methods → verify `runHealthCheckRound()` called before `getServerManifests()`
   - Mock `runHealthCheckRound()` to simulate status changes → verify manifests reflect changes
   - Mock manager to throw error → verify 500 response
-- [ ] All tests pass consistently
+- [x] All tests pass consistently
 
 **Requirements**: FR-3.6 (real aggregates), FR-4.6 (real server status)
 
@@ -439,14 +439,14 @@ This document breaks down the monster-lab-dashboard feature into discrete, testa
 **Description**: Verify all acceptance criteria from requirements.md are met.
 
 **Acceptance Criteria**:
-- [ ] AC-1: User can navigate to `/lab` and see dashboard (even with zero turns) → manual test
-- [ ] AC-2: After submitting query in Playground, refresh `/lab` shows new turn stats → manual test
-- [ ] AC-3: Dashboard displays accurate server health (3 demo servers "connected" on first load) → manual test
-- [ ] AC-4: Manually disconnect server → dashboard shows "disconnected" or "error" within 10s → manual test with stopwatch
-- [ ] AC-5: Simulate `getSessionStats()` error → dashboard shows "Stats unavailable" → unit test (Task 7.2)
-- [ ] AC-6: Visual design uses dark theme with lab aesthetics → manual visual inspection
-- [ ] AC-7: Displayed numbers match `getSessionStats()` output → integration test (Task 7.1)
-- [ ] Checklist document created summarizing validation results
+- [x] AC-1: User can navigate to `/lab` and see dashboard (even with zero turns) → manual test
+- [x] AC-2: After submitting query in Playground, refresh `/lab` shows new turn stats → manual test
+- [x] AC-3: Dashboard displays accurate server health (3 demo servers "connected" on first load) → manual test
+- [x] AC-4: Manually disconnect server → dashboard shows "disconnected" or "error" within 10s → manual test with stopwatch
+- [x] AC-5: Simulate `getSessionStats()` error → dashboard shows "Stats unavailable" → unit test (Task 7.2)
+- [x] AC-6: Visual design uses dark theme with lab aesthetics → manual visual inspection
+- [x] AC-7: Displayed numbers match `getSessionStats()` output → integration test (Task 7.1)
+- [x] Checklist document created summarizing validation results
 
 **Requirements**: All AC-* from requirements.md
 
