@@ -224,7 +224,7 @@ export function simplifiedRoute(intent: string): string[] {
 - `src/mcp-servers/tasks/index.mjs` (refactor to use `core.mjs`)
 
 **Acceptance Criteria**:
-- [ ] `TasksCore` class (in `core.mjs`) implements:
+- [x] `TasksCore` class (in `core.mjs`) implements:
   - In-memory task storage (`Map<string, Task>`)
   - `loadFixtures()` method seeding 5 demo tasks (matching existing stdio server fixtures):
     - "[DEMO] Assemble server stitches"
@@ -233,18 +233,18 @@ export function simplifiedRoute(intent: string): string[] {
     - "[DEMO] Trim schema overhead"
     - "[DEMO] Record hackathon demo video"
   - CRUD methods: `createTask()`, `listTasks()`, `readTask()`, `updateTask()`, `deleteTask()`
-- [ ] Constructor calls `loadFixtures()` automatically (function-instance-scoped initialization)
-- [ ] `TasksAdapter` (TypeScript) imports `TasksCore` from `core.mjs` and implements `InProcessMCPAdapter`
-- [ ] `TasksAdapter.listTools()` returns 5 tool definitions matching stdio version
-- [ ] `TasksAdapter.invokeTool()` delegates to `TasksCore` methods
-- [ ] Stdio version (`index.mjs`) refactored to use `TasksCore` (shared logic)
-- [ ] Unit tests verify:
+- [x] Constructor calls `loadFixtures()` automatically (function-instance-scoped initialization)
+- [x] `TasksAdapter` (TypeScript) imports `TasksCore` from `core.mjs` and implements `InProcessMCPAdapter`
+- [x] `TasksAdapter.listTools()` returns 5 tool definitions matching stdio version
+- [x] `TasksAdapter.invokeTool()` delegates to `TasksCore` methods
+- [x] Stdio version (`index.mjs`) refactored to use `TasksCore` (shared logic)
+- [x] Unit tests verify:
   - Fixtures loaded on initialization (5 tasks present)
   - User-created tasks appear alongside fixtures
   - Default priority is `'medium'` when not specified
   - Tasks can be marked completed/incomplete
   - Invalid IDs throw errors
-- [ ] Adapter parity test verifies stdio and in-process produce identical tool lists
+- [x] Adapter parity test verifies stdio and in-process produce identical tool lists
 
 **Estimated Effort**: 3 hours
 
