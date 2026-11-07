@@ -195,4 +195,60 @@ describe('Task 4.2: Vercel Mode Integration Tests', () => {
       expect(res.result).toBe(328.08399);
     }
   });
+
+  it('Step 9 Regression: prioritizes arithmetic over unit conversion when queries contain 等于', async () => {
+    process.env.VERCEL = '1';
+
+    const manager = MCPServerManager.getInstance();
+    await manager.connectAll();
+    const manifests = manager.getServerManifests();
+
+    // 1. "47474乘87587等于多少" -> multiply, { a: 47474, b: 87587 }, result 4158105238
+    const mulQuery = '47474乘87587等于多少';
+    const mulDecision = await routeIntent(mulQuery, manifests, { bypassCache: true });
+    expect(mulDecision.selectedServers).toEqual(['calculator']);
+    expect(mulDecision.toolFilter[0].includedTools).toEqual(['multiply']);
+    const mulArgs = extractToolArguments(mulQuery, 'multiply', 'calculator');
+    expect(mulArgs).toEqual({ a: 47474, b: 87587 });
+    const mulRes = (await manager.invokeToolCall('calculator', 'multiply', mulArgs!)) as {
+      result: number;
+    };
+    expect(mulRes.result).toBe(4158105238);
+
+    // 2. "4241乘3235多少？" -> multiply, result 13719635
+    const mulQuery2 = '4241乘3235多少？';
+    const mulDecision2 = await routeIntent(mulQuery2, manifests, { bypassCache: true });
+    expect(mulDecision2.selectedServers).toEqual(['calculator']);
+    expect(mulDecision2.toolFilter[0].includedTools).toEqual(['multiply']);
+    const mulArgs2 = extractToolArguments(mulQuery2, 'multiply', 'calculator');
+    expect(mulArgs2).toEqual({ a: 4241, b: 3235 });
+    const mulRes2 = (await manager.invokeToolCall('calculator', 'multiply', mulArgs2!)) as {
+      result: number;
+    };
+    expect(mulRes2.result).toBe(13719635);
+
+    // 3. "100米等于多少英尺" -> convert_units, result 328.08399
+    const convQuery = '100米等于多少英尺';
+    const convDecision = await routeIntent(convQuery, manifests, { bypassCache: true });
+    expect(convDecision.selectedServers).toEqual(['calculator']);
+    expect(convDecision.toolFilter[0].includedTools).toEqual(['convert_units']);
+    const convArgs = extractToolArguments(convQuery, 'convert_units', 'calculator');
+    expect(convArgs).toEqual({ value: 100, from: 'm', to: 'ft' });
+    const convRes = (await manager.invokeToolCall('calculator', 'convert_units', convArgs!)) as {
+      result: number;
+    };
+    expect(convRes.result).toBe(328.08399);
+
+    // 4. "10加5等于多少" -> add, result 15
+    const addQuery = '10加5等于多少';
+    const addDecision = await routeIntent(addQuery, manifests, { bypassCache: true });
+    expect(addDecision.selectedServers).toEqual(['calculator']);
+    expect(addDecision.toolFilter[0].includedTools).toEqual(['add']);
+    const addArgs = extractToolArguments(addQuery, 'add', 'calculator');
+    expect(addArgs).toEqual({ a: 10, b: 5 });
+    const addRes = (await manager.invokeToolCall('calculator', 'add', addArgs!)) as {
+      result: number;
+    };
+    expect(addRes.result).toBe(15);
+  });
 });

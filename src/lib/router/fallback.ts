@@ -149,15 +149,10 @@ export function getFallbackSearchResults(
       }
     } else if (serverID === 'calculator') {
       // 计算器按查询里的运算符选工具：
-      // '-' → subtract，'*'/'×' → multiply，'/'/'÷' → divide，
-      // '+' → add，换算关键词 → convert_units
+      // 四则运算优先于单位换算（算术运算符为明确信号，换算的"等于"等关键词具歧义）
       let targetTool = 'add';
 
-      if (
-        /convert|conversion|\bto\b|\binto\b|meter|feet|foot|inch|kg|pound|celsius|fahrenheit|米|英尺|英寸|千克|公斤|磅|摄氏度|华氏度|换算|等于/i.test(lower)
-      ) {
-        targetTool = 'convert_units';
-      } else if (/\d+\s*-\s*\d+/i.test(lower) || /\b(minus|subtract)\b/i.test(lower) || /-/.test(lower) || /减/.test(lower)) {
+      if (/\d+\s*-\s*\d+/i.test(lower) || /\b(minus|subtract)\b/i.test(lower) || /-/.test(lower) || /减/.test(lower)) {
         targetTool = 'subtract';
       } else if (/\d+\s*[*×]\s*\d+/i.test(lower) || /\b(multiply|times)\b/i.test(lower) || /[*×]/.test(lower) || /乘/.test(lower)) {
         targetTool = 'multiply';
@@ -165,6 +160,10 @@ export function getFallbackSearchResults(
         targetTool = 'divide';
       } else if (/\d+\s*\+\s*\d+/i.test(lower) || /\b(add|plus|sum)\b/i.test(lower) || /\+/.test(lower) || /加/.test(lower)) {
         targetTool = 'add';
+      } else if (
+        /convert|conversion|\bto\b|\binto\b|meter|feet|foot|inch|kg|pound|celsius|fahrenheit|米|英尺|英寸|千克|公斤|磅|摄氏度|华氏度|换算|等于/i.test(lower)
+      ) {
+        targetTool = 'convert_units';
       }
 
       const tool = tools.find((t) => t.name === targetTool) || tools.find((t) => t.name === 'add');
