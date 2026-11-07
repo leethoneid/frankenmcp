@@ -112,7 +112,7 @@ export function extractToolArguments(
 
       // 按顺序提取前两个可识别的单位
       const unitMatches = trimmedQuery.match(
-        /(?:千克|公斤|摄氏度|华氏度|英尺|英寸|米|磅|meters?|feet|foot|ft|inches?|kilograms?|kg|pounds?|lbs?|celsius|fahrenheit|\b[CFcf]\b)/gi
+        /(?:千克|公斤|摄氏度|华氏度|英尺|英寸|厘米|毫米|米|磅|meters?|feet|foot|ft|inches?|kilograms?|kg|pounds?|lbs?|celsius|fahrenheit|\b[CFcf]\b)/gi
       );
 
       if (unitMatches && unitMatches.length >= 2) {
@@ -154,6 +154,9 @@ function normalizeUnit(unitStr: string): string | null {
   if (!unitStr) return null;
   const raw = unitStr.trim();
   const lower = raw.toLowerCase();
+
+  // 暂不支持厘米/毫米换算，明确返回 null（AGENTS.md 2.7 宁可报错也不错算）
+  if (['厘米', '毫米'].includes(raw)) return null;
 
   // Chinese mappings
   if (raw === '米') return 'm';
