@@ -10,11 +10,19 @@ import ToolResultCard from './ToolResultCard';
 import ErrorMessage from './ErrorMessage';
 import LoadingIndicator from './LoadingIndicator';
 
+/**
+ * Props for the TurnDisplay component.
+ */
 export interface TurnDisplayProps {
+  /** The conversational turn data, including user query, routing metrics, warnings, and tool outputs. */
   turn: Turn;
+  /** Whether tools are currently being executed for this turn (displays a loading indicator under stats). */
   isExecutingTools?: boolean;
 }
 
+/**
+ * Renders an individual conversation turn card containing user prompt, routing statistics, and tool execution cards.
+ */
 export default function TurnDisplay({ turn, isExecutingTools = false }: TurnDisplayProps) {
   const timestamp = turn.timestamp ? new Date(turn.timestamp).toLocaleTimeString() : '';
 

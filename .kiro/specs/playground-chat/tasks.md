@@ -635,10 +635,10 @@ This document breaks down the playground-chat feature into discrete, testable ta
 **Description**: Add JSDoc comments and usage examples to all components.
 
 **Acceptance Criteria**:
-- [ ] JSDoc comments added to all component props interfaces
-- [ ] Each component file includes brief purpose comment at top
-- [ ] README file `src/app/playground/components/README.md` created with component overview
-- [ ] Code examples included for reusable components (ErrorMessage, LoadingIndicator, RoutingStatsCard, ToolResultCard)
+- [x] JSDoc comments added to all component props interfaces
+- [x] Each component file includes brief purpose comment at top
+- [x] README file `src/app/playground/components/README.md` created with component overview
+- [x] Code examples included for reusable components (ErrorMessage, LoadingIndicator, RoutingStatsCard, ToolResultCard)
 
 **Requirements**: Military Rule 3 (exhaustive docs)
 
@@ -653,11 +653,11 @@ This document breaks down the playground-chat feature into discrete, testable ta
 **Description**: Verify NFR-1 performance targets are met.
 
 **Acceptance Criteria**:
-- [ ] Manual test: submit query → measure time to routing decision display → ≤2s (NFR-1.1, same as router-core)
-- [ ] Manual test: measure time from tool result received to displayed → ≤500ms (NFR-1.2)
-- [ ] Benchmark test: create conversation with 50 turns → verify smooth scrolling (no lag >100ms frame time)
-- [ ] Benchmark results logged to console (not hard-coded in docs)
-- [ ] If targets not met, document actual performance and file issue for optimization
+- [x] Manual test: submit query → measure time to routing decision display → ≤2s (NFR-1.1, same as router-core)
+- [x] Manual test: measure time from tool result received to displayed → ≤500ms (NFR-1.2)
+- [x] Benchmark test: create conversation with 50 turns → verify smooth scrolling (no lag >100ms frame time)
+- [x] Benchmark results logged to console (not hard-coded in docs)
+- [x] If targets not met, document actual performance and file issue for optimization
 
 **Requirements**: NFR-1.1 (routing speed), NFR-1.2 (result display), NFR-1.3 (scroll performance)
 

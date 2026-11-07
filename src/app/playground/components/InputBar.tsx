@@ -2,19 +2,31 @@
 
 /**
  * @file InputBar.tsx
- * @description User query input component with submit button and input validation.
+ * @description User query input component with submit button, input validation, and responsive mobile layout.
+ * Enforces non-empty input and a maximum 1000-character constraint.
  */
 
 import { useState, FormEvent, RefObject } from 'react';
 
+/**
+ * Props for the InputBar component.
+ */
 export interface InputBarProps {
+  /** Callback invoked with trimmed user query text on successful submission. */
   onSubmit: (query: string) => Promise<void> | void;
+  /** Whether the input and submit button should be disabled (e.g. during query processing). */
   disabled: boolean;
+  /** Optional controlled input value. */
   value?: string;
+  /** Optional change handler for controlled input usage. */
   onChange?: (value: string) => void;
+  /** Optional ref forwarded to the underlying HTML input element for programmatic focus. */
   inputRef?: RefObject<HTMLInputElement | null>;
 }
 
+/**
+ * Renders the query input bar with validation, submit handling, and auto-focus support.
+ */
 export default function InputBar({
   onSubmit,
   disabled,

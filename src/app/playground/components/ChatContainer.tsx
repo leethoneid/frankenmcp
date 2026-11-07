@@ -15,15 +15,27 @@ import type { Turn } from '../types';
 import ConversationHistory from './ConversationHistory';
 import InputBar from './InputBar';
 
+/**
+ * Props for the ChatContainer component.
+ */
 export interface ChatContainerProps {
+  /** Optional initial conversation turns for pre-populating or testing. */
   initialTurns?: Turn[];
+  /** API endpoint to post chat queries to (default: '/api/playground/chat'). */
   apiEndpoint?: string;
+  /** Optional initial error message to display in the chat container. */
   initialError?: string | null;
 }
 
+/**
+ * Result structure returned by `sendChatQuery`.
+ */
 export interface ChatQueryResult {
+  /** The completed conversation turn if the request succeeded. */
   turn?: Turn;
+  /** Error message string if the request failed. */
   error?: string;
+  /** Flag indicating whether the failure was caused by router unavailability. */
   isRouterUnavailable?: boolean;
 }
 

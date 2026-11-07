@@ -11,14 +11,25 @@ import TurnDisplay from './TurnDisplay';
 import WelcomeMessage from './WelcomeMessage';
 import LoadingIndicator from './LoadingIndicator';
 
+/**
+ * Props for the ConversationHistory component.
+ */
 export interface ConversationHistoryProps {
+  /** Array of completed or in-progress conversation turns to render in chronological order. */
   turns: Turn[];
+  /** Callback fired when an example query is clicked in the welcome state. */
   onExampleClick?: (query: string) => void;
+  /** Whether an active query is being processed, which displays an in-flight loading indicator. */
   isProcessing?: boolean;
+  /** Optional custom text message for the loading indicator. */
   loadingMessage?: string;
+  /** Current asynchronous loading phase ('routing' or 'executing') to customize the loading message. */
   loadingPhase?: 'routing' | 'executing' | null;
 }
 
+/**
+ * Scrollable container rendering the conversation stream, managing auto-scroll and welcome state.
+ */
 export default function ConversationHistory({
   turns,
   onExampleClick,
