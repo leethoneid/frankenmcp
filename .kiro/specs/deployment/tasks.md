@@ -448,7 +448,7 @@ const allHealthy = onlineDemoServers.length >= 3;
 - [x] Cold start completes within 3 seconds (first request after deploy)
 - [x] Warm function completes within 500ms (subsequent requests)
 - [x] No subprocess-related errors in Vercel logs
-- [x] Verify with fresh browser (no cache) that demo works without configuration
+- [ ] Verify with fresh browser (no cache) that demo works without configuration
 
 **Estimated Effort**: 2 hours
 
@@ -534,17 +534,17 @@ const allHealthy = onlineDemoServers.length >= 3;
 **Dependencies**: Task 4.1
 
 **Acceptance Criteria**:
-- [ ] Benchmark script measures:
+- [x] Benchmark script measures:
   - Cold start latency (first request after deploy)
   - Warm function latency (10 consecutive requests)
   - Adapter initialization time (from logs)
   - Total query execution time (routing + tools)
-- [ ] Results logged to `docs/performance.md`
-- [ ] If p95 latency >5 seconds, investigate and optimize:
+- [x] Results logged to `docs/performance.md`
+- [x] If p95 latency >5 seconds, investigate and optimize:
   - Lazy-load adapters only when needed
   - Cache router manifests across warm function invocations
   - Parallelize tool execution where possible
-- [ ] Final results meet NFR-1 targets:
+- [x] Final results meet NFR-1 targets:
   - Cold start <3s
   - Warm function <500ms
   - Adapter init <100ms
