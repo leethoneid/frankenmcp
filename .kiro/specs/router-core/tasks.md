@@ -1,4 +1,4 @@
-# Router Core â€?Task Breakdown
+# Router Core ï¿½?Task Breakdown
 
 > **Feature**: Dynamic MCP router with schema trimming and per-turn statistics  
 > **Status**: Ready for implementation  
@@ -106,7 +106,7 @@ This document breaks down the router-core feature into discrete, testable tasks.
 - [x] Reconnection logic: retry failed connections 3x with exponential backoff
 - [x] Graceful shutdown: terminate all child processes on `process.exit`
 - [x] Error handling: server spawn failure marks as `error`, logs to console
-- [x] Error handling: all servers fail â†?throw `AllServersUnavailableError`
+- [x] Error handling: all servers fail ï¿½?throw `AllServersUnavailableError`
 - [x] Unit tests: registration, connection, health checks, reconnection, shutdown
 - [x] Integration test: spawn real demo server subprocess, verify handshake
 
@@ -126,9 +126,9 @@ This document breaks down the router-core feature into discrete, testable tasks.
 - [x] Function `loadMCPConfig(path)` reads and parses JSON file
 - [x] Validation: each server has required fields (id, name, transport, and transport-specific fields)
 - [x] Validation: transport type is one of 'stdio', 'sse', 'http'
-- [x] Error handling: file not found â†?throw `MCPConfigParseError` with path
-- [x] Error handling: invalid JSON â†?throw `MCPConfigParseError` with parse error
-- [x] Error handling: validation failure â†?throw `MCPConfigParseError` with field name
+- [x] Error handling: file not found ï¿½?throw `MCPConfigParseError` with path
+- [x] Error handling: invalid JSON ï¿½?throw `MCPConfigParseError` with parse error
+- [x] Error handling: validation failure ï¿½?throw `MCPConfigParseError` with field name
 - [x] Integration with `MCPServerManager`: auto-register servers from config
 - [x] Unit tests: valid config, missing file, malformed JSON, invalid schema
 
@@ -164,7 +164,7 @@ This document breaks down the router-core feature into discrete, testable tasks.
 
 ---
 
-### Task 3.2: PBT Strategy Decision â€?Test Wiring
+### Task 3.2: PBT Strategy Decision ï¿½?Test Wiring
 
 **Description**: Decide and implement strategy for wiring PBT tests to real router with generated schemas.
 
@@ -212,9 +212,9 @@ This document breaks down the router-core feature into discrete, testable tasks.
 - [x] Derives `selectedServers` as unique server IDs from results
 - [x] Derives `toolFilter` array with `serverID` and `includedTools[]` per server
 - [x] Optional `reasoning` field populated with top search score
-- [x] Error handling: empty search results â†?throw `NoRelevantToolsError`
-- [x] Error handling: router timeout (>2s) â†?throw `RoutingTimeoutError`
-- [x] Error handling: malformed router response â†?throw `InvalidRoutingDecisionError`
+- [x] Error handling: empty search results ï¿½?throw `NoRelevantToolsError`
+- [x] Error handling: router timeout (>2s) ï¿½?throw `RoutingTimeoutError`
+- [x] Error handling: malformed router response ï¿½?throw `InvalidRoutingDecisionError`
 - [x] Unit tests: valid search results, empty results, timeout, malformed response
 - [x] Integration test: route real intent ("add a note"), verify decision includes notes server
 
@@ -264,7 +264,7 @@ This document breaks down the router-core feature into discrete, testable tasks.
 - [x] `estimateTokenSavings(trimmedSchemas)` function calculates `Math.ceil(charCount / 4)`
 - [x] `toolsLoaded` semantics enforced: count of tools included in routing decision (loaded into context)
 - [x] `toolsTrimmed` calculated as: `(tools in selected servers) - toolsLoaded`
-  - Example: notes server selected (5 tools total), router chooses 2 tools â†?toolsTrimmed = 3
+  - Example: notes server selected (5 tools total), router chooses 2 tools ï¿½?toolsTrimmed = 3
   - NOT calculated as `(all 15 tools from all servers) - toolsLoaded`
   - "Trimmed" means excluded by router from selected servers, not excluded by server selection
 - [x] `estimatedTokensSaved` calculated from character count of excluded tool schemas (from selected servers only)
@@ -311,11 +311,11 @@ This document breaks down the router-core feature into discrete, testable tasks.
 - [x] File is pure ES module (`.mjs`), no TypeScript compilation required
 - [x] Implements MCP stdio protocol using `@modelcontextprotocol/sdk`
 - [x] Tools exposed:
-  - `create_note(title: string, content: string)` â†?`{ id: string }`
-  - `read_note(id: string)` â†?`{ id: string, title: string, content: string, created: number }`
-  - `update_note(id: string, title?: string, content?: string)` â†?`{ id: string }`
-  - `delete_note(id: string)` â†?`{ success: boolean }`
-  - `list_notes()` â†?`{ notes: Array<{ id: string, title: string }> }`
+  - `create_note(title: string, content: string)` ï¿½?`{ id: string }`
+  - `read_note(id: string)` ï¿½?`{ id: string, title: string, content: string, created: number }`
+  - `update_note(id: string, title?: string, content?: string)` ï¿½?`{ id: string }`
+  - `delete_note(id: string)` ï¿½?`{ success: boolean }`
+  - `list_notes()` ï¿½?`{ notes: Array<{ id: string, title: string }> }`
 - [x] Storage: in-memory Map, optionally persist to `notes.json` in temp directory
 - [x] Fixtures: 3 pre-populated demo notes with `[DEMO]` marker in content
 - [x] Input validation: missing required parameters return error
@@ -339,11 +339,11 @@ This document breaks down the router-core feature into discrete, testable tasks.
 - [x] File is pure ES module (`.mjs`), no TypeScript compilation required
 - [x] Implements MCP stdio protocol using `@modelcontextprotocol/sdk`
 - [x] Tools exposed:
-  - `create_task(title: string, priority?: 'low'|'medium'|'high')` â†?`{ id: string }`
-  - `read_task(id: string)` â†?`{ id: string, title: string, priority: string, completed: boolean }`
-  - `update_task(id: string, title?: string, priority?: string, completed?: boolean)` â†?`{ id: string }`
-  - `delete_task(id: string)` â†?`{ success: boolean }`
-  - `list_tasks(filter?: { completed?: boolean })` â†?`{ tasks: Array<...> }`
+  - `create_task(title: string, priority?: 'low'|'medium'|'high')` ï¿½?`{ id: string }`
+  - `read_task(id: string)` ï¿½?`{ id: string, title: string, priority: string, completed: boolean }`
+  - `update_task(id: string, title?: string, priority?: string, completed?: boolean)` ï¿½?`{ id: string }`
+  - `delete_task(id: string)` ï¿½?`{ success: boolean }`
+  - `list_tasks(filter?: { completed?: boolean })` ï¿½?`{ tasks: Array<...> }`
 - [x] Storage: in-memory Map, optionally persist to `tasks.json`
 - [x] Fixtures: 5 pre-populated demo tasks (mix of completed/incomplete) with `[DEMO]` marker
 - [x] Input validation and error handling per notes server pattern
@@ -365,11 +365,11 @@ This document breaks down the router-core feature into discrete, testable tasks.
 - [x] File is pure ES module (`.mjs`), no TypeScript compilation required
 - [x] Implements MCP stdio protocol using `@modelcontextprotocol/sdk`
 - [x] Tools exposed:
-  - `add(a: number, b: number)` â†?`{ result: number }`
-  - `subtract(a: number, b: number)` â†?`{ result: number }`
-  - `multiply(a: number, b: number)` â†?`{ result: number }`
-  - `divide(a: number, b: number)` â†?`{ result: number }` (error if b=0)
-  - `convert_units(value: number, from: string, to: string)` â†?`{ result: number }`
+  - `add(a: number, b: number)` ï¿½?`{ result: number }`
+  - `subtract(a: number, b: number)` ï¿½?`{ result: number }`
+  - `multiply(a: number, b: number)` ï¿½?`{ result: number }`
+  - `divide(a: number, b: number)` ï¿½?`{ result: number }` (error if b=0)
+  - `convert_units(value: number, from: string, to: string)` ï¿½?`{ result: number }`
 - [x] Unit conversions supported: length (m, ft, in), weight (kg, lb), temperature (C, F)
 - [x] Storage: none (stateless)
 - [x] Input validation: non-numeric inputs return error
@@ -406,7 +406,7 @@ This document breaks down the router-core feature into discrete, testable tasks.
 
 ## Phase 6: Property-Based Testing
 
-### Task 6.1: PBT Invariant 1 â€?Required Parameter Preservation
+### Task 6.1: PBT Invariant 1 ï¿½?Required Parameter Preservation
 
 **Description**: Implement property-based test for schema trimming invariant.
 
@@ -414,13 +414,13 @@ This document breaks down the router-core feature into discrete, testable tasks.
 - [x] Test file `tests/pbt/trimming.test.ts` created
 - [x] Custom generator `toolSchemaGen` defined (valid MCP `ToolSchema` format with `inputSchema.required[]`)
 - [x] Test wiring strategy from Task 3.2 implemented (ephemeral servers OR stub search function)
-- [x] Property: for all generated schemas, routing decision includes tools â†?all `required[]` parameters preserved in loaded schemas
-- [x] Test runs â‰?00 iterations via `{ numRuns: 100 }`
+- [x] Property: for all generated schemas, routing decision includes tools ï¿½?all `required[]` parameters preserved in loaded schemas
+- [x] Test runs ï¿½?00 iterations via `{ numRuns: 100 }`
 - [x] Test annotated with comment: `// Validates FR-2.3, NFR-3.2`
 - [x] Test passes consistently (no flakes)
 - [x] If test fails, shrinks to minimal failing case
 
-**Requirements**: FR-2.3 (preserve required params), NFR-3.2 (PBT â‰?00 cases)
+**Requirements**: FR-2.3 (preserve required params), NFR-3.2 (PBT ï¿½?00 cases)
 
 **Dependencies**: Task 3.4, Task 3.2
 
@@ -428,20 +428,20 @@ This document breaks down the router-core feature into discrete, testable tasks.
 
 ---
 
-### Task 6.2: PBT Invariant 2 â€?Routing Determinism
+### Task 6.2: PBT Invariant 2 ï¿½?Routing Determinism
 
 **Description**: Implement property-based test for routing consistency.
 
 **Acceptance Criteria**:
 - [x] Test file `tests/pbt/determinism.test.ts` created
 - [x] Generator: random intent strings + random sets of tool schemas
-- [x] Property: same intent + same server set â†?two calls to `routeIntentNoCache()` return identical `selectedServers` and `toolFilter`
+- [x] Property: same intent + same server set ï¿½?two calls to `routeIntentNoCache()` return identical `selectedServers` and `toolFilter`
 - [x] Helper `routeIntentNoCache()` implemented to bypass cache (uses `options.bypassCache: true`)
 - [x] Test annotated with comment: `// Validates FR-2.6, NFR-3.3`
-- [x] Test runs â‰?00 iterations
+- [x] Test runs ï¿½?00 iterations
 - [x] Test passes consistently
 
-**Requirements**: FR-2.6 (determinism), NFR-3.3 (PBT â‰?00 cases)
+**Requirements**: FR-2.6 (determinism), NFR-3.3 (PBT ï¿½?00 cases)
 
 **Dependencies**: Task 3.4, Task 3.2
 
@@ -449,20 +449,20 @@ This document breaks down the router-core feature into discrete, testable tasks.
 
 ---
 
-### Task 6.3: PBT Invariant 3 â€?Schema Round-Trip Fidelity
+### Task 6.3: PBT Invariant 3 ï¿½?Schema Round-Trip Fidelity
 
 **Description**: Implement property-based test for schema immutability.
 
 **Acceptance Criteria**:
 - [x] Test file `tests/pbt/fidelity.test.ts` created
 - [x] Generator: random valid tool schemas
-- [x] Property: register schemas â†?route intent (uses cached schemas) â†?force refresh from servers â†?reloaded schemas match originals
+- [x] Property: register schemas ï¿½?route intent (uses cached schemas) ï¿½?force refresh from servers ï¿½?reloaded schemas match originals
 - [x] Deep clone used to compare original vs. reloaded schemas (detects mutation)
 - [x] Test annotated with comment: `// Validates FR-2.7, NFR-3.4`
-- [x] Test runs â‰?00 iterations
+- [x] Test runs ï¿½?00 iterations
 - [x] Test passes consistently
 
-**Requirements**: FR-2.7 (round-trip fidelity), NFR-3.4 (PBT â‰?00 cases)
+**Requirements**: FR-2.7 (round-trip fidelity), NFR-3.4 (PBT ï¿½?00 cases)
 
 **Dependencies**: Task 3.4, Task 2.2
 
@@ -480,9 +480,9 @@ This document breaks down the router-core feature into discrete, testable tasks.
 - [x] Test file `tests/integration/routing-e2e.test.ts` created
 - [x] Test spawns all three demo servers as real subprocesses
 - [x] Test spawns router as real subprocess
-- [x] Test intent: "Add a note about the meeting" â†?verify router selects notes server + `create_note` tool
-- [x] Test intent: "Show my tasks" â†?verify router selects tasks server + `list_tasks` tool
-- [x] Test intent: "Calculate 15 + 27" â†?verify router selects calculator server + `add` tool
+- [x] Test intent: "Add a note about the meeting" ï¿½?verify router selects notes server + `create_note` tool
+- [x] Test intent: "Show my tasks" ï¿½?verify router selects tasks server + `list_tasks` tool
+- [x] Test intent: "Calculate 15 + 27" ï¿½?verify router selects calculator server + `add` tool
 - [x] Test verifies `toolsLoaded` and `toolsTrimmed` statistics are non-zero and accurate
 - [x] Test verifies `estimatedTokensSaved` > 0
 - [x] Test teardown: terminate all subprocesses, verify clean shutdown
@@ -502,12 +502,12 @@ This document breaks down the router-core feature into discrete, testable tasks.
 
 **Acceptance Criteria**:
 - [x] Test file `tests/integration/error-handling.test.ts` created
-- [x] Test: router process spawn failure â†?verify `RouterUnavailableError` thrown, no silent fallback
-- [x] Test: all demo servers disabled in config â†?verify `AllServersUnavailableError` thrown at startup
-- [x] Test: malformed `.kiro/settings/mcp.json` â†?verify `MCPConfigParseError` thrown at startup
-- [x] Test: disconnect server mid-session â†?verify server marked `disconnected`, excluded from routing
-- [x] Test: router returns empty search results â†?verify `NoRelevantToolsError` thrown
-- [x] Test: tool call to disconnected server â†?verify `ToolInvocationError` thrown with server ID
+- [x] Test: router process spawn failure ï¿½?verify `RouterUnavailableError` thrown, no silent fallback
+- [x] Test: all demo servers disabled in config ï¿½?verify `AllServersUnavailableError` thrown at startup
+- [x] Test: malformed `.kiro/settings/mcp.json` ï¿½?verify `MCPConfigParseError` thrown at startup
+- [x] Test: disconnect server mid-session ï¿½?verify server marked `disconnected`, excluded from routing
+- [x] Test: router returns empty search results ï¿½?verify `NoRelevantToolsError` thrown
+- [x] Test: tool call to disconnected server ï¿½?verify `ToolInvocationError` thrown with server ID
 - [x] All tests verify no mock data silently substituted
 
 **Requirements**: FR-1.7 (fail on connection), FR-2.5 (no servers selected), NFR-2.1 (handle unavailable), 2.7 from AGENTS.md (fail loud)
@@ -523,12 +523,12 @@ This document breaks down the router-core feature into discrete, testable tasks.
 **Description**: Verify all acceptance criteria from requirements.md are met.
 
 **Acceptance Criteria**:
-- [x] AC-1: User can add stdio MCP server â†?manual test or UI test (if UI implemented)
-- [x] AC-2: User can submit intent and get response â†?validated by Task 7.1
-- [x] AC-3: User can view routing statistics â†?validated by Task 7.1
-- [x] AC-4: Demo servers pre-configured and functional â†?validated by Task 5.4
-- [x] AC-5: All PBT tests pass with â‰?00 cases â†?validated by Tasks 6.1, 6.2, 6.3
-- [x] AC-6: Connection failures display errors, no mock fallback â†?validated by Task 7.2
+- [x] AC-1: User can add stdio MCP server ï¿½?manual test or UI test (if UI implemented)
+- [x] AC-2: User can submit intent and get response ï¿½?validated by Task 7.1
+- [x] AC-3: User can view routing statistics ï¿½?validated by Task 7.1
+- [x] AC-4: Demo servers pre-configured and functional ï¿½?validated by Task 5.4
+- [x] AC-5: All PBT tests pass with ï¿½?00 cases ï¿½?validated by Tasks 6.1, 6.2, 6.3
+- [x] AC-6: Connection failures display errors, no mock fallback ï¿½?validated by Task 7.2
 - [x] Checklist document created summarizing validation results
 
 **Requirements**: All AC-* from requirements.md
@@ -564,8 +564,8 @@ This document breaks down the router-core feature into discrete, testable tasks.
 **Description**: Verify NFR-1 performance targets are met.
 
 **Acceptance Criteria**:
-- [x] Benchmark test: route 10 intents with 10 registered servers â†?average routing time <2s (NFR-1.1)
-- [x] Benchmark test: retrieve schemas from each demo server â†?each <1s (NFR-1.2)
+- [x] Benchmark test: route 10 intents with 10 registered servers ï¿½?average routing time <2s (NFR-1.1)
+- [x] Benchmark test: retrieve schemas from each demo server ï¿½?each <1s (NFR-1.2)
 - [x] Benchmark results logged to console (not hard-coded in docs)
 - [x] If targets not met, document actual performance and file issue for optimization
 
@@ -581,7 +581,7 @@ This document breaks down the router-core feature into discrete, testable tasks.
 
 **Total Tasks**: 23  
 **Total Estimated Effort**: ~40 hours  
-**Critical Path**: 1.1 â†?1.2 â†?2.1 â†?2.2 â†?2.3 â†?3.1 â†?3.2 â†?3.3 â†?3.4 â†?5.4 â†?7.1 â†?7.3
+**Critical Path**: 1.1 ï¿½?1.2 ï¿½?2.1 ï¿½?2.2 ï¿½?2.3 ï¿½?3.1 ï¿½?3.2 ï¿½?3.3 ï¿½?3.4 ï¿½?5.4 ï¿½?7.1 ï¿½?7.3
 
 **Parallelization Opportunities**:
 - Phase 2 (Tasks 2.1, 2.2, 2.3) can partially overlap with Phase 4 (Task 4.1)
@@ -599,29 +599,29 @@ This document breaks down the router-core feature into discrete, testable tasks.
 
 | Task | Requirements | PBT Invariant | Acceptance Criteria |
 |------|--------------|---------------|---------------------|
-| 1.1 | C-2, C-3 | â€?| â€?|
-| 1.2 | C-2 | â€?| â€?|
-| 2.1 | FR-1.6, NFR-4.1 | â€?| â€?|
-| 2.2 | FR-1.1â€“FR-1.7, NFR-2.1 | â€?| â€?|
-| 2.3 | FR-4.1, C-4 | â€?| â€?|
-| 3.1 | FR-2.1, C-1 | â€?| â€?|
-| 3.2 | NFR-3.2, NFR-3.3, NFR-3.4 | All | â€?|
-| 3.3 | FR-2.1â€“FR-2.4, NFR-1.1 | â€?| â€?|
+| 1.1 | C-2, C-3 | ï¿½?| ï¿½?|
+| 1.2 | C-2 | ï¿½?| ï¿½?|
+| 2.1 | FR-1.6, NFR-4.1 | ï¿½?| ï¿½?|
+| 2.2 | FR-1.1â€“FR-1.7, NFR-2.1 | ï¿½?| ï¿½?|
+| 2.3 | FR-4.1, C-4 | ï¿½?| ï¿½?|
+| 3.1 | FR-2.1, C-1 | ï¿½?| ï¿½?|
+| 3.2 | NFR-3.2, NFR-3.3, NFR-3.4 | All | ï¿½?|
+| 3.3 | FR-2.1â€“FR-2.4, NFR-1.1 | ï¿½?| ï¿½?|
 | 3.4 | FR-2.5, FR-2.6 | PBT-2 | AC-2 |
-| 4.1 | FR-3.1â€“FR-3.6, NFR-3.1 | â€?| AC-3 |
-| 4.2 | FR-3.4, 2.7 (AGENTS.md) | â€?| â€?|
-| 5.1 | FR-4.3, FR-4.7, 2.7 (AGENTS.md) | â€?| â€?|
-| 5.2 | FR-4.4 | â€?| â€?|
-| 5.3 | FR-4.5 | â€?| â€?|
-| 5.4 | FR-4.1, FR-4.6 | â€?| AC-4 |
+| 4.1 | FR-3.1â€“FR-3.6, NFR-3.1 | ï¿½?| AC-3 |
+| 4.2 | FR-3.4, 2.7 (AGENTS.md) | ï¿½?| ï¿½?|
+| 5.1 | FR-4.3, FR-4.7, 2.7 (AGENTS.md) | ï¿½?| ï¿½?|
+| 5.2 | FR-4.4 | ï¿½?| ï¿½?|
+| 5.3 | FR-4.5 | ï¿½?| ï¿½?|
+| 5.4 | FR-4.1, FR-4.6 | ï¿½?| AC-4 |
 | 6.1 | FR-2.3, NFR-3.2 | PBT-1 | AC-5 |
 | 6.2 | FR-2.6, NFR-3.3 | PBT-2 | AC-5 |
 | 6.3 | FR-2.7, NFR-3.4 | PBT-3 | AC-5 |
-| 7.1 | AC-2, NFR-1.1, NFR-3.1 | â€?| AC-2, AC-3 |
-| 7.2 | FR-1.7, FR-2.5, NFR-2.1, 2.7 (AGENTS.md) | â€?| AC-6 |
-| 7.3 | All AC-* | â€?| All AC-* |
-| 8.1 | Military Rule 3 | â€?| â€?|
-| 8.2 | NFR-1.1, NFR-1.2 | â€?| â€?|
+| 7.1 | AC-2, NFR-1.1, NFR-3.1 | ï¿½?| AC-2, AC-3 |
+| 7.2 | FR-1.7, FR-2.5, NFR-2.1, 2.7 (AGENTS.md) | ï¿½?| AC-6 |
+| 7.3 | All AC-* | ï¿½?| All AC-* |
+| 8.1 | Military Rule 3 | ï¿½?| ï¿½?|
+| 8.2 | NFR-1.1, NFR-1.2 | ï¿½?| ï¿½?|
 
 ---
 
