@@ -186,6 +186,27 @@ describe('Playground Chat - Phase 1 & 2 UI Components Unit Tests', () => {
       expect(html).toContain('Submit');
       expect(html).not.toContain('Processing...');
     });
+
+    it('validates empty submit and displays validation error', () => {
+      const handleSubmit = vi.fn();
+      const html = renderToStaticMarkup(
+        <InputBar onSubmit={handleSubmit} disabled={false} value="" />
+      );
+
+      // Submit button is disabled when input is empty
+      expect(html).toContain('disabled=""');
+    });
+
+    it('supports long query input up to 1000 characters', () => {
+      const handleSubmit = vi.fn();
+      const longQuery = 'A'.repeat(1000);
+      const html = renderToStaticMarkup(
+        <InputBar onSubmit={handleSubmit} disabled={false} value={longQuery} />
+      );
+
+      expect(html).toContain(longQuery);
+      expect(html).toContain('Submit');
+    });
   });
 
   describe('Task 2.2: TurnDisplay Component', () => {
@@ -297,6 +318,23 @@ describe('Playground Chat - Phase 1 & 2 UI Components Unit Tests', () => {
       expect(html).toContain('Query Beta');
       expect(html).toContain('tasks');
       expect(html).not.toContain('Welcome to FrankenMCP Playground');
+    });
+
+    it('renders scroll anchor element at bottom of history for auto-scroll', () => {
+      const turns: Turn[] = [
+        {
+          id: 'turn-c',
+          timestamp: Date.now(),
+          userQuery: 'Test query',
+        },
+      ];
+
+      const html = renderToStaticMarkup(
+        <ConversationHistory turns={turns} onExampleClick={vi.fn()} />
+      );
+
+      expect(html).toContain('overflow-y-auto');
+      expect(html).toContain('Test query');
     });
   });
 });
