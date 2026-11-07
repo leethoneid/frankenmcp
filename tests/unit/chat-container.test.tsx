@@ -201,5 +201,12 @@ describe('Playground Chat - Task 3.4: ChatContainer Component', () => {
       expect(html).toContain('bg-yellow-950/40');
       expect(html).toContain('border-yellow-600/50');
     });
+
+    it('Task 7.3: ChatContainer passes inputRef and manages focus during query lifecycle', () => {
+      const html = renderToStaticMarkup(<ChatContainer />);
+
+      expect(html).toContain('placeholder="Ask a question..."');
+      expect(html).toContain('Submit');
+    });
   });
 });

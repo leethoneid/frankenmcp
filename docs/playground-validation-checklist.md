@@ -25,7 +25,7 @@
 ## 2. Detailed Verification Summaries
 
 ### AC-1: Zero-Config Initial View
-- **Verified Behavior**: Navigating to `/playground` displays the header "🧪 FrankenMCP Playground" with purple accent border (`border-purple-900/30`), dark-theme background (`bg-gray-950`), an empty conversation area rendering `<WelcomeMessage>` with 3 example cards ("Add a note about the meeting", "Show my tasks", "What is 42 + 58?"), and an enabled `<InputBar>` with placeholder `"Ask a question..."`.
+- **Verified Behavior**: Navigating to `/playground` displays the header "🎮 Playground" with purple accent border (`border-purple-900/30`), dark-theme background (`bg-gray-950`), an empty conversation area rendering `<WelcomeMessage>` with 3 example cards ("Add a note about the meeting", "Show my tasks", "What is 42 + 58?"), and an enabled `<InputBar>` with placeholder `"Ask a question..."`.
 - **Test File**: `tests/integration/playground-acceptance.test.tsx`
 
 ### AC-2 & AC-3: End-to-End Query Routing & Tool Execution

@@ -10,7 +10,7 @@
  * MCPServerManager, or recordTurn.
  */
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import type { Turn } from '../types';
 import ConversationHistory from './ConversationHistory';
 import InputBar from './InputBar';
@@ -76,8 +76,10 @@ export default function ChatContainer({
 }: ChatContainerProps) {
   const [turns, setTurns] = useState<Turn[]>(initialTurns);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [loadingPhase, setLoadingPhase] = useState<'routing' | 'executing' | null>(null);
   const [currentError, setCurrentError] = useState<string | null>(initialError);
   const [inputValue, setInputValue] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
 
   /**
    * Submits a user query to the server-side chat endpoint.
@@ -85,31 +87,37 @@ export default function ChatContainer({
   async function handleSubmit(query: string): Promise<void> {
     setIsProcessing(true);
     setCurrentError(null);
+    setLoadingPhase('routing');
 
-    const result = await sendChatQuery(apiEndpoint, query);
+    try {
+      const result = await sendChatQuery(apiEndpoint, query);
 
-    if (result.turn) {
-      setTurns((prev) => [...prev, result.turn!]);
-      setInputValue('');
-    } else if (result.error) {
-      const errorTurn: Turn = {
-        id:
-          typeof crypto !== 'undefined' && crypto.randomUUID
-            ? crypto.randomUUID()
-            : `turn-err-${Date.now()}`,
-        timestamp: Date.now(),
-        userQuery: query,
-        error: result.error,
-      };
+      if (result.turn) {
+        setTurns((prev) => [...prev, result.turn!]);
+        setInputValue('');
+      } else if (result.error) {
+        const errorTurn: Turn = {
+          id:
+            typeof crypto !== 'undefined' && crypto.randomUUID
+              ? crypto.randomUUID()
+              : `turn-err-${Date.now()}`,
+          timestamp: Date.now(),
+          userQuery: query,
+          error: result.error,
+        };
 
-      setTurns((prev) => [...prev, errorTurn]);
+        setTurns((prev) => [...prev, errorTurn]);
 
-      if (result.isRouterUnavailable) {
-        setCurrentError('Router unavailable. Please restart the application.');
+        if (result.isRouterUnavailable) {
+          setCurrentError('Router unavailable. Please restart the application.');
+        }
       }
+    } finally {
+      setIsProcessing(false);
+      setLoadingPhase(null);
+      // Auto-focus input after query completes (success or failure)
+      inputRef.current?.focus();
     }
-
-    setIsProcessing(false);
   }
 
   /**
@@ -117,6 +125,7 @@ export default function ChatContainer({
    */
   function handleExampleClick(exampleQuery: string): void {
     setInputValue(exampleQuery);
+    inputRef.current?.focus();
   }
 
   return (
@@ -131,9 +140,15 @@ export default function ChatContainer({
         </div>
       )}
 
-      <ConversationHistory turns={turns} onExampleClick={handleExampleClick} />
+      <ConversationHistory
+        turns={turns}
+        onExampleClick={handleExampleClick}
+        isProcessing={isProcessing}
+        loadingPhase={loadingPhase}
+      />
 
       <InputBar
+        inputRef={inputRef}
         onSubmit={handleSubmit}
         disabled={isProcessing || Boolean(currentError)}
         value={inputValue}
