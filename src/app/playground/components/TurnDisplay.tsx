@@ -8,23 +8,25 @@ import type { Turn } from '../types';
 import RoutingStatsCard from './RoutingStatsCard';
 import ToolResultCard from './ToolResultCard';
 import ErrorMessage from './ErrorMessage';
+import LoadingIndicator from './LoadingIndicator';
 
 export interface TurnDisplayProps {
   turn: Turn;
+  isExecutingTools?: boolean;
 }
 
-export default function TurnDisplay({ turn }: TurnDisplayProps) {
+export default function TurnDisplay({ turn, isExecutingTools = false }: TurnDisplayProps) {
   const timestamp = turn.timestamp ? new Date(turn.timestamp).toLocaleTimeString() : '';
 
   return (
-    <div className="border border-purple-900/30 rounded-lg bg-gray-900 p-6 space-y-4">
+    <div className="border border-purple-900/30 rounded-lg bg-gray-900 p-4 sm:p-6 space-y-4 max-w-full overflow-hidden break-words">
       {/* User Query */}
       <div>
         <div className="flex items-center gap-2 mb-2">
           <span className="text-2xl select-none">🙋</span>
           <span className="text-sm text-gray-500 font-mono">{timestamp}</span>
         </div>
-        <div className="text-lg text-gray-100 font-medium">{turn.userQuery}</div>
+        <div className="text-base sm:text-lg text-gray-100 font-medium break-words">{turn.userQuery}</div>
       </div>
 
       {/* Server Warnings */}
@@ -45,6 +47,13 @@ export default function TurnDisplay({ turn }: TurnDisplayProps) {
 
       {/* Routing Stats */}
       {turn.routing && <RoutingStatsCard routing={turn.routing} />}
+
+      {/* While executing tools: display loading indicator below routing stats */}
+      {isExecutingTools && (
+        <div role="status" aria-live="polite" className="pt-1">
+          <LoadingIndicator message="Executing tools..." />
+        </div>
+      )}
 
       {/* Tool Results */}
       {turn.toolResults && turn.toolResults.length > 0 && (

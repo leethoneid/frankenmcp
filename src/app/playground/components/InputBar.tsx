@@ -5,13 +5,14 @@
  * @description User query input component with submit button and input validation.
  */
 
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, RefObject } from 'react';
 
 export interface InputBarProps {
   onSubmit: (query: string) => Promise<void> | void;
   disabled: boolean;
   value?: string;
   onChange?: (value: string) => void;
+  inputRef?: RefObject<HTMLInputElement | null>;
 }
 
 export default function InputBar({
@@ -19,6 +20,7 @@ export default function InputBar({
   disabled,
   value,
   onChange,
+  inputRef,
 }: InputBarProps) {
   const [internalQuery, setInternalQuery] = useState('');
   const query = value !== undefined ? value : internalQuery;
@@ -46,8 +48,9 @@ export default function InputBar({
 
   return (
     <div className="border-t border-purple-900/30 p-4 bg-gray-900">
-      <form onSubmit={handleSubmit} className="flex gap-2">
+      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
         <input
+          ref={inputRef}
           type="text"
           value={query}
           onChange={(e) => {
@@ -56,12 +59,12 @@ export default function InputBar({
           }}
           placeholder="Ask a question..."
           disabled={disabled}
-          className="flex-1 bg-gray-800 border border-gray-700 rounded px-4 py-2 text-gray-100 placeholder-gray-500 focus:outline-none focus:border-purple-500 disabled:opacity-50"
+          className="w-full sm:flex-1 bg-gray-800 border border-gray-700 rounded px-4 py-2 text-gray-100 placeholder-gray-500 focus:outline-none focus:border-purple-500 disabled:opacity-50 text-base sm:text-sm"
         />
         <button
           type="submit"
           disabled={disabled || query.trim().length === 0}
-          className="px-6 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full sm:w-auto px-6 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-base sm:text-sm"
         >
           {disabled ? 'Processing...' : 'Submit'}
         </button>

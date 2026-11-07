@@ -40,11 +40,11 @@ export default function ToolResultCard({ result }: ToolResultCardProps) {
       {result.status === 'success' ? (
         <div>
           <pre
-            className={`text-xs overflow-x-auto ${
+            className={`text-xs overflow-x-auto max-w-full whitespace-pre-wrap break-words ${
               isLong && !expanded ? 'max-h-32 overflow-y-hidden' : ''
             }`}
           >
-            <code className="text-gray-300 font-mono">{resultString}</code>
+            <code className="text-gray-300 font-mono break-all">{resultString}</code>
           </pre>
           {isLong && (
             <button
@@ -57,7 +57,7 @@ export default function ToolResultCard({ result }: ToolResultCardProps) {
           )}
         </div>
       ) : (
-        <div className="text-sm text-red-300">{result.error}</div>
+        <div className="text-sm text-red-300 break-words">{result.error}</div>
       )}
     </div>
   );

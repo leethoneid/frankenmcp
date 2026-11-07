@@ -90,6 +90,21 @@ describe('Playground Chat - Phase 1 & 2 UI Components Unit Tests', () => {
       );
       expect(withoutReasoning).not.toContain('italic mt-2');
     });
+
+    it('stacks metrics vertically on mobile viewports (<640px) (Task 7.1)', () => {
+      const html = renderToStaticMarkup(
+        <RoutingStatsCard
+          routing={{
+            selectedServers: ['notes'],
+            toolsLoaded: 1,
+            toolsTrimmed: 4,
+            estimatedTokensSaved: 100,
+          }}
+        />
+      );
+
+      expect(html).toContain('flex-col sm:flex-row');
+    });
   });
 
   describe('Task 1.5: ToolResultCard Component', () => {
@@ -140,6 +155,23 @@ describe('Playground Chat - Phase 1 & 2 UI Components Unit Tests', () => {
 
       expect(html).toContain('Show more');
       expect(html).toContain('max-h-32');
+    });
+
+    it('wraps long results and provides horizontal scroll for code blocks (Task 7.1)', () => {
+      const html = renderToStaticMarkup(
+        <ToolResultCard
+          result={{
+            serverID: 'notes',
+            toolName: 'read_note',
+            status: 'success',
+            result: { longKey: 'longValue' },
+          }}
+        />
+      );
+
+      expect(html).toContain('overflow-x-auto');
+      expect(html).toContain('whitespace-pre-wrap');
+      expect(html).toContain('break-words');
     });
   });
 
@@ -206,6 +238,16 @@ describe('Playground Chat - Phase 1 & 2 UI Components Unit Tests', () => {
 
       expect(html).toContain(longQuery);
       expect(html).toContain('Submit');
+    });
+
+    it('supports mobile responsiveness with full-width input and stacked submit button (Task 7.1)', () => {
+      const html = renderToStaticMarkup(
+        <InputBar onSubmit={vi.fn()} disabled={false} value="test" />
+      );
+
+      expect(html).toContain('flex-col sm:flex-row');
+      expect(html).toContain('w-full sm:flex-1');
+      expect(html).toContain('w-full sm:w-auto');
     });
   });
 
@@ -277,6 +319,28 @@ describe('Playground Chat - Phase 1 & 2 UI Components Unit Tests', () => {
       expect(html).toContain('border-yellow-600/50');
       expect(html).toContain('text-yellow-300');
     });
+
+    it('renders loading indicator below routing stats while executing tools (Task 7.2)', () => {
+      const turnWithRouting: Turn = {
+        id: 'turn-loading',
+        timestamp: Date.now(),
+        userQuery: 'Calculate 10 + 20',
+        routing: {
+          selectedServers: ['calculator'],
+          toolsLoaded: 1,
+          toolsTrimmed: 4,
+          estimatedTokensSaved: 120,
+          routingTimeMs: 10,
+        },
+      };
+
+      const html = renderToStaticMarkup(
+        <TurnDisplay turn={turnWithRouting} isExecutingTools={true} />
+      );
+
+      expect(html).toContain('Executing tools...');
+      expect(html).toContain('animate-spin');
+    });
   });
 
   describe('Task 2.3: ConversationHistory Component', () => {
@@ -335,6 +399,34 @@ describe('Playground Chat - Phase 1 & 2 UI Components Unit Tests', () => {
 
       expect(html).toContain('overflow-y-auto');
       expect(html).toContain('Test query');
+    });
+
+    it('renders loading indicator in conversation area while routing query (Task 7.2)', () => {
+      const html = renderToStaticMarkup(
+        <ConversationHistory
+          turns={[]}
+          onExampleClick={vi.fn()}
+          isProcessing={true}
+          loadingPhase="routing"
+        />
+      );
+
+      expect(html).toContain('Routing your query...');
+      expect(html).toContain('animate-spin');
+    });
+
+    it('renders loading indicator in conversation area while executing tools (Task 7.2)', () => {
+      const html = renderToStaticMarkup(
+        <ConversationHistory
+          turns={[{ id: 't1', timestamp: 1, userQuery: 'Add task' }]}
+          onExampleClick={vi.fn()}
+          isProcessing={true}
+          loadingPhase="executing"
+        />
+      );
+
+      expect(html).toContain('Executing tools...');
+      expect(html).toContain('animate-spin');
     });
   });
 });

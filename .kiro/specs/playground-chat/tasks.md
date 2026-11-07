@@ -576,13 +576,13 @@ This document breaks down the playground-chat feature into discrete, testable ta
 **Description**: Ensure Playground works on mobile devices.
 
 **Acceptance Criteria**:
-- [ ] InputBar: full-width input, submit button below input on narrow screens (<640px)
-- [ ] ConversationHistory: full-width turns, readable text sizes (min 14px)
-- [ ] TurnDisplay: stacked layout, no horizontal overflow
-- [ ] RoutingStatsCard: metrics stack vertically on mobile
-- [ ] ToolResultCard: long results wrap, horizontal scroll for code blocks
-- [ ] Manual test on Chrome DevTools device emulation: iPhone SE (375px), iPad (768px)
-- [ ] Manual test: verify input field, submit button, and results all usable with touch
+- [x] InputBar: full-width input, submit button below input on narrow screens (<640px)
+- [x] ConversationHistory: full-width turns, readable text sizes (min 14px)
+- [x] TurnDisplay: stacked layout, no horizontal overflow
+- [x] RoutingStatsCard: metrics stack vertically on mobile
+- [x] ToolResultCard: long results wrap, horizontal scroll for code blocks
+- [x] Manual test on Chrome DevTools device emulation: iPhone SE (375px), iPad (768px)
+- [x] Manual test: verify input field, submit button, and results all usable with touch
 
 **Requirements**: AC-7 (mobile usability), NFR-3.2 (responsive layout)
 
@@ -597,10 +597,10 @@ This document breaks down the playground-chat feature into discrete, testable ta
 **Description**: Add loading indicators for routing and tool execution phases.
 
 **Acceptance Criteria**:
-- [ ] While routing: display `<LoadingIndicator message="Routing your query..." />` in conversation area
-- [ ] While executing tools: display `<LoadingIndicator message="Executing tools..." />` below routing stats
-- [ ] Loading indicators styled consistently with Playground theme (purple accent)
-- [ ] Component test: verify loading indicators shown during async operations
+- [x] While routing: display `<LoadingIndicator message="Routing your query..." />` in conversation area
+- [x] While executing tools: display `<LoadingIndicator message="Executing tools..." />` below routing stats
+- [x] Loading indicators styled consistently with Playground theme (purple accent)
+- [x] Component test: verify loading indicators shown during async operations
 
 **Requirements**: FR-2.1 (routing loading), FR-3.2 (tool loading), NFR-1.2 (fast feedback)
 
@@ -615,10 +615,10 @@ This document breaks down the playground-chat feature into discrete, testable ta
 **Description**: Automatically focus input field after query completes for quick follow-up queries.
 
 **Acceptance Criteria**:
-- [ ] In `ChatContainer.handleSubmit`:
+- [x] In `ChatContainer.handleSubmit`:
   - After `setIsProcessing(false)`, call `inputRef.current?.focus()`
-- [ ] Pass `inputRef` from ChatContainer to InputBar via prop
-- [ ] Manual test: submit query → wait for result → verify cursor in input field without clicking
+- [x] Pass `inputRef` from ChatContainer to InputBar via prop
+- [x] Manual test: submit query → wait for result → verify cursor in input field without clicking
 
 **Requirements**: FR-1.5 (re-enable and focus input), NFR-3.1 (usability)
 
