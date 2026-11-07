@@ -74,8 +74,22 @@ describe('Playground Chat - Task 3.2: Tool Argument Extraction Module', () => {
       expect(args).toEqual({});
     });
 
+    it('extracts arguments for update_task when marking completed', () => {
+      expect(extractToolArguments('Mark task task-1 as completed', 'update_task', 'tasks')).toEqual({
+        id: 'task-1',
+        completed: true,
+      });
+      expect(extractToolArguments('Complete task task-2', 'update_task', 'tasks')).toEqual({
+        id: 'task-2',
+        completed: true,
+      });
+      expect(extractToolArguments('Mark task 3 as done', 'update_task', 'tasks')).toEqual({
+        id: 'task-3',
+        completed: true,
+      });
+    });
+
     it('returns null for other task tools requiring explicit IDs', () => {
-      expect(extractToolArguments('Toggle task 1', 'toggle_task', 'tasks')).toBeNull();
       expect(extractToolArguments('Delete task 2', 'delete_task', 'tasks')).toBeNull();
     });
 
@@ -131,6 +145,29 @@ describe('Playground Chat - Task 3.2: Tool Argument Extraction Module', () => {
       expect(extractToolArguments('What is 100 ÷ 4?', 'divide', 'calculator')).toEqual({
         a: 100,
         b: 4,
+      });
+    });
+
+    it('extracts arguments for convert_units across length, weight, and temperature', () => {
+      expect(extractToolArguments('Convert 100 meters to feet', 'convert_units', 'calculator')).toEqual({
+        value: 100,
+        from: 'm',
+        to: 'ft',
+      });
+      expect(extractToolArguments('Convert 50 kg to lb', 'convert_units', 'calculator')).toEqual({
+        value: 50,
+        from: 'kg',
+        to: 'lb',
+      });
+      expect(extractToolArguments('Convert 100 C to F', 'convert_units', 'calculator')).toEqual({
+        value: 100,
+        from: 'C',
+        to: 'F',
+      });
+      expect(extractToolArguments('convert 212 fahrenheit to celsius', 'convert_units', 'calculator')).toEqual({
+        value: 212,
+        from: 'F',
+        to: 'C',
       });
     });
 
