@@ -192,4 +192,49 @@ describe('Playground Chat - Task 3.2: Tool Argument Extraction Module', () => {
       expect(extractToolArguments('What is 1 + 1?', 'add', 'unknown_server')).toBeNull();
     });
   });
+
+  describe('Step 8 Regression: Operand-order extraction & multi-phrasing equivalence', () => {
+    it('extracts identical arguments for multiply across multiple phrasings', () => {
+      const q1 = extractToolArguments('4241乘3235多少？', 'multiply', 'calculator');
+      const q2 = extractToolArguments('4241 times 3235', 'multiply', 'calculator');
+      const q3 = extractToolArguments('4241×3235', 'multiply', 'calculator');
+
+      expect(q1).toEqual({ a: 4241, b: 3235 });
+      expect(q2).toEqual({ a: 4241, b: 3235 });
+      expect(q3).toEqual({ a: 4241, b: 3235 });
+      expect(q1).toEqual(q2);
+      expect(q2).toEqual(q3);
+    });
+
+    it('extracts identical arguments for add across multiple phrasings', () => {
+      const q1 = extractToolArguments('4241加3235', 'add', 'calculator');
+      const q2 = extractToolArguments('4241 plus 3235', 'add', 'calculator');
+      const q3 = extractToolArguments('4241 + 3235', 'add', 'calculator');
+
+      expect(q1).toEqual({ a: 4241, b: 3235 });
+      expect(q2).toEqual({ a: 4241, b: 3235 });
+      expect(q3).toEqual({ a: 4241, b: 3235 });
+      expect(q1).toEqual(q2);
+      expect(q2).toEqual(q3);
+    });
+
+    it('extracts arguments for divide with Chinese phrasing', () => {
+      const q = extractToolArguments('4241除以3235', 'divide', 'calculator');
+      expect(q).toEqual({ a: 4241, b: 3235 });
+    });
+
+    it('extracts identical arguments for convert_units in Chinese and English', () => {
+      const q1 = extractToolArguments('100米等于多少英尺', 'convert_units', 'calculator');
+      const q2 = extractToolArguments('Convert 100 meters to feet', 'convert_units', 'calculator');
+
+      expect(q1).toEqual({ value: 100, from: 'm', to: 'ft' });
+      expect(q2).toEqual({ value: 100, from: 'm', to: 'ft' });
+      expect(q1).toEqual(q2);
+    });
+
+    it('extracts arguments for notes and tasks list tools with Chinese queries', () => {
+      expect(extractToolArguments('列出我的笔记', 'list_notes', 'notes')).toEqual({});
+      expect(extractToolArguments('显示我的任务', 'list_tasks', 'tasks')).toEqual({});
+    });
+  });
 });
