@@ -30,21 +30,21 @@ This task breakdown implements the dual-mode MCP architecture for Vercel serverl
 **Dependencies**: None (first task)
 
 **Acceptance Criteria**:
-- [ ] Create Vercel staging project linked to feature branch
-- [ ] Deploy current implementation with stdio demo servers
-- [ ] **Execute true cold start test**:
+- [x] Create Vercel staging project linked to feature branch
+- [x] Deploy current implementation with stdio demo servers
+- [x] **Execute true cold start test**:
   - Delete Vercel deployment cache (redeploy to new function)
   - Clear local `~/.npm/_npx` cache to prevent npx caching
   - Invoke function and measure router subprocess spawn time
-- [ ] Execute 10 test queries and measure:
+- [x] Execute 10 test queries and measure:
   - Success rate (target: 100%)
   - Router invocation latency (target: <2s)
   - Subprocess spawn errors (observe if any)
   - Cold start vs warm function timing
-- [ ] Document findings:
+- [x] Document findings:
   - **If router works on cold start**: Proceed with current architecture (no router changes needed)
   - **If router requires subprocess or fails cold start**: Mark conditional Task 1.4 as required
-- [ ] Update requirements.md Open Question 2 with decision
+- [x] Update requirements.md Open Question 2 with decision
 
 **Estimated Effort**: 2 hours
 
@@ -68,11 +68,11 @@ This task breakdown implements the dual-mode MCP architecture for Vercel serverl
 - `src/lib/deployment/env.ts` (new)
 
 **Acceptance Criteria**:
-- [ ] `detectEnvironment()` function returns `'vercel'` when `process.env.VERCEL === '1'`
-- [ ] `detectEnvironment()` function returns `'local'` when `process.env.VERCEL` is undefined
-- [ ] `isVercel()` helper function returns boolean
-- [ ] Unit tests verify detection logic with mocked environment variables
-- [ ] Module exports TypeScript type `RuntimeEnvironment`
+- [x] `detectEnvironment()` function returns `'vercel'` when `process.env.VERCEL === '1'`
+- [x] `detectEnvironment()` function returns `'local'` when `process.env.VERCEL` is undefined
+- [x] `isVercel()` helper function returns boolean
+- [x] Unit tests verify detection logic with mocked environment variables
+- [x] Module exports TypeScript type `RuntimeEnvironment`
 
 **Estimated Effort**: 0.5 hours
 
@@ -104,15 +104,15 @@ export function isVercel(): boolean {
 - `src/lib/mcp/in-process-adapter.ts` (new)
 
 **Acceptance Criteria**:
-- [ ] `InProcessMCPAdapter` interface includes:
+- [x] `InProcessMCPAdapter` interface includes:
   - `serverID: string`
   - `name: string`
   - `listTools(): ToolDefinition[]` (synchronous)
   - `invokeTool(toolName: string, args: Record<string, any>): Promise<any>`
   - `dispose(): void`
-- [ ] `ToolDefinition` interface matches MCP SDK tool schema structure
-- [ ] Interface documented with JSDoc comments explaining contracts
-- [ ] No implementation code (interface only)
+- [x] `ToolDefinition` interface matches MCP SDK tool schema structure
+- [x] Interface documented with JSDoc comments explaining contracts
+- [x] No implementation code (interface only)
 
 **Estimated Effort**: 0.5 hours
 
@@ -135,15 +135,15 @@ export function isVercel(): boolean {
 - `src/lib/router/adapter.ts` (modify to use fallback on Vercel)
 
 **Acceptance Criteria**:
-- [ ] Implement `simplifiedRoute(intent: string): string[]` function with keyword matching:
+- [x] Implement `simplifiedRoute(intent: string): string[]` function with keyword matching:
   - "note" / "notes" → `['notes']`
   - "task" / "tasks" / "todo" → `['tasks']`
   - Numbers / arithmetic operators → `['calculator']`
   - No match → `['notes', 'tasks', 'calculator']` (all servers)
-- [ ] Modify `routeIntent()` to detect Vercel environment and use fallback if router unavailable
-- [ ] Log warning when fallback routing is used
-- [ ] Unit tests verify keyword matching accuracy (≥90% on common queries)
-- [ ] README documents fallback behavior and recommends full router for local dev
+- [x] Modify `routeIntent()` to detect Vercel environment and use fallback if router unavailable
+- [x] Log warning when fallback routing is used
+- [x] Unit tests verify keyword matching accuracy (≥90% on common queries)
+- [x] README documents fallback behavior and recommends full router for local dev
 
 **Estimated Effort**: 3 hours (if triggered)
 

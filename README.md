@@ -52,6 +52,15 @@ FrankenMCP comes pre-configured with three standalone stdio MCP servers requirin
 
 ---
 
+## 🚀 Dual-Mode Deployment Architecture
+
+FrankenMCP employs a dual-mode transport architecture to support both high-fidelity local development and serverless cloud deployment:
+
+- **Local Development**: MCP servers spawn as realistic stdio child processes (`node src/mcp-servers/...`) communicating via stdio JSON-RPC, driven by the full `mcp-dynamic-router` process. We recommend running locally for full router inspection.
+- **Vercel Serverless**: In cloud serverless environments where persistent child processes and arbitrary network downloads on cold starts are prohibited, demo servers run via high-performance in-process adapters, and routing uses an instant in-process fallback router (`simplifiedRoute()`, <1ms latency) to guarantee 100% reliability within Vercel's 10-second function timeout.
+
+---
+
 ## 📜 Prior Work & Disclosure
 
 In accordance with Kiroween 2026 rules regarding pre-existing work:
