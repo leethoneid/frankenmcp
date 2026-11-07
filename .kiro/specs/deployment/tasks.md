@@ -180,25 +180,25 @@ export function simplifiedRoute(intent: string): string[] {
 - `src/mcp-servers/notes/index.mjs` (refactor to use `core.mjs`)
 
 **Acceptance Criteria**:
-- [ ] `NotesCore` class (in `core.mjs`) implements:
+- [x] `NotesCore` class (in `core.mjs`) implements:
   - In-memory note storage (`Map<string, Note>`)
   - `loadFixtures()` method seeding 3 demo notes (matching existing stdio server fixtures):
     - "Project Kickoff"
     - "Architecture Blueprint"
     - "Lab Supply Checklist"
   - CRUD methods: `createNote()`, `listNotes()`, `readNote()`, `updateNote()`, `deleteNote()`
-- [ ] Constructor calls `loadFixtures()` automatically (function-instance-scoped initialization)
-- [ ] `NotesAdapter` (TypeScript) imports `NotesCore` from `core.mjs` and implements `InProcessMCPAdapter`
-- [ ] `NotesAdapter.listTools()` returns 5 tool definitions matching stdio version
-- [ ] `NotesAdapter.invokeTool()` delegates to `NotesCore` methods
-- [ ] Stdio version (`index.mjs`) refactored to use `NotesCore` (shared logic)
-- [ ] Unit tests verify:
+- [x] Constructor calls `loadFixtures()` automatically (function-instance-scoped initialization)
+- [x] `NotesAdapter` (TypeScript) imports `NotesCore` from `core.mjs` and implements `InProcessMCPAdapter`
+- [x] `NotesAdapter.listTools()` returns 5 tool definitions matching stdio version
+- [x] `NotesAdapter.invokeTool()` delegates to `NotesCore` methods
+- [x] Stdio version (`index.mjs`) refactored to use `NotesCore` (shared logic)
+- [x] Unit tests verify:
   - Fixtures loaded on initialization (3 notes present)
   - User-created notes appear alongside fixtures
   - CRUD operations produce expected results
   - Notes sorted by creation date (newest first)
-- [ ] Adapter parity test verifies stdio and in-process produce identical tool lists
-- [ ] **If using TypeScript import in `.mjs`**: Document Node.js ≥23.6 requirement in README
+- [x] Adapter parity test verifies stdio and in-process produce identical tool lists
+- [x] **If using TypeScript import in `.mjs`**: Document Node.js ≥23.6 requirement in README
 
 **Estimated Effort**: 3 hours
 
