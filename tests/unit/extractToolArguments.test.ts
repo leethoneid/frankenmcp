@@ -236,5 +236,14 @@ describe('Playground Chat - Task 3.2: Tool Argument Extraction Module', () => {
       expect(extractToolArguments('列出我的笔记', 'list_notes', 'notes')).toEqual({});
       expect(extractToolArguments('显示我的任务', 'list_tasks', 'tasks')).toEqual({});
     });
+
+    it('returns null for unsupported units like 厘米/毫米 instead of mis-mapping to meters', () => {
+      expect(extractToolArguments('100厘米等于多少英寸', 'convert_units', 'calculator')).toBeNull();
+      expect(extractToolArguments('100米等于多少英尺', 'convert_units', 'calculator')).toEqual({
+        value: 100,
+        from: 'm',
+        to: 'ft',
+      });
+    });
   });
 });
