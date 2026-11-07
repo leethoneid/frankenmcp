@@ -37,7 +37,7 @@ export type ServerStatus = 'connected' | 'disconnected' | 'error' | 'starting';
 export interface ServerConfig {
   id: string;
   name: string;
-  transport: 'stdio' | 'sse' | 'http';
+  transport: 'stdio' | 'sse' | 'http' | 'in-process';
   command?: string;
   args?: string[];
   endpoint?: string;
@@ -51,7 +51,7 @@ export interface ServerConfig {
 export interface ServerManifest {
   id: string;
   name: string;
-  transport: 'stdio' | 'sse' | 'http';
+  transport: 'stdio' | 'sse' | 'http' | 'in-process';
   tools: ToolSchema[];
   status: ServerStatus;
   /**
