@@ -350,13 +350,13 @@ export function simplifiedRoute(intent: string): string[] {
 - `vercel.json` (new)
 
 **Acceptance Criteria**:
-- [ ] `vercel.json` configures:
+- [x] `vercel.json` configures:
   - Function memory: 1024MB
   - Function max duration: 10 seconds
   - Build command: `npm run build`
   - Install command: `npm install`
-- [ ] Deployment to Vercel staging succeeds with configuration
-- [ ] Vercel deployment logs show correct timeout/memory settings applied
+- [x] Deployment to Vercel staging succeeds with configuration
+- [x] Vercel deployment logs show correct timeout/memory settings applied
 
 **Estimated Effort**: 0.5 hours
 
@@ -388,21 +388,21 @@ export function simplifiedRoute(intent: string): string[] {
 - `src/app/api/health/route.ts` (new)
 
 **Acceptance Criteria**:
-- [ ] `GET /api/health` calls `ensureServersInitialized()` before reading manifests
-- [ ] Returns JSON with:
+- [x] `GET /api/health` calls `ensureServersInitialized()` before reading manifests
+- [x] Returns JSON with:
   - `status`: `'healthy'` | `'degraded'` | `'error'`
   - `environment`: `'vercel'` | `'local'`
   - `servers`: Array of `{ id, name, status, transport, toolCount }`
   - `timestamp`: ISO 8601 string
-- [ ] `status: 'healthy'` **requires at least 3 demo servers online** (notes, tasks, calculator all connected)
-- [ ] `status: 'degraded'` when 1-2 demo servers unavailable
-- [ ] `status: 'error'` when manager fails to initialize or all servers offline
-- [ ] HTTP status codes:
+- [x] `status: 'healthy'` **requires at least 3 demo servers online** (notes, tasks, calculator all connected)
+- [x] `status: 'degraded'` when 1-2 demo servers unavailable
+- [x] `status: 'error'` when manager fails to initialize or all servers offline
+- [x] HTTP status codes:
   - 200 for healthy/degraded
   - 503 for error
-- [ ] Response time <100ms (after initialization)
-- [ ] Unit test verifies response schema
-- [ ] Integration test verifies:
+- [x] Response time <100ms (after initialization)
+- [x] Unit test verifies response schema
+- [x] Integration test verifies:
   - Health check triggers server initialization
   - Actual server status reported correctly
   - Healthy requires ≥3 demo servers

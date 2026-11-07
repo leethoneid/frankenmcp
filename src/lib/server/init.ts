@@ -20,7 +20,11 @@ export async function ensureServersInitialized(): Promise<void> {
 
   const manager = MCPServerManager.getInstance();
   const configPath = path.resolve(process.cwd(), '.kiro', 'settings', 'mcp.json');
-  manager.loadAndRegisterConfig(configPath);
+  try {
+    manager.loadAndRegisterConfig(configPath);
+  } catch (err) {
+    console.warn('[ServerInit] Config file loading skipped or failed:', err);
+  }
   await manager.connectAll();
 
   initialized = true;
