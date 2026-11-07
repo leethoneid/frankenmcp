@@ -56,6 +56,47 @@ FrankenMCP 预配了三个开箱即用、零 Key 依赖的演示 MCP 服务器�
 
 ---
 
+## 🤖 把路由器装进你的 Agent
+
+上面的演示是在浏览器里看路由。真正装进你自己的 Agent 的是路由器本身——[`mcp-dynamic-router`](https://github.com/leethoneid/mcp-dynamic-router)，一个 stdio MCP 服务器，挡在你的 Agent 和你的 MCP 服务器中间，每轮只把相关的工具暴露给模型。
+
+为什么值得装：同时接 3–5 个 MCP 服务器（GitHub、Postgres、Slack、文件系统、Docker），每轮提示词还没打字就先被塞进 30,000–60,000+ token 的工具定义，占上下文窗口的 20%–35%。（数字来自路由器仓库，口径为合成 fixture 上的启发式 token 估算，方法见路由器 README。）
+
+装一次，然后加进你的 Agent：
+
+```bash
+# 导入你现有编辑器的 MCP 配置，然后全局安装
+npx -y github:leethoneid/mcp-dynamic-router import --editor all
+npm install -g github:leethoneid/mcp-dynamic-router
+```
+
+Claude Code：
+```bash
+claude mcp add mcp-router -- mcp-router serve
+```
+
+Codex：
+```bash
+codex mcp add mcp-router -- npx -y github:leethoneid/mcp-dynamic-router serve
+```
+在 Codex 里打 `/mcp` 验证是否连上。
+
+其他 MCP 客户端（Cursor、Antigravity、Windsurf、Cline、Continue、Zed）：把下面这段加进客户端的 MCP 配置文件：
+```json
+{
+  "mcpServers": {
+    "mcp-router": {
+      "command": "mcp-router",
+      "args": ["serve"]
+    }
+  }
+}
+```
+
+各编辑器的完整指南见 [mcp-dynamic-router README](https://github.com/leethoneid/mcp-dynamic-router)。
+
+---
+
 ## 🚀 双轨部署架构 (Dual-Mode Deployment)
 
 FrankenMCP 采用自适应双轨通信架构，同时支持本地高保真开发与无服务器（Serverless）云端托管：

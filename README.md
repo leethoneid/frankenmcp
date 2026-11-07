@@ -56,6 +56,47 @@ FrankenMCP comes pre-configured with three standalone MCP servers requiring zero
 
 ---
 
+## 🤖 Use the Router in Your Agent
+
+The demo above shows routing in a browser. The part you install into your own agent is the router itself — [`mcp-dynamic-router`](https://github.com/leethoneid/mcp-dynamic-router) — a stdio MCP server that sits between your agent and your MCP servers, exposing only the relevant tools each turn.
+
+Why it matters: connecting 3–5 MCP servers (GitHub, Postgres, Slack, Filesystem, Docker) routinely injects 30,000–60,000+ tokens of tool schemas into every prompt turn — 20–35% of your context window — before you type a word. (Figures from the router repo, measured as heuristic token estimates on a synthetic fixture; see the router README for the method.)
+
+Install it once, then add it to your agent:
+
+```bash
+# Import your existing editor MCP configs, then install globally
+npx -y github:leethoneid/mcp-dynamic-router import --editor all
+npm install -g github:leethoneid/mcp-dynamic-router
+```
+
+Claude Code:
+```bash
+claude mcp add mcp-router -- mcp-router serve
+```
+
+Codex:
+```bash
+codex mcp add mcp-router -- npx -y github:leethoneid/mcp-dynamic-router serve
+```
+Verify with `/mcp` inside Codex.
+
+Other MCP clients (Cursor, Antigravity, Windsurf, Cline, Continue, Zed): add this to your client's MCP settings file:
+```json
+{
+  "mcpServers": {
+    "mcp-router": {
+      "command": "mcp-router",
+      "args": ["serve"]
+    }
+  }
+}
+```
+
+Full per-editor guide: [mcp-dynamic-router README](https://github.com/leethoneid/mcp-dynamic-router).
+
+---
+
 ## 🚀 Dual-Mode Deployment Architecture
 
 FrankenMCP employs an adaptive dual-mode transport architecture to support both high-fidelity local development and serverless cloud deployment:
