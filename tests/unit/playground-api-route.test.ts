@@ -412,4 +412,75 @@ describe('Playground Chat - Task 3.3: API Route POST /api/playground/chat', () =
       }
     }
   });
+
+  it('Issue B1 Regression: unrecognized query returns no matching tools without invoking tools or producing error items', async () => {
+    vi.spyOn(serverInit, 'ensureServersInitialized').mockResolvedValue();
+
+    const manager = MCPServerManager.getInstance();
+    vi.spyOn(manager, 'getServerManifests').mockReturnValue([
+      { id: 'notes', name: 'Notes Server', transport: 'in-process', status: 'connected', tools: [{ name: 'list_notes', inputSchema: {} }] },
+      { id: 'tasks', name: 'Tasks Server', transport: 'in-process', status: 'connected', tools: [{ name: 'list_tasks', inputSchema: {} }] },
+      { id: 'calculator', name: 'Calculator Server', transport: 'in-process', status: 'connected', tools: [{ name: 'add', inputSchema: {} }] },
+    ] as any);
+
+    const invokeSpy = vi.spyOn(manager, 'invokeToolCall').mockResolvedValue({});
+
+    const res = await POST(new Request('http://localhost/api/playground/chat', {
+      method: 'POST',
+      body: JSON.stringify({ query: 'What is the capital of France?' }),
+    }));
+
+    expect(res.status).toBe(200);
+    const data = await res.json();
+
+    // Must NOT invoke any tools
+    expect(invokeSpy).not.toHaveBeenCalled();
+
+    // Must have zero error items in toolResults
+    const errorItems = (data.toolResults || []).filter((r: any) => r.status === 'error');
+    expect(errorItems).toHaveLength(0);
+
+    // Tool results must be empty
+    expect(data.toolResults).toHaveLength(0);
+
+    // Reasoning should indicate no matching tools
+    expect(data.routing.reasoning).toMatch(/no (matching|relevant) tools/i);
+  });
+
+  it('Issue B2 Regression: "Mark task as done" without ID does not fabricate ID or invoke update_task', async () => {
+    vi.spyOn(serverInit, 'ensureServersInitialized').mockResolvedValue();
+
+    const manager = MCPServerManager.getInstance();
+    vi.spyOn(manager, 'getServerManifests').mockReturnValue([
+      {
+        id: 'tasks',
+        name: 'Tasks Server',
+        transport: 'in-process',
+        status: 'connected',
+        tools: [{ name: 'update_task', inputSchema: {} }],
+      },
+    ] as any);
+
+    const invokeSpy = vi.spyOn(manager, 'invokeToolCall').mockResolvedValue({});
+
+    const res = await POST(new Request('http://localhost/api/playground/chat', {
+      method: 'POST',
+      body: JSON.stringify({ query: 'Mark task as done' }),
+    }));
+
+    expect(res.status).toBe(200);
+    const data = await res.json();
+
+    // Must NOT invoke update_task
+    expect(invokeSpy).not.toHaveBeenCalled();
+
+    // Must not contain fabricated garbage ID like 'task-as'
+    const jsonStr = JSON.stringify(data);
+    expect(jsonStr).not.toContain('task-as');
+
+    // Returns clear "Task ID required" result
+    expect(data.toolResults).toHaveLength(1);
+    expect(data.toolResults[0].toolName).toBe('update_task');
+    expect(data.toolResults[0].error).toMatch(/Task ID required/i);
+  });
 });

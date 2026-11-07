@@ -10,6 +10,7 @@ import { MCPServerManager } from '@/lib/mcp/server-manager';
 import { routeIntent } from '@/lib/router/adapter';
 import { getSessionStats } from '@/lib/router/stats';
 import { extractToolArguments } from '@/lib/server/extractToolArguments';
+import { hasRecognizedIntent } from '@/lib/router/fallback';
 import {
   NoRelevantToolsError,
   RouterUnavailableError,
@@ -67,6 +68,36 @@ export async function POST(request: Request) {
     const sessionStats = getSessionStats();
     const recordedTurn = sessionStats.turns[sessionStats.turns.length - 1];
 
+    // If query has no recognized intent across demo domains and fallback selected all 3 demo servers,
+    // do not force-execute tools or produce false error items
+    const isAllDemoServersFallback =
+      decision.selectedServers.includes('notes') &&
+      decision.selectedServers.includes('tasks') &&
+      decision.selectedServers.includes('calculator');
+
+    if (!hasRecognizedIntent(query) && isAllDemoServersFallback) {
+      const turn: Turn = {
+        id: recordedTurn ? recordedTurn.turnID : crypto.randomUUID(),
+        timestamp: recordedTurn ? recordedTurn.timestamp : Date.now(),
+        userQuery: query,
+        routing: {
+          selectedServers: decision.selectedServers,
+          toolsLoaded: 0,
+          toolsTrimmed: recordedTurn ? recordedTurn.toolsTrimmed : 0,
+          estimatedTokensSaved: recordedTurn ? recordedTurn.estimatedTokensSaved : 0,
+          routingTimeMs: recordedTurn ? recordedTurn.routingTimeMs : 0,
+          reasoning: 'No relevant tools found for this query',
+        },
+        toolResults: [],
+        warnings:
+          disconnectedServers.length > 0
+            ? disconnectedServers.map((name) => `Server '${name}' unavailable`)
+            : undefined,
+      };
+
+      return NextResponse.json(turn);
+    }
+
     // Execute tools sequentially
     const toolResults: ToolResult[] = [];
     if (decision.toolFilter && Array.isArray(decision.toolFilter)) {
@@ -75,11 +106,15 @@ export async function POST(request: Request) {
           const args = extractToolArguments(query, toolName, filter.serverID);
 
           if (args === null) {
+            const errorMsg =
+              toolName === 'update_task'
+                ? 'Task ID required (e.g. task-1)'
+                : `Unable to extract arguments for ${toolName}`;
             toolResults.push({
               serverID: filter.serverID,
               toolName,
               status: 'error',
-              error: `Unable to extract arguments for ${toolName}`,
+              error: errorMsg,
             });
             continue;
           }

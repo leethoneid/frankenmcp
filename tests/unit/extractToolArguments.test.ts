@@ -89,6 +89,11 @@ describe('Playground Chat - Task 3.2: Tool Argument Extraction Module', () => {
       });
     });
 
+    it('returns null for "Mark task as done" without a valid task ID', () => {
+      const args = extractToolArguments('Mark task as done', 'update_task', 'tasks');
+      expect(args).toBeNull();
+    });
+
     it('returns null for other task tools requiring explicit IDs', () => {
       expect(extractToolArguments('Delete task 2', 'delete_task', 'tasks')).toBeNull();
     });

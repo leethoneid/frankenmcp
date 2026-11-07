@@ -8,6 +8,36 @@
 import type { SearchResult, ServerManifest } from './types';
 
 /**
+ * Evaluates whether a user query matches any recognized domain keywords or patterns.
+ * Returns false if the query falls through to the default all-server fallback.
+ */
+export function hasRecognizedIntent(intent: string): boolean {
+  const lower = (intent || '').toLowerCase().trim();
+
+  // Notes domain
+  if (/note/i.test(lower)) {
+    return true;
+  }
+
+  // Tasks domain
+  if (/task|todo/i.test(lower)) {
+    return true;
+  }
+
+  // Calculator domain
+  if (
+    /\d+\s*[+\-*/×÷=]\s*\d+/.test(lower) ||
+    /(\d+)\s*(plus|minus|times|divided by|and|\+|-|\*|\/)\s*(\d+)/i.test(lower) ||
+    /\b(calc(ulate|ulator)?|math|arithmetic|convert|conversion|celsius|fahrenheit|meters?|feet|inches|cm|kg|pounds?)\b/i.test(lower) ||
+    /\b(add|sum|multiply|divide|subtract)\s+\d+/i.test(lower)
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
  * Keyword-based router fallback function.
  * Matches natural language intent against server domains.
  *

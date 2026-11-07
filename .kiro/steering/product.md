@@ -6,7 +6,7 @@
 
 The core value proposition: **One chat, multiple servers, zero context waste.**
 
-## Target Users
+## Intended Users
 
 1. **Solo founders** running lean operations across multiple tools (notes, tasks, documents, web automation)
 2. **Developers** building multi-tool AI workflows who need efficient context management

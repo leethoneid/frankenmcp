@@ -2,6 +2,8 @@
 
 # FrankenMCP
 
+🌐 **在线演示**：[https://frankenmcp.vercel.app](https://frankenmcp.vercel.app)
+
 > **FrankenMCP** 通过动态路由器将多个原本不兼容的 MCP 服务器缝合为一个有机整体，并提供实时的“怪物实验室（Monster Lab）”仪表盘，逐轮展示工具路由决策、Schema 裁剪结果以及省下的上下文 Token 数量。
 >
 > *专为 Kiroween 2026 黑客松（Frankenstein 类别）打造。*
@@ -15,9 +17,9 @@ AI 助手同时接多个 MCP 服务器时会"撑到"：每个服务器的全部�
 
 ---
 
-## ⚡ 60 秒极速上手（零配置）
+## ⚡ 极速上手（零配置）
 
-无需任何 API 密钥或外部依赖服务，60 秒内即可在本地启动运行：
+无需任何 API 密钥或外部依赖服务，几分钟内即可在本地完整启动运行：
 
 ```bash
 # 1. 克隆代码仓库
@@ -39,7 +41,7 @@ npm run dev
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fleethoneid%2Ffrankenmcp)
 
-- **线上演示地址**：*点击上方按钮可直接一键部署至 Vercel 免费环境。*
+- **线上演示地址**：[https://frankenmcp.vercel.app](https://frankenmcp.vercel.app)
 - **零配置开箱体验**：免注册、免填 API Key、无需准备数据库；启动时自动连接内置的三大演示 MCP 服务器。
 
 ---
@@ -64,7 +66,7 @@ FrankenMCP 采用自适应双轨通信架构，同时支持本地高保真开发
 | **路由决策引擎** | 完整 `mcp-dynamic-router` 进程（TF-IDF 语义匹配） | 进程内规则降级引擎 (`simplifiedRoute()`, <1ms 响应) |
 | **状态持久化** | 在 Node.js 服务进程生命周期内持久 | 函数实例级生命周期（函数冷重启后重置为演示种子数据） |
 | **超时执行限制** | 无限制 | 10 秒硬性上限约束 (`vercel.json`) |
-| **适用目标场景** | 深度架构评测、自定义 MCP 服务器接入与本地调试 | 评委 60 秒极速零摩擦体验、即开即用在线试玩 |
+| **适用场景** | 深度架构评测、自定义 MCP 服务器接入与本地调试 | 评委极速零摩擦体验、即开即用在线试玩 |
 
 ### 无服务器环境下的状态持久化说明
 在 Vercel Serverless 环境中，新建的笔记与任务保存在函数实例内存中。在热函数（Warm Function）调用期间数据互通；当函数遭遇冷启动重启时，将自动重置为包含 `[DEMO]` 标识的种子数据。生产环境若需跨会话持久化，可无缝对接通过 SSE 或 HTTP 暴露并持久化至云端数据库的外部 MCP 服务器。
@@ -73,7 +75,7 @@ FrankenMCP 采用自适应双轨通信架构，同时支持本地高保真开发
 FrankenMCP 提供机器可读的健康检查接口，具备按需懒加载唤醒与实时状态诊断能力：
 
 ```bash
-curl http://localhost:3000/api/health
+curl https://frankenmcp.vercel.app/api/health
 ```
 
 接口响应示例：
@@ -86,7 +88,7 @@ curl http://localhost:3000/api/health
     { "id": "tasks", "name": "Tasks Server", "status": "connected", "transport": "in-process", "toolCount": 5 },
     { "id": "calculator", "name": "Calculator Server", "status": "connected", "transport": "in-process", "toolCount": 5 }
   ],
-  "timestamp": "2026-11-07T00:00:00.000Z"
+  "timestamp": "2026-11-07T08:37:01.301Z"
 }
 ```
 
@@ -95,7 +97,6 @@ curl http://localhost:3000/api/health
 - **`error` (HTTP 503)**：服务器初始化异常或可用服务器为 0（默认 Fail-Closed 防御）。
 
 ### Vercel 部署配置考量 (`vercel.json`)
-- **`memory: 1024MB`**：为 Next.js App Router、内存适配器与 Schema 实时裁剪计算提供充裕资源冗余，彻底避免 OOM。
 - **`maxDuration: 10s`**：严格匹配 Vercel Hobby 免费套餐函数执行上限（进程内执行单次往往仅耗时 <50ms）。
 
 ### 常见问题与排错 (Troubleshooting)

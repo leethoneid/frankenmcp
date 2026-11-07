@@ -25,7 +25,7 @@ export interface RoutingSummary {
  * Result of executing an individual MCP tool on a server.
  */
 export interface ToolResult {
-  /** Target MCP server ID that executed the tool. */
+  /** Destination MCP server ID that executed the tool. */
   serverID: string;
   /** Name of the tool invoked. */
   toolName: string;
