@@ -35,29 +35,73 @@ Open [http://localhost:3000](http://localhost:3000) to view the application and 
 
 ---
 
-## 🌐 Live Demo
+## 🌐 Live Demo & One-Click Deployment
 
-- **Hosted URL**: *Deployment link pending Vercel configuration*
-- **No registration or API key required** to test core routing and the Monster Lab dashboard.
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fleethoneid%2Ffrankenmcp)
+
+- **Hosted URL**: *Deploy directly to Vercel using the button above.*
+- **Zero Configuration**: No signup, no API keys, and no database credentials required. The demo connects three built-in MCP servers on startup.
 
 ---
 
 ## 🧩 Built-in Demo MCP Servers
 
-FrankenMCP comes pre-configured with three standalone stdio MCP servers requiring zero keys or external credentials:
+FrankenMCP comes pre-configured with three standalone MCP servers requiring zero keys or external credentials:
 
-1. **`notes`** — Lightweight local notes store with CRUD capabilities.
-2. **`tasks`** — Local to-do and checklist management.
-3. **`calculator`** — Basic arithmetic and unit conversion tool for direct execution validation.
+1. **`notes`** — Lightweight local notes store with CRUD capabilities and `[DEMO]` pre-seeded fixtures.
+2. **`tasks`** — Local to-do and checklist management with priority levels and completion tracking.
+3. **`calculator`** — Stateless arithmetic operations and unit conversion (length, weight, temperature).
 
 ---
 
 ## 🚀 Dual-Mode Deployment Architecture
 
-FrankenMCP employs a dual-mode transport architecture to support both high-fidelity local development and serverless cloud deployment:
+FrankenMCP employs an adaptive dual-mode transport architecture to support both high-fidelity local development and serverless cloud deployment:
 
-- **Local Development**: MCP servers spawn as realistic stdio child processes (`node src/mcp-servers/...`) communicating via stdio JSON-RPC, driven by the full `mcp-dynamic-router` process. We recommend running locally for full router inspection.
-- **Vercel Serverless**: In cloud serverless environments where persistent child processes and arbitrary network downloads on cold starts are prohibited, demo servers run via high-performance in-process adapters, and routing uses an instant in-process fallback router (`simplifiedRoute()`, <1ms latency) to guarantee 100% reliability within Vercel's 10-second function timeout.
+| Capability | Local Development (`local`) | Vercel Serverless (`vercel`) |
+| :--- | :--- | :--- |
+| **Server Transports** | Stdio child processes (`node src/mcp-servers/...`) | In-process adapters (`InProcessMCPAdapter`, <1ms init) |
+| **Router Engine** | Full `mcp-dynamic-router` subprocess with TF-IDF | In-process fallback rule engine (`simplifiedRoute()`) |
+| **State Persistence** | Persistent across server process lifetime | Function-instance scoped (ephemeral across cold starts) |
+| **Timeout Constraints** | Unbounded | Strict 10-second ceiling (`vercel.json`) |
+| **Target Audience** | Architecture evaluation & custom MCP server dev | Instant frictionless hackathon judge evaluation |
+
+### State Persistence Behavior on Serverless
+In Vercel serverless functions, newly created notes and tasks reside in function-instance memory. Warm function invocations share state; cold restarts reset to pre-seeded demo fixtures. For production environments requiring cross-session persistence, configure external MCP servers over SSE or HTTP backed by persistent databases.
+
+### Health Check Endpoint (`/api/health`)
+FrankenMCP exposes a machine-readable health endpoint that performs on-demand server initialization and reports operational status:
+
+```bash
+curl http://localhost:3000/api/health
+```
+
+Example response:
+```json
+{
+  "status": "healthy",
+  "environment": "vercel",
+  "servers": [
+    { "id": "notes", "name": "Notes Server", "status": "connected", "transport": "in-process", "toolCount": 5 },
+    { "id": "tasks", "name": "Tasks Server", "status": "connected", "transport": "in-process", "toolCount": 5 },
+    { "id": "calculator", "name": "Calculator Server", "status": "connected", "transport": "in-process", "toolCount": 5 }
+  ],
+  "timestamp": "2026-11-07T00:00:00.000Z"
+}
+```
+
+- **`healthy` (HTTP 200)**: All 3 demo servers online and responsive.
+- **`degraded` (HTTP 200)**: 1 or 2 demo servers connected.
+- **`error` (HTTP 503)**: Server initialization failure or 0 servers reachable (Fail-Closed).
+
+### Vercel Configuration Rationale (`vercel.json`)
+- **`memory: 1024MB`**: Ensures generous headroom for Next.js App Router, in-process adapters, and schema calculations without out-of-memory risks.
+- **`maxDuration: 10s`**: Respects Vercel Hobby plan execution ceilings. In-process execution typically completes in <50ms.
+
+### Troubleshooting
+- **Router unavailable error**: Ensure Node.js ≥20 is installed. When testing locally, run `npx -y github:leethoneid/mcp-dynamic-router serve` to confirm subprocess permissions.
+- **Slow cold starts on local dev**: Stdio mode spawns real child processes; subsequent warm calls are cached.
+- **Missing tools**: Check `/api/health` to ensure all servers report `connected`.
 
 ---
 
@@ -72,7 +116,7 @@ In accordance with Kiroween 2026 rules regarding pre-existing work:
 ## 🤖 Kiro Integration
 
 FrankenMCP leverages the Kiro development workflow directly:
-- **Specs (`.kiro/specs/`)**: Requirements (EARS syntax), architecture designs, and task breakdowns.
+- **Specs (`.kiro/specs/`)**: Requirements (EARS syntax), architecture designs, and task breakdowns for `router-core`, `monster-lab-dashboard`, `playground-chat`, and `deployment`.
 - **Steering (`.kiro/steering/`)**: Product vision, architectural standards, and structural guidelines.
 - **Hooks (`.kiro/hooks/`)**: Automated quality checks and schema verification.
 - **MCP Settings (`.kiro/settings/mcp.json`)**: Default multi-server orchestration configuration.

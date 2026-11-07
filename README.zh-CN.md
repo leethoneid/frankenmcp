@@ -35,29 +35,73 @@ npm run dev
 
 ---
 
-## 🌐 在线演示 (Live Demo)
+## 🌐 在线演示与一键部署
 
-- **线上演示地址**：*待 Vercel 部署完成后更新*
-- **免注册、无需配置密钥**，即可完整体验核心路由机制与怪物实验室仪表盘。
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fleethoneid%2Ffrankenmcp)
+
+- **线上演示地址**：*点击上方按钮可直接一键部署至 Vercel 免费环境。*
+- **零配置开箱体验**：免注册、免填 API Key、无需准备数据库；启动时自动连接内置的三大演示 MCP 服务器。
 
 ---
 
 ## 🧩 内置演示 MCP 服务器
 
-FrankenMCP 预配了三个开箱即用、零 Key 依赖的 Stdio MCP 服务器：
+FrankenMCP 预配了三个开箱即用、零 Key 依赖的演示 MCP 服务器：
 
-1. **`notes`** — 本地轻量笔记增删改查服务。
-2. **`tasks`** — 本地待办事项与清单管理服务。
-3. **`calculator`** — 基础四则运算与单位换算服务，用于验证工具执行。
+1. **`notes`** — 本地轻量笔记增删改查服务，内含 `[DEMO]` 演示数据。
+2. **`tasks`** — 本地待办事项与清单管理服务，支持优先级与完成状态标记。
+3. **`calculator`** — 无状态四则运算与多维物理单位换算服务（长度、重量、温度）。
 
 ---
 
 ## 🚀 双轨部署架构 (Dual-Mode Deployment)
 
-FrankenMCP 采用双轨通信架构，同时支持本地高保真开发与无服务器（Serverless）云端托管：
+FrankenMCP 采用自适应双轨通信架构，同时支持本地高保真开发与无服务器（Serverless）云端托管：
 
-- **本地开发**：MCP 服务器以真实 stdio 子进程运行（`node src/mcp-servers/...`），通过完整动态路由器进程进行智能语义检索与上下文裁剪。推荐在本地运行以体验完整路由特性。
-- **Vercel 云端部署**：在禁止长期驻留子进程、冷启动禁止大体积网络拉取的 Serverless 环境下，演示服务器通过高性能进程内适配器（In-Process Adapters）提供服务，路由自动切换至毫秒级规则降级引擎（`simplifiedRoute()`，耗时 <1ms），确保在 Vercel 10 秒超时硬性约束下实现 100% 稳定运行。
+| 能力维度 | 本地开发环境 (`local`) | Vercel 云端环境 (`vercel`) |
+| :--- | :--- | :--- |
+| **服务器通信** | Stdio 独立子进程 (`node src/mcp-servers/...`) | 进程内适配器 (`InProcessMCPAdapter`, 初始化 <1ms) |
+| **路由决策引擎** | 完整 `mcp-dynamic-router` 进程（TF-IDF 语义匹配） | 进程内规则降级引擎 (`simplifiedRoute()`, <1ms 响应) |
+| **状态持久化** | 在 Node.js 服务进程生命周期内持久 | 函数实例级生命周期（函数冷重启后重置为演示种子数据） |
+| **超时执行限制** | 无限制 | 10 秒硬性上限约束 (`vercel.json`) |
+| **适用目标场景** | 深度架构评测、自定义 MCP 服务器接入与本地调试 | 评委 60 秒极速零摩擦体验、即开即用在线试玩 |
+
+### 无服务器环境下的状态持久化说明
+在 Vercel Serverless 环境中，新建的笔记与任务保存在函数实例内存中。在热函数（Warm Function）调用期间数据互通；当函数遭遇冷启动重启时，将自动重置为包含 `[DEMO]` 标识的种子数据。生产环境若需跨会话持久化，可无缝对接通过 SSE 或 HTTP 暴露并持久化至云端数据库的外部 MCP 服务器。
+
+### 健康检查接口 (`/api/health`)
+FrankenMCP 提供机器可读的健康检查接口，具备按需懒加载唤醒与实时状态诊断能力：
+
+```bash
+curl http://localhost:3000/api/health
+```
+
+接口响应示例：
+```json
+{
+  "status": "healthy",
+  "environment": "vercel",
+  "servers": [
+    { "id": "notes", "name": "Notes Server", "status": "connected", "transport": "in-process", "toolCount": 5 },
+    { "id": "tasks", "name": "Tasks Server", "status": "connected", "transport": "in-process", "toolCount": 5 },
+    { "id": "calculator", "name": "Calculator Server", "status": "connected", "transport": "in-process", "toolCount": 5 }
+  ],
+  "timestamp": "2026-11-07T00:00:00.000Z"
+}
+```
+
+- **`healthy` (HTTP 200)**：3 个演示服务器全部在线可用。
+- **`degraded` (HTTP 200)**：1 或 2 个演示服务器在线。
+- **`error` (HTTP 503)**：服务器初始化异常或可用服务器为 0（默认 Fail-Closed 防御）。
+
+### Vercel 部署配置考量 (`vercel.json`)
+- **`memory: 1024MB`**：为 Next.js App Router、内存适配器与 Schema 实时裁剪计算提供充裕资源冗余，彻底避免 OOM。
+- **`maxDuration: 10s`**：严格匹配 Vercel Hobby 免费套餐函数执行上限（进程内执行单次往往仅耗时 <50ms）。
+
+### 常见问题与排错 (Troubleshooting)
+- **路由器不可用提示**：确保运行环境满足 Node.js ≥20。本地测试时可直接运行 `npx -y github:leethoneid/mcp-dynamic-router serve` 验证子进程权限。
+- **本地冷启动较慢**：Stdio 模式下首次启动需创建 Node 子进程通信管道，后续热调用已被连接池复用。
+- **工具未加载**：访问 `/api/health` 确认全部服务器状态均为 `connected`。
 
 ---
 
@@ -72,7 +116,7 @@ FrankenMCP 采用双轨通信架构，同时支持本地高保真开发与无服
 ## 🤖 Kiro 深度融合
 
 FrankenMCP 严格遵循并实践 Kiro 开发工作流：
-- **Specs 规范 (`.kiro/specs/`)**：涵盖 EARS 格式的需求定义、系统设计与任务清单。
+- **Specs 规范 (`.kiro/specs/`)**：涵盖 `router-core`、`monster-lab-dashboard`、`playground-chat`、`deployment` 四大特性的 EARS 需求、架构设计与任务拆解。
 - **Steering 定向 (`.kiro/steering/`)**：产品愿景、技术标准与工程结构规范。
 - **Hooks 自动化钩子 (`.kiro/hooks/`)**：保存触发类型校验与 Schema 快照自动化。
 - **MCP 预配配置 (`.kiro/settings/mcp.json`)**：默认多服务器编排连接描述。
