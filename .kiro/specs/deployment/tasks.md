@@ -270,21 +270,21 @@ export function simplifiedRoute(intent: string): string[] {
 - `src/mcp-servers/calculator/index.mjs` (refactor to use `core.mjs`)
 
 **Acceptance Criteria**:
-- [ ] `CalculatorCore` class (in `core.mjs`) implements stateless methods:
+- [x] `CalculatorCore` class (in `core.mjs`) implements stateless methods:
   - `add(a, b): number`
   - `subtract(a, b): number`
   - `multiply(a, b): number`
   - `divide(a, b): number` (throws on divide-by-zero)
   - `convertUnits(value, from, to): number` (temperature, length, weight)
-- [ ] `CalculatorAdapter` (TypeScript) imports `CalculatorCore` from `core.mjs` and implements `InProcessMCPAdapter`
-- [ ] `CalculatorAdapter.listTools()` returns 5 tool definitions matching stdio version
-- [ ] `CalculatorAdapter.invokeTool()` delegates to `CalculatorCore` methods
-- [ ] Stdio version (`index.mjs`) refactored to use `CalculatorCore` (shared logic)
-- [ ] Unit tests verify:
+- [x] `CalculatorAdapter` (TypeScript) imports `CalculatorCore` from `core.mjs` and implements `InProcessMCPAdapter`
+- [x] `CalculatorAdapter.listTools()` returns 5 tool definitions matching stdio version
+- [x] `CalculatorAdapter.invokeTool()` delegates to `CalculatorCore` methods
+- [x] Stdio version (`index.mjs`) refactored to use `CalculatorCore` (shared logic)
+- [x] Unit tests verify:
   - Arithmetic operations produce correct results
   - Divide-by-zero throws error
   - Unit conversions are accurate (e.g., 0°C = 32°F, 1m = 3.28084ft)
-- [ ] Adapter parity test verifies stdio and in-process produce identical tool lists
+- [x] Adapter parity test verifies stdio and in-process produce identical tool lists
 
 **Estimated Effort**: 2.5 hours
 
