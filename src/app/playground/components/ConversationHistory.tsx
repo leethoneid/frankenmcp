@@ -51,7 +51,7 @@ export default function ConversationHistory({
   return (
     <div className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6">
       {turns.map((turn) => (
-        <TurnDisplay key={turn.id} turn={turn} />
+        <TurnDisplay key={turn.id} turn={turn} onExampleClick={onExampleClick} />
       ))}
       {isProcessing && (
         <div role="status" aria-live="polite" className="pt-2">

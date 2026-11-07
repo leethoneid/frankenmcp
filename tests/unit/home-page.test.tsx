@@ -17,6 +17,7 @@ describe('Landing Page (src/app/page.tsx)', () => {
     expect(html).toContain('href="/lab"');
     expect(html).toContain('Try the Playground');
     expect(html).toContain('Open Monster Lab');
+    expect(html).toContain('Live router demo — 15 tools, no signup, no LLM.');
 
     // GitHub link
     expect(html).toContain('https://github.com/leethoneid/frankenmcp');

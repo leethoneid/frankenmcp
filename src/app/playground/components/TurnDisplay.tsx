@@ -9,6 +9,7 @@ import RoutingStatsCard from './RoutingStatsCard';
 import ToolResultCard from './ToolResultCard';
 import ErrorMessage from './ErrorMessage';
 import LoadingIndicator from './LoadingIndicator';
+import { EXAMPLE_QUERIES } from './WelcomeMessage';
 
 /**
  * Props for the TurnDisplay component.
@@ -18,13 +19,22 @@ export interface TurnDisplayProps {
   turn: Turn;
   /** Whether tools are currently being executed for this turn (displays a loading indicator under stats). */
   isExecutingTools?: boolean;
+  /** Optional callback fired when an example query button is clicked in the no-match guidance box. */
+  onExampleClick?: (query: string) => void;
 }
 
 /**
  * Renders an individual conversation turn card containing user prompt, routing statistics, and tool execution cards.
  */
-export default function TurnDisplay({ turn, isExecutingTools = false }: TurnDisplayProps) {
+export default function TurnDisplay({
+  turn,
+  isExecutingTools = false,
+  onExampleClick,
+}: TurnDisplayProps) {
   const timestamp = turn.timestamp ? new Date(turn.timestamp).toLocaleTimeString() : '';
+  const isNoRelevantTools =
+    (!turn.toolResults || turn.toolResults.length === 0) &&
+    turn.routing?.reasoning === 'No relevant tools found for this query';
 
   return (
     <div className="border border-purple-900/30 rounded-lg bg-gray-900 p-4 sm:p-6 space-y-4 max-w-full overflow-hidden break-words">
@@ -77,6 +87,34 @@ export default function TurnDisplay({ turn, isExecutingTools = false }: TurnDisp
 
       {/* Error */}
       {turn.error && <ErrorMessage message={turn.error} />}
+
+      {/* No Relevant Tools Guidance Box */}
+      {isNoRelevantTools && (
+        <div
+          role="region"
+          aria-label="No Relevant Tools Guidance"
+          className="bg-purple-950/40 border border-purple-800/50 rounded-lg p-4 space-y-3"
+        >
+          <p className="text-gray-300 text-sm">
+            This demo only answers questions that map to its 15 tools (notes, tasks, calculator) — there&apos;s no LLM or general knowledge here. Try one of these:
+          </p>
+          <div className="space-y-2">
+            {EXAMPLE_QUERIES.map((example, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => onExampleClick?.(example.text)}
+                className="w-full text-left px-4 py-2.5 bg-gray-800 border border-gray-700 rounded hover:border-purple-500 hover:bg-gray-750 transition cursor-pointer"
+              >
+                <div className="text-gray-100 text-sm">{example.text}</div>
+                <div className="text-xs text-gray-500 mt-0.5">
+                  → Routes to <span className="text-purple-400 font-mono">{example.server}</span> server
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

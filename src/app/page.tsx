@@ -135,6 +135,9 @@ export default function Home() {
                 <span>Open Monster Lab</span>
               </Link>
             </div>
+            <p className="text-xs sm:text-sm text-gray-400">
+              Live router demo — 15 tools, no signup, no LLM.
+            </p>
           </div>
         </section>
 
