@@ -24,6 +24,7 @@
 - **Status**: `● Ready`
 - **Production Alias**: `https://frankenmcp.vercel.app`
 - **Next.js Webpack 生产编译**: 100% 成功，0 错误，包含静态入口（`/`、`/lab`、`/playground`）及 Serverless 动态函数（`/api/health`、`/api/playground/chat`）。
+- **首页落地页 (`GET /`)**: 已正式替换为专属 FrankenMCP 落地页（包含 Hero 介绍、Kiroween 2026 标识、动态路由三步流程、3 个演示服务器 15 工具清单、Dual-Mode 架构对比、`/api/health` 实时健康徽章及 `/playground` 与 `/lab` 快捷入口），已彻底清除所有 Next.js 默认模板与样例链接残留。
 
 ---
 
@@ -89,7 +90,7 @@
 
 | 端点 / 意图 | 客户端端到端耗时 (Luck VM 测算口径) | 服务端纯函数执行耗时 (Vercel 日志口径) | NFR-1 目标阈值 | 达标评估 |
 | :--- | :--- | :--- | :--- | :--- |
-| **首页加载 (`GET /`)** | 1.58s | ~12ms (静态 ISR 渲染) | < 3s | **达标** |
+| **首页落地页加载 (`GET /`)** | 1.58s | ~12ms (静态预渲染) | < 3s | **达标** |
 | **健康首调 (`/api/health` 冷启动)** | 1.50s | **6ms** (适配器加载) | < 3s | **达标** |
 | **健康热调 (`/api/health` Warm)** | 1.01s | **< 1ms** | < 500ms | **达标** |
 | **Playground 问答查询** | 约 1.00s | **0–1ms** (`routingTimeMs`) | < 500ms | **达标** |
