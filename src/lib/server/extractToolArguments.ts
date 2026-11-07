@@ -61,7 +61,18 @@ export function extractToolArguments(
       return {};
     }
 
-    // Other task tools (toggle_task, delete_task) require explicit task IDs
+    if (toolName === 'update_task') {
+      const match = trimmedQuery.match(/(?:mark|set)?\s*(?:task\s+)?([a-zA-Z0-9_-]+)\s*(?:as\s+)?(?:done|complete|completed)/i) ||
+                    trimmedQuery.match(/(?:complete|finish)\s+(?:task\s+)?([a-zA-Z0-9_-]+)/i);
+      if (match && match[1].trim()) {
+        const rawId = match[1].trim();
+        const id = rawId.startsWith('task-') ? rawId : `task-${rawId}`;
+        return { id, completed: true };
+      }
+      return null;
+    }
+
+    // Other task tools (read_task, delete_task) require explicit task IDs
     return null;
   }
 
@@ -99,8 +110,39 @@ export function extractToolArguments(
       return null;
     }
 
+    if (toolName === 'convert_units') {
+      const match = trimmedQuery.match(/(?:convert\s+)?(-?\d+(?:\.\d+)?)\s*([a-zA-Z°]+)\s+(?:to|into|in)\s+([a-zA-Z°]+)/i);
+      if (match) {
+        const val = parseFloat(match[1]);
+        const fromUnit = normalizeUnit(match[2]);
+        const toUnit = normalizeUnit(match[3]);
+        if (!isNaN(val) && fromUnit && toUnit) {
+          return { value: val, from: fromUnit, to: toUnit };
+        }
+      }
+      return null;
+    }
+
     return null;
   }
 
+  return null;
+}
+
+/**
+ * Normalizes user-entered unit strings into canonical MCP calculator unit identifiers:
+ * - Length: 'm', 'ft', 'in'
+ * - Weight: 'kg', 'lb'
+ * - Temperature: 'C', 'F'
+ */
+function normalizeUnit(unitStr: string): string | null {
+  const u = unitStr.toLowerCase().replace(/[^a-z]/g, '');
+  if (['m', 'meter', 'meters'].includes(u)) return 'm';
+  if (['ft', 'foot', 'feet'].includes(u)) return 'ft';
+  if (['in', 'inch', 'inches'].includes(u)) return 'in';
+  if (['kg', 'kilogram', 'kilograms'].includes(u)) return 'kg';
+  if (['lb', 'lbs', 'pound', 'pounds'].includes(u)) return 'lb';
+  if (['c', 'celsius'].includes(u)) return 'C';
+  if (['f', 'fahrenheit'].includes(u)) return 'F';
   return null;
 }

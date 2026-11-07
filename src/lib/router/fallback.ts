@@ -69,60 +69,75 @@ export function getFallbackSearchResults(
     const manifest = availableMap.get(serverID);
     if (!manifest) continue;
 
-    // Filter tools within the selected server based on intent nuances
     const tools = manifest.tools || [];
     if (serverID === 'notes') {
       const isCreate = /add|create|new|write|make/i.test(lower);
-      const isRead = /read|get|view|show|find|search/i.test(lower);
-      const isDelete = /delete|remove/i.test(lower);
+      const isRead = /read|get|view|show|find|search|list|all/i.test(lower);
 
-      for (const t of tools) {
-        let score = 0.85;
-        if (isCreate && t.name === 'create_note') score = 0.95;
-        else if (isRead && (t.name === 'read_note' || t.name === 'list_notes')) score = 0.92;
-        else if (isDelete && t.name === 'delete_note') score = 0.95;
-
-        // If specific intent, only include top matching tools to demonstrate schema trimming
-        if (isCreate && (t.name === 'create_note' || t.name === 'read_note')) {
-          results.push({ tool: t.name, server: serverID, score, description: t.description });
-        } else if (isRead && (t.name === 'read_note' || t.name === 'list_notes')) {
-          results.push({ tool: t.name, server: serverID, score, description: t.description });
-        } else if (isDelete && t.name === 'delete_note') {
-          results.push({ tool: t.name, server: serverID, score, description: t.description });
-        } else if (!isCreate && !isRead && !isDelete) {
-          results.push({ tool: t.name, server: serverID, score, description: t.description });
+      if (isCreate) {
+        // 新建只留 create_note（排除无 ID 可提取的 read_note/update_note/delete_note 陪跑工具）
+        const tool = tools.find((t) => t.name === 'create_note');
+        if (tool) {
+          results.push({ tool: tool.name, server: serverID, score: 0.95, description: tool.description });
+        }
+      } else if (isRead) {
+        // 读/列只留 list_notes
+        const tool = tools.find((t) => t.name === 'list_notes');
+        if (tool) {
+          results.push({ tool: tool.name, server: serverID, score: 0.92, description: tool.description });
+        }
+      } else {
+        const tool = tools.find((t) => t.name === 'list_notes') || tools.find((t) => t.name === 'create_note');
+        if (tool) {
+          results.push({ tool: tool.name, server: serverID, score: 0.85, description: tool.description });
         }
       }
     } else if (serverID === 'tasks') {
-      const isToggle = /complete|done|check|toggle|finish/i.test(lower);
-      const isList = /list|show|view|get/i.test(lower);
-      const isCreate = /add|create|new|make/i.test(lower);
+      const isComplete = /mark.*(complete|done)|complete|finish|done/i.test(lower);
+      const isCreate = !isComplete && /add|create|new|make/i.test(lower);
 
-      for (const t of tools) {
-        let score = 0.85;
-        if (isToggle && t.name === 'toggle_task_completion') score = 0.95;
-        else if (isList && t.name === 'list_tasks') score = 0.93;
-        else if (isCreate && t.name === 'create_task') score = 0.94;
-
-        if (isToggle && t.name === 'toggle_task_completion') {
-          results.push({ tool: t.name, server: serverID, score, description: t.description });
-        } else if (isList && (t.name === 'list_tasks' || t.name === 'create_task')) {
-          results.push({ tool: t.name, server: serverID, score, description: t.description });
-        } else if (isCreate && (t.name === 'create_task' || t.name === 'list_tasks')) {
-          results.push({ tool: t.name, server: serverID, score, description: t.description });
-        } else if (!isToggle && !isList && !isCreate) {
-          results.push({ tool: t.name, server: serverID, score, description: t.description });
+      if (isComplete) {
+        // 标记完成留 update_task
+        const tool = tools.find((t) => t.name === 'update_task');
+        if (tool) {
+          results.push({ tool: tool.name, server: serverID, score: 0.95, description: tool.description });
+        }
+      } else if (isCreate) {
+        // 新建只留 create_task
+        const tool = tools.find((t) => t.name === 'create_task');
+        if (tool) {
+          results.push({ tool: tool.name, server: serverID, score: 0.94, description: tool.description });
+        }
+      } else {
+        // 列任务只留 list_tasks
+        const tool = tools.find((t) => t.name === 'list_tasks');
+        if (tool) {
+          results.push({ tool: tool.name, server: serverID, score: 0.93, description: tool.description });
         }
       }
     } else if (serverID === 'calculator') {
-      const isConvert = /convert|conversion|meter|foot|celsius|fahrenheit|kg|pound/i.test(lower);
+      // 计算器按查询里的运算符选工具：
+      // '-' → subtract，'*'/'×' → multiply，'/'/'÷' → divide，
+      // '+' → add，换算关键词 → convert_units
+      let targetTool = 'add';
 
-      for (const t of tools) {
-        if (isConvert && t.name === 'convert_units') {
-          results.push({ tool: t.name, server: serverID, score: 0.95, description: t.description });
-        } else if (!isConvert && t.name === 'add') {
-          results.push({ tool: t.name, server: serverID, score: 0.92, description: t.description });
-        }
+      if (
+        /convert|conversion|\bto\b|\binto\b|meter|feet|foot|inch|kg|pound|celsius|fahrenheit/i.test(lower)
+      ) {
+        targetTool = 'convert_units';
+      } else if (/\d+\s*-\s*\d+/i.test(lower) || /\b(minus|subtract)\b/i.test(lower) || /-/.test(lower)) {
+        targetTool = 'subtract';
+      } else if (/\d+\s*[*×]\s*\d+/i.test(lower) || /\b(multiply|times)\b/i.test(lower) || /[*×]/.test(lower)) {
+        targetTool = 'multiply';
+      } else if (/\d+\s*[/÷]\s*\d+/i.test(lower) || /\b(divide|divided)\b/i.test(lower) || /[\/÷]/.test(lower)) {
+        targetTool = 'divide';
+      } else if (/\d+\s*\+\s*\d+/i.test(lower) || /\b(add|plus|sum)\b/i.test(lower) || /\+/.test(lower)) {
+        targetTool = 'add';
+      }
+
+      const tool = tools.find((t) => t.name === targetTool) || tools.find((t) => t.name === 'add');
+      if (tool) {
+        results.push({ tool: tool.name, server: serverID, score: 0.95, description: tool.description });
       }
     } else {
       for (const t of tools) {

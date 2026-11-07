@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { simplifiedRoute, getFallbackSearchResults } from '@/lib/router/fallback';
 import { routeIntent, setRouterClient } from '@/lib/router/adapter';
+import { extractToolArguments } from '@/lib/server/extractToolArguments';
 import { RouterUnavailableError } from '@/lib/router/types';
 import type { ServerManifest } from '@/lib/router/types';
 
@@ -16,9 +17,9 @@ describe('Deployment - Task 1.4: Router Fallback Implementation', () => {
       tools: [
         { name: 'create_note', description: 'Create note', inputSchema: { type: 'object' } },
         { name: 'read_note', description: 'Read note', inputSchema: { type: 'object' } },
-        { name: 'list_notes', description: 'List notes', inputSchema: { type: 'object' } },
         { name: 'update_note', description: 'Update note', inputSchema: { type: 'object' } },
         { name: 'delete_note', description: 'Delete note', inputSchema: { type: 'object' } },
+        { name: 'list_notes', description: 'List notes', inputSchema: { type: 'object' } },
       ],
     },
     {
@@ -28,8 +29,10 @@ describe('Deployment - Task 1.4: Router Fallback Implementation', () => {
       status: 'connected',
       tools: [
         { name: 'create_task', description: 'Create task', inputSchema: { type: 'object' } },
+        { name: 'read_task', description: 'Read task', inputSchema: { type: 'object' } },
+        { name: 'update_task', description: 'Update task', inputSchema: { type: 'object' } },
+        { name: 'delete_task', description: 'Delete task', inputSchema: { type: 'object' } },
         { name: 'list_tasks', description: 'List tasks', inputSchema: { type: 'object' } },
-        { name: 'toggle_task_completion', description: 'Toggle task', inputSchema: { type: 'object' } },
       ],
     },
     {
@@ -39,6 +42,9 @@ describe('Deployment - Task 1.4: Router Fallback Implementation', () => {
       status: 'connected',
       tools: [
         { name: 'add', description: 'Add numbers', inputSchema: { type: 'object' } },
+        { name: 'subtract', description: 'Subtract numbers', inputSchema: { type: 'object' } },
+        { name: 'multiply', description: 'Multiply numbers', inputSchema: { type: 'object' } },
+        { name: 'divide', description: 'Divide numbers', inputSchema: { type: 'object' } },
         { name: 'convert_units', description: 'Convert units', inputSchema: { type: 'object' } },
       ],
     },
@@ -168,5 +174,114 @@ describe('Deployment - Task 1.4: Router Fallback Implementation', () => {
       setRouterClient(null);
       warnSpy.mockRestore();
     });
+  });
+
+  describe('Behavioral Regression: VERCEL=1 routeIntent + extractToolArguments on 8 queries', () => {
+    beforeEach(() => {
+      process.env.VERCEL = '1';
+    });
+
+    const testMatrix = [
+      {
+        type: '加 (Add)',
+        query: 'What is 42 + 58?',
+        expectedServer: 'calculator',
+        expectedTool: 'add',
+        assertArgs: (args: any) => {
+          expect(args).toEqual({ a: 42, b: 58 });
+        },
+      },
+      {
+        type: '减 (Subtract)',
+        query: 'What is 100 - 35?',
+        expectedServer: 'calculator',
+        expectedTool: 'subtract',
+        assertArgs: (args: any) => {
+          expect(args).toEqual({ a: 100, b: 35 });
+        },
+      },
+      {
+        type: '乘 (Multiply)',
+        query: 'Calculate 12 * 8',
+        expectedServer: 'calculator',
+        expectedTool: 'multiply',
+        assertArgs: (args: any) => {
+          expect(args).toEqual({ a: 12, b: 8 });
+        },
+      },
+      {
+        type: '除 (Divide)',
+        query: 'Calculate 100 / 4',
+        expectedServer: 'calculator',
+        expectedTool: 'divide',
+        assertArgs: (args: any) => {
+          expect(args).toEqual({ a: 100, b: 4 });
+        },
+      },
+      {
+        type: '换算 (Convert)',
+        query: 'Convert 100 meters to feet',
+        expectedServer: 'calculator',
+        expectedTool: 'convert_units',
+        assertArgs: (args: any) => {
+          expect(args).toEqual({ value: 100, from: 'm', to: 'ft' });
+        },
+      },
+      {
+        type: '新建笔记 (Create note)',
+        query: 'Add a note about the meeting',
+        expectedServer: 'notes',
+        expectedTool: 'create_note',
+        assertArgs: (args: any) => {
+          expect(args).toBeDefined();
+          expect(args.title).toBe('the meeting');
+          expect(args.content).toBe('the meeting');
+        },
+      },
+      {
+        type: '列任务 (List tasks)',
+        query: 'Show my tasks',
+        expectedServer: 'tasks',
+        expectedTool: 'list_tasks',
+        assertArgs: (args: any) => {
+          expect(args).toBeDefined();
+          expect(typeof args).toBe('object');
+        },
+      },
+      {
+        type: '标记完成 (Mark completed)',
+        query: 'Mark task task-1 as completed',
+        expectedServer: 'tasks',
+        expectedTool: 'update_task',
+        assertArgs: (args: any) => {
+          expect(args).toEqual({ id: 'task-1', completed: true });
+        },
+      },
+    ];
+
+    for (const tc of testMatrix) {
+      it(`routes and extracts non-empty arguments for ${tc.type}: "${tc.query}"`, async () => {
+        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+        const decision = await routeIntent(tc.query, mockServers, {
+          bypassCache: true,
+        });
+
+        // 1. Assert routed to expected server
+        expect(decision.selectedServers).toEqual([tc.expectedServer]);
+
+        // 2. Assert strictly single tool routed without 陪跑工具
+        const serverFilter = decision.toolFilter.find((tf) => tf.serverID === tc.expectedServer);
+        expect(serverFilter).toBeDefined();
+        expect(serverFilter!.includedTools).toEqual([tc.expectedTool]);
+
+        // 3. Extract tool arguments and assert non-empty / valid
+        const extracted = extractToolArguments(tc.query, tc.expectedTool, tc.expectedServer);
+        expect(extracted).not.toBeNull();
+        tc.assertArgs(extracted);
+
+        warnSpy.mockRestore();
+      });
+    }
   });
 });
