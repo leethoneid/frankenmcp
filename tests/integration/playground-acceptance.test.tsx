@@ -17,7 +17,7 @@ describe('Playground Chat - Task 6.5: Acceptance Criteria (AC-1 to AC-7) Validat
     expect(html).toContain('bg-gray-950');
 
     // Input bar
-    expect(html).toContain('Ask a question...');
+    expect(html).toContain('Ask about notes, tasks, or calculations…');
     expect(html).toContain('Submit');
 
     // Welcome message with examples

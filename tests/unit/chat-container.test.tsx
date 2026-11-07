@@ -21,7 +21,7 @@ describe('Playground Chat - Task 3.4: ChatContainer Component', () => {
     expect(html).toContain('Welcome to FrankenMCP Playground');
     expect(html).toContain('Ask questions and watch the router select relevant tools');
     expect(html).toContain('TRY THESE EXAMPLES:');
-    expect(html).toContain('Ask a question...');
+    expect(html).toContain('Ask about notes, tasks, or calculations…');
     expect(html).toContain('Submit');
   });
 
@@ -205,8 +205,37 @@ describe('Playground Chat - Task 3.4: ChatContainer Component', () => {
     it('Task 7.3: ChatContainer passes inputRef and manages focus during query lifecycle', () => {
       const html = renderToStaticMarkup(<ChatContainer />);
 
-      expect(html).toContain('placeholder="Ask a question..."');
+      expect(html).toContain('placeholder="Ask about notes, tasks, or calculations…"');
       expect(html).toContain('Submit');
+    });
+
+    it('renders guidance box on no-match turn and allows clicking example query to populate InputBar', () => {
+      const noMatchTurn: Turn = {
+        id: 'turn-no-match-chat',
+        timestamp: 1700000000000,
+        userQuery: 'Who is the president of France?',
+        routing: {
+          selectedServers: ['notes', 'tasks', 'calculator'],
+          toolsLoaded: 0,
+          toolsTrimmed: 15,
+          estimatedTokensSaved: 0,
+          routingTimeMs: 1,
+          reasoning: 'No relevant tools found for this query',
+        },
+        toolResults: [],
+      };
+
+      const html = renderToStaticMarkup(
+        <ChatContainer initialTurns={[noMatchTurn]} />
+      );
+
+      expect(html).toContain('Who is the president of France?');
+      expect(html).toContain(
+        "This demo only answers questions that map to its 15 tools (notes, tasks, calculator) — there&#x27;s no LLM or general knowledge here. Try one of these:"
+      );
+      expect(html).toContain('Add a note about the meeting');
+      expect(html).toContain('Show my tasks');
+      expect(html).toContain('What is 42 + 58?');
     });
   });
 });

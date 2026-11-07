@@ -184,6 +184,7 @@ describe('Playground Chat - Phase 1 & 2 UI Components Unit Tests', () => {
 
       expect(html).toContain('Welcome to FrankenMCP Playground');
       expect(html).toContain('Ask questions and watch the router select relevant tools in real-time');
+      expect(html).toContain('It only answers questions that map to its 15 demo tools — notes, tasks, and calculator.');
       expect(html).toContain('TRY THESE EXAMPLES');
 
       // Verify all 3 examples from spec: notes, tasks, calculator
@@ -340,6 +341,58 @@ describe('Playground Chat - Phase 1 & 2 UI Components Unit Tests', () => {
 
       expect(html).toContain('Executing tools...');
       expect(html).toContain('animate-spin');
+    });
+
+    it('renders guidance box and 3 example query buttons when turn has no matching tools, and triggers onExampleClick', () => {
+      const handleExampleClick = vi.fn();
+      const noMatchTurn: Turn = {
+        id: 'turn-no-match',
+        timestamp: 1700000000000,
+        userQuery: 'What is your model version?',
+        routing: {
+          selectedServers: ['notes', 'tasks', 'calculator'],
+          toolsLoaded: 0,
+          toolsTrimmed: 15,
+          estimatedTokensSaved: 0,
+          routingTimeMs: 1,
+          reasoning: 'No relevant tools found for this query',
+        },
+        toolResults: [],
+      };
+
+      const html = renderToStaticMarkup(
+        <TurnDisplay turn={noMatchTurn} onExampleClick={handleExampleClick} />
+      );
+
+      // Asserts verbatim guidance explanation text appears
+      expect(html).toContain(
+        "This demo only answers questions that map to its 15 tools (notes, tasks, calculator) — there&#x27;s no LLM or general knowledge here. Try one of these:"
+      );
+
+      // Asserts 3 example query buttons appear
+      expect(html).toContain('Add a note about the meeting');
+      expect(html).toContain('Show my tasks');
+      expect(html).toContain('What is 42 + 58?');
+
+      // Test click interaction by inspecting element props and invoking onClick
+      const element = TurnDisplay({ turn: noMatchTurn, onExampleClick: handleExampleClick });
+      const guidanceBox = element.props.children[6];
+      expect(guidanceBox).toBeTruthy();
+      const buttonListDiv = guidanceBox.props.children[1];
+      const buttons = buttonListDiv.props.children;
+      expect(buttons).toHaveLength(3);
+
+      // Click first button ('Add a note about the meeting')
+      buttons[0].props.onClick();
+      expect(handleExampleClick).toHaveBeenCalledWith('Add a note about the meeting');
+
+      // Click second button ('Show my tasks')
+      buttons[1].props.onClick();
+      expect(handleExampleClick).toHaveBeenCalledWith('Show my tasks');
+
+      // Click third button ('What is 42 + 58?')
+      buttons[2].props.onClick();
+      expect(handleExampleClick).toHaveBeenCalledWith('What is 42 + 58?');
     });
   });
 

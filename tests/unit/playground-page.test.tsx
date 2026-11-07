@@ -15,7 +15,7 @@ describe('Playground Chat - Phase 4: Playground Page (Task 4.1)', () => {
 
     // ChatContainer contents
     expect(html).toContain('Welcome to FrankenMCP Playground');
-    expect(html).toContain('Ask a question...');
+    expect(html).toContain('Ask about notes, tasks, or calculations…');
     expect(html).toContain('Submit');
   });
 });

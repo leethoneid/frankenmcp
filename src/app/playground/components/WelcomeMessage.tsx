@@ -35,6 +35,9 @@ export default function WelcomeMessage({ onExampleClick }: WelcomeMessageProps) 
           Ask questions and watch the router select relevant tools in real-time,
           trimming unnecessary context to save tokens.
         </p>
+        <p className="text-gray-400 text-sm">
+          It only answers questions that map to its 15 demo tools — notes, tasks, and calculator. There&apos;s no LLM or general knowledge here.
+        </p>
 
         <div className="mt-8">
           <h3 className="text-sm font-bold text-gray-500 mb-3">TRY THESE EXAMPLES:</h3>
