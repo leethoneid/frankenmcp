@@ -2,6 +2,8 @@
 
 # FrankenMCP
 
+🌐 **Live Demo**: [https://frankenmcp.vercel.app](https://frankenmcp.vercel.app)
+
 > **FrankenMCP** stitches multiple incompatible MCP servers together through a dynamic router, featuring a live "Monster Lab" dashboard that visualizes per-turn tool routing, schema trimming, and context token savings in real time.
 >
 > *Built for Kiroween 2026 Hackathon (Frankenstein Category).*
@@ -15,9 +17,9 @@ The router does the triage, not the calling: it decides *which tools the model g
 
 ---
 
-## ⚡ 60-Second Quickstart (Zero-Config)
+## ⚡ Quickstart (Zero-Config)
 
-You can run the playground locally in under 60 seconds without API keys or external services:
+You can get the playground up and running locally in a few minutes without API keys or external services:
 
 ```bash
 # 1. Clone the repository
@@ -39,7 +41,7 @@ Open [http://localhost:3000](http://localhost:3000) to view the application and 
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fleethoneid%2Ffrankenmcp)
 
-- **Hosted URL**: *Deploy directly to Vercel using the button above.*
+- **Hosted URL**: [https://frankenmcp.vercel.app](https://frankenmcp.vercel.app)
 - **Zero Configuration**: No signup, no API keys, and no database credentials required. The demo connects three built-in MCP servers on startup.
 
 ---
@@ -64,7 +66,7 @@ FrankenMCP employs an adaptive dual-mode transport architecture to support both 
 | **Router Engine** | Full `mcp-dynamic-router` subprocess with TF-IDF | In-process fallback rule engine (`simplifiedRoute()`) |
 | **State Persistence** | Persistent across server process lifetime | Function-instance scoped (ephemeral across cold starts) |
 | **Timeout Constraints** | Unbounded | Strict 10-second ceiling (`vercel.json`) |
-| **Target Audience** | Architecture evaluation & custom MCP server dev | Instant frictionless hackathon judge evaluation |
+| **Audience** | Architecture evaluation & custom MCP server dev | Instant frictionless hackathon judge evaluation |
 
 ### State Persistence Behavior on Serverless
 In Vercel serverless functions, newly created notes and tasks reside in function-instance memory. Warm function invocations share state; cold restarts reset to pre-seeded demo fixtures. For production environments requiring cross-session persistence, configure external MCP servers over SSE or HTTP backed by persistent databases.
@@ -73,7 +75,7 @@ In Vercel serverless functions, newly created notes and tasks reside in function
 FrankenMCP exposes a machine-readable health endpoint that performs on-demand server initialization and reports operational status:
 
 ```bash
-curl http://localhost:3000/api/health
+curl https://frankenmcp.vercel.app/api/health
 ```
 
 Example response:
@@ -86,7 +88,7 @@ Example response:
     { "id": "tasks", "name": "Tasks Server", "status": "connected", "transport": "in-process", "toolCount": 5 },
     { "id": "calculator", "name": "Calculator Server", "status": "connected", "transport": "in-process", "toolCount": 5 }
   ],
-  "timestamp": "2026-11-07T00:00:00.000Z"
+  "timestamp": "2026-11-07T08:37:01.301Z"
 }
 ```
 
@@ -95,7 +97,6 @@ Example response:
 - **`error` (HTTP 503)**: Server initialization failure or 0 servers reachable (Fail-Closed).
 
 ### Vercel Configuration Rationale (`vercel.json`)
-- **`memory: 1024MB`**: Ensures generous headroom for Next.js App Router, in-process adapters, and schema calculations without out-of-memory risks.
 - **`maxDuration: 10s`**: Respects Vercel Hobby plan execution ceilings. In-process execution typically completes in <50ms.
 
 ### Troubleshooting

@@ -66,6 +66,9 @@ export function extractToolArguments(
                     trimmedQuery.match(/(?:complete|finish)\s+(?:task\s+)?([a-zA-Z0-9_-]+)/i);
       if (match && match[1].trim()) {
         const rawId = match[1].trim();
+        if (!isValidTaskId(rawId)) {
+          return null;
+        }
         const id = rawId.startsWith('task-') ? rawId : `task-${rawId}`;
         return { id, completed: true };
       }
@@ -127,6 +130,19 @@ export function extractToolArguments(
   }
 
   return null;
+}
+
+/**
+ * Validates whether an extracted string candidate matches a valid task ID shape.
+ * Rejects common English connector words that regex might capture when task ID is omitted.
+ */
+function isValidTaskId(id: string): boolean {
+  if (!id) return false;
+  const lower = id.toLowerCase().trim();
+  if (['as', 'a', 'the', 'it', 'this', 'that', 'all', 'done', 'complete', 'completed', 'task'].includes(lower)) {
+    return false;
+  }
+  return /^task-[\w-]+$/i.test(lower) || /\d/.test(lower);
 }
 
 /**
