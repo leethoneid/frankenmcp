@@ -52,6 +52,15 @@ FrankenMCP 预配了三个开箱即用、零 Key 依赖的 Stdio MCP 服务器�
 
 ---
 
+## 🚀 双轨部署架构 (Dual-Mode Deployment)
+
+FrankenMCP 采用双轨通信架构，同时支持本地高保真开发与无服务器（Serverless）云端托管：
+
+- **本地开发**：MCP 服务器以真实 stdio 子进程运行（`node src/mcp-servers/...`），通过完整动态路由器进程进行智能语义检索与上下文裁剪。推荐在本地运行以体验完整路由特性。
+- **Vercel 云端部署**：在禁止长期驻留子进程、冷启动禁止大体积网络拉取的 Serverless 环境下，演示服务器通过高性能进程内适配器（In-Process Adapters）提供服务，路由自动切换至毫秒级规则降级引擎（`simplifiedRoute()`，耗时 <1ms），确保在 Vercel 10 秒超时硬性约束下实现 100% 稳定运行。
+
+---
+
 ## 📜 既有成果披露 (Prior Work & Disclosure)
 
 严格遵循 Kiroween 2026 赛事关于旧代码复用的披露规则：

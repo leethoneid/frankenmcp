@@ -179,14 +179,9 @@ This specification uses **EARS (Easy Approach to Requirements Syntax)** format f
 
 **Question**: Does `mcp-dynamic-router` (spawned via `npx github:...`) work reliably in Vercel serverless environment, or does it require stdio subprocess?
 
-**Decision Space**:
-- **Option A**: Router already works on Vercel (verify via test deployment).
-- **Option B**: Router requires in-process adapter (implement router adapter shim).
-- **Option C**: Router fundamentally incompatible; use simplified rule-based routing on Vercel.
+**Decision**: **Option C** (Simplified rule-based routing fallback on Vercel, full router locally). Empirical testing demonstrated that cold-start `npx github:...` downloads require >30s, exceeding Vercel's 10s function timeout. On Vercel, the application falls back to `simplifiedRoute()` (<1ms), while local development retains full stdio router capabilities. See `docs/router-vercel-compatibility-report.md`.
 
-**Investigation Required**: Deploy current router-core implementation to Vercel staging and measure success rate + latency.
-
-**Status**: ⏳ Awaiting technical investigation (Task 1.1 in tasks.md)
+**Status**: ✅ Confirmed (Task 1.1 complete, Task 1.4 activated)
 
 ---
 

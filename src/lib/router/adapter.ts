@@ -1,5 +1,7 @@
 import { ChildProcess } from 'child_process';
 import { MCPClient } from '@/lib/mcp/client';
+import { isVercel } from '@/lib/deployment/env';
+import { getFallbackSearchResults } from './fallback';
 import { recordTurn, computeTurnStats } from './stats';
 import {
   RoutingDecision,
@@ -196,7 +198,7 @@ export async function searchTools(
 
     toolResult = await Promise.race([callPromise, timeoutPromise]);
   } catch (err) {
-    if (err instanceof RoutingTimeoutError) {
+    if (err instanceof RoutingTimeoutError || err instanceof RouterUnavailableError) {
       throw err;
     }
     throw new InvalidRoutingDecisionError(err, (err as Error).message);
@@ -388,11 +390,23 @@ export async function routeIntent(
 
   if (options.searchFn) {
     results = await options.searchFn(intent);
+  } else if (isVercel()) {
+    console.warn('[Router] Running on Vercel: using in-process router fallback.');
+    results = getFallbackSearchResults(intent, availableServers);
   } else {
-    results = await searchTools(intent, {
-      client: options.client,
-      timeoutMs: options.timeoutMs,
-    });
+    try {
+      results = await searchTools(intent, {
+        client: options.client,
+        timeoutMs: options.timeoutMs,
+      });
+    } catch (err) {
+      if (err instanceof RouterUnavailableError || err instanceof RoutingTimeoutError) {
+        console.warn('[Router] Router subprocess unavailable: falling back to in-process rule-based router.');
+        results = getFallbackSearchResults(intent, availableServers);
+      } else {
+        throw err;
+      }
+    }
   }
 
   const decision = deriveRoutingDecision(results, availableServers);
