@@ -1,21 +1,36 @@
 /**
  * @file RoutingStatsCard.tsx
  * @description Component to display the dynamic routing decision summary and efficiency metrics.
+ * Highlights selected MCP servers, tools loaded vs trimmed, estimated context token savings,
+ * and router reasoning with responsive vertical-to-horizontal flex layout.
  */
 
 import type { RoutingSummary } from '../types';
 
+/**
+ * Props for the RoutingStatsCard component.
+ */
 export interface RoutingStatsCardProps {
+  /** The routing summary data containing selected servers, tool counts, savings, and optional reasoning. */
   routing: RoutingSummary | {
+    /** List of MCP server IDs selected by the router. */
     selectedServers: string[];
+    /** Number of tools loaded into active context. */
     toolsLoaded: number;
+    /** Number of tools trimmed/pruned from context. */
     toolsTrimmed: number;
+    /** Estimated number of tokens saved by pruning. */
     estimatedTokensSaved: number;
+    /** Execution latency of the router in milliseconds. */
     routingTimeMs?: number;
+    /** Explanation or rationale behind the routing decision. */
     reasoning?: string;
   };
 }
 
+/**
+ * Renders an efficiency metrics card showing servers picked and tools loaded/trimmed.
+ */
 export default function RoutingStatsCard({ routing }: RoutingStatsCardProps) {
   return (
     <div className="bg-gray-800 border border-purple-700/50 rounded p-4 space-y-2">

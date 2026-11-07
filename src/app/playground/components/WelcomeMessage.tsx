@@ -3,16 +3,26 @@
  * @description Empty state component displaying onboarding guidance and clickable example queries.
  */
 
+/**
+ * Props for the WelcomeMessage component.
+ */
 export interface WelcomeMessageProps {
+  /** Callback fired when the user clicks an example query button, populating the input bar. */
   onExampleClick: (query: string) => void;
 }
 
+/**
+ * Pre-configured example queries designed to trigger routing to specific demo MCP servers.
+ */
 export const EXAMPLE_QUERIES = [
   { text: 'Add a note about the meeting', server: 'notes' },
   { text: 'Show my tasks', server: 'tasks' },
   { text: 'What is 42 + 58?', server: 'calculator' },
 ];
 
+/**
+ * Renders the welcome banner and curated example queries shown when conversation history is empty.
+ */
 export default function WelcomeMessage({ onExampleClick }: WelcomeMessageProps) {
   return (
     <div className="flex-1 flex items-center justify-center p-8">

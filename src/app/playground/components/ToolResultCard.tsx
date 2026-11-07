@@ -9,10 +9,17 @@
 import { useState } from 'react';
 import type { ToolResult } from '../types';
 
+/**
+ * Props for the ToolResultCard component.
+ */
 export interface ToolResultCardProps {
+  /** The execution result or failure information for a specific MCP tool invocation. */
   result: ToolResult;
 }
 
+/**
+ * Renders an expandable card displaying MCP tool execution output or detailed error messages.
+ */
 export default function ToolResultCard({ result }: ToolResultCardProps) {
   const [expanded, setExpanded] = useState(false);
   const resultString = typeof result.result === 'object'
