@@ -456,17 +456,17 @@ This document breaks down the playground-chat feature into discrete, testable ta
 **Description**: End-to-end test from query submission to turn recording.
 
 **Acceptance Criteria**:
-- [ ] Test file `tests/integration/playground-e2e.test.ts` created
-- [ ] Test spawns 3 demo MCP servers (notes, tasks, calculator)
-- [ ] Test submits query: "Add a note about the meeting"
-- [ ] Test verifies:
+- [x] Test file `tests/integration/playground-e2e.test.ts` created
+- [x] Test spawns 3 demo MCP servers (notes, tasks, calculator)
+- [x] Test submits query: "Add a note about the meeting"
+- [x] Test verifies:
   - Routing decision displayed with notes server selected
   - Tool result displayed (success or error)
   - Turn recorded via `recordTurn`
   - Turn appears in `getSessionStats().turns`
-- [ ] Test submits 3 queries total
-- [ ] Test verifies 3 turns in `getSessionStats()` with matching intents
-- [ ] Test teardown: terminate all subprocesses
+- [x] Test submits 3 queries total
+- [x] Test verifies 3 turns in `getSessionStats()` with matching intents
+- [x] Test teardown: terminate all subprocesses
 
 **Requirements**: AC-2 (submit query and see result), AC-4 (/lab integration)
 
@@ -481,17 +481,17 @@ This document breaks down the playground-chat feature into discrete, testable ta
 **Description**: Comprehensive unit tests for all Playground components.
 
 **Acceptance Criteria**:
-- [ ] Test file `tests/unit/playground-components.test.ts` created
-- [ ] InputBar tests: valid submit, empty submit, long submit, disabled state
-- [ ] ConversationHistory tests: empty state (shows WelcomeMessage), non-empty state (shows turns), auto-scroll
-- [ ] TurnDisplay tests: turn with routing, turn with results, turn with error, turn with warnings
-- [ ] RoutingStatsCard tests: all fields displayed, reasoning present/absent
-- [ ] ToolResultCard tests: success result, error result, collapsible long result
-- [ ] WelcomeMessage tests: click example → verify callback
-- [ ] ErrorMessage tests: verify message and styling
-- [ ] LoadingIndicator tests: verify spinner and message
-- [ ] ChatContainer tests: API success, API error, banner display
-- [ ] All tests pass with ≥85% coverage on component logic
+- [x] Test file `tests/unit/playground-components.test.ts` created
+- [x] InputBar tests: valid submit, empty submit, long submit, disabled state
+- [x] ConversationHistory tests: empty state (shows WelcomeMessage), non-empty state (shows turns), auto-scroll
+- [x] TurnDisplay tests: turn with routing, turn with results, turn with error, turn with warnings
+- [x] RoutingStatsCard tests: all fields displayed, reasoning present/absent
+- [x] ToolResultCard tests: success result, error result, collapsible long result
+- [x] WelcomeMessage tests: click example → verify callback
+- [x] ErrorMessage tests: verify message and styling
+- [x] LoadingIndicator tests: verify spinner and message
+- [x] ChatContainer tests: API success, API error, banner display
+- [x] All tests pass with ≥85% coverage on component logic
 
 **Requirements**: NFR-4.1 (component tests with real outputs)
 
@@ -506,14 +506,14 @@ This document breaks down the playground-chat feature into discrete, testable ta
 **Description**: Test all error handling paths end-to-end.
 
 **Acceptance Criteria**:
-- [ ] Test file `tests/integration/playground-errors.test.ts` created
-- [ ] Test: mock API route to return `NoRelevantToolsError` → verify error displayed in turn
-- [ ] Test: mock API route to return "Router unavailable" error → verify banner shown, input disabled
-- [ ] Test: mock API route's `invokeToolCall` to throw error → verify error in tool result, turn still returned
-- [ ] Test: mock all demo servers offline → API returns 503 → verify error displayed
-- [ ] Test: simulate tool timeout in API route → verify timeout error in tool results
-- [ ] Test: mock API route to return arg extraction error → verify "Unable to extract arguments" in results
-- [ ] All tests pass consistently
+- [x] Test file `tests/integration/playground-errors.test.ts` created
+- [x] Test: mock API route to return `NoRelevantToolsError` → verify error displayed in turn
+- [x] Test: mock API route to return "Router unavailable" error → verify banner shown, input disabled
+- [x] Test: mock API route's `invokeToolCall` to throw error → verify error in tool result, turn still returned
+- [x] Test: mock all demo servers offline → API returns 503 → verify error displayed
+- [x] Test: simulate tool timeout in API route → verify timeout error in tool results
+- [x] Test: mock API route to return arg extraction error → verify "Unable to extract arguments" in results
+- [x] All tests pass consistently
 
 **Requirements**: NFR-4.2 (error state testing), AC-6 (no relevant tools), FR-3.2 (arg extraction failure)
 
@@ -528,16 +528,16 @@ This document breaks down the playground-chat feature into discrete, testable ta
 **Description**: Verify Playground turns appear in Monster Lab dashboard.
 
 **Acceptance Criteria**:
-- [ ] Test file `tests/integration/playground-lab-integration.test.ts` created
-- [ ] Test submits 2 queries via API route (spawn real servers, real routing)
-- [ ] Test calls `getSessionStats()` server-side
-- [ ] Test verifies:
+- [x] Test file `tests/integration/playground-lab-integration.test.ts` created
+- [x] Test submits 2 queries via API route (spawn real servers, real routing)
+- [x] Test calls `getSessionStats()` server-side
+- [x] Test verifies:
   - `stats.turns.length === 2` (not 4 — each query auto-records once)
   - First turn's intent matches first query
   - Second turn's intent matches second query
   - Tool counts match expected values
   - Turn statistics include `toolFilter` and `reasoning` fields
-- [ ] Manual test: submit 3 queries in `/playground`, navigate to `/lab`, verify exactly 3 turns displayed (not 6)
+- [x] Manual test: submit 3 queries in `/playground`, navigate to `/lab`, verify exactly 3 turns displayed (not 6)
 
 **Requirements**: AC-4 (dashboard integration), NFR-4.3 (integration test), FR-5.3 (no double recording)
 
@@ -552,14 +552,14 @@ This document breaks down the playground-chat feature into discrete, testable ta
 **Description**: Verify all acceptance criteria from requirements.md are met.
 
 **Acceptance Criteria**:
-- [ ] AC-1: Navigate to `/playground` → see input field and examples → manual test
-- [ ] AC-2: Submit "Add a note" → see routing + result → manual test or automated (Task 6.1)
-- [ ] AC-3: Submit "What's 42 + 58?" → see calculator result → manual test
-- [ ] AC-4: Submit 3 queries → refresh `/lab` → see 3 turns → manual test (Task 6.4)
-- [ ] AC-5: Disconnect server → submit query → see warning → manual test (Task 5.4)
-- [ ] AC-6: Submit "What is the weather?" → see no tools error → automated test (Task 6.3)
-- [ ] AC-7: View on mobile (375px) → verify usable → manual visual test
-- [ ] Checklist document created summarizing validation results
+- [x] AC-1: Navigate to `/playground` → see input field and examples → manual test
+- [x] AC-2: Submit "Add a note" → see routing + result → manual test or automated (Task 6.1)
+- [x] AC-3: Submit "What's 42 + 58?" → see calculator result → manual test
+- [x] AC-4: Submit 3 queries → refresh `/lab` → see 3 turns → manual test (Task 6.4)
+- [x] AC-5: Disconnect server → submit query → see warning → manual test (Task 5.4)
+- [x] AC-6: Submit "What is the weather?" → see no tools error → automated test (Task 6.3)
+- [x] AC-7: View on mobile (375px) → verify usable → manual visual test
+- [x] Checklist document created summarizing validation results
 
 **Requirements**: All AC-* from requirements.md
 

@@ -99,6 +99,43 @@ describe('Playground Chat - Task 3.4: ChatContainer Component', () => {
   });
 
   describe('Task 5.1 & 5.2 & 5.4: Error handling & banners', () => {
+    it('Task 6.2: sendChatQuery returns turn object on 200 API success response', async () => {
+      const mockTurn: Turn = {
+        id: 'turn-success-123',
+        timestamp: 1700000000000,
+        userQuery: 'Calculate 10 + 20',
+        routing: {
+          selectedServers: ['calculator'],
+          toolsLoaded: 1,
+          toolsTrimmed: 4,
+          estimatedTokensSaved: 120,
+          routingTimeMs: 10,
+        },
+        toolResults: [
+          {
+            serverID: 'calculator',
+            toolName: 'add',
+            status: 'success',
+            result: { sum: 30 },
+          },
+        ],
+      };
+
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => mockTurn,
+      });
+      vi.stubGlobal('fetch', mockFetch);
+
+      const result = await sendChatQuery('/api/playground/chat', 'Calculate 10 + 20');
+      expect(result.turn).toEqual(mockTurn);
+      expect(result.error).toBeUndefined();
+      expect(result.isRouterUnavailable).toBeUndefined();
+
+      vi.unstubAllGlobals();
+    });
+
     it('Task 5.1: sendChatQuery returns error on 404 NoRelevantToolsError response without setting router unavailable', async () => {
       const mockFetch = vi.fn().mockResolvedValue({
         ok: false,
