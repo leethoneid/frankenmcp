@@ -98,4 +98,101 @@ describe('Task 4.2: Vercel Mode Integration Tests', () => {
     expect(listResult.length).toBeGreaterThanOrEqual(4); // 3 fixtures + 1 created
     expect(listResult.some((n) => n.id === noteResult.id)).toBe(true);
   });
+
+  it('Step 8 Regression: routes and executes multi-phrasing arithmetic, unit conversion, and notes/tasks', async () => {
+    process.env.VERCEL = '1';
+
+    const manager = MCPServerManager.getInstance();
+    await manager.connectAll();
+    const manifests = manager.getServerManifests();
+
+    // 1. Multiply across multiple phrasings
+    const mulQueries = ['4241乘3235多少？', '4241 times 3235', '4241×3235'];
+    for (const q of mulQueries) {
+      const decision = await routeIntent(q, manifests, { bypassCache: true });
+      expect(decision.selectedServers).toEqual(['calculator']);
+      const tool = decision.toolFilter[0].includedTools[0];
+      expect(tool).toBe('multiply');
+
+      const args = extractToolArguments(q, 'multiply', 'calculator');
+      expect(args).toEqual({ a: 4241, b: 3235 });
+
+      const res = (await manager.invokeToolCall('calculator', 'multiply', args!)) as {
+        result: number;
+      };
+      expect(res.result).toBe(13719635);
+    }
+
+    // 2. Add across multiple phrasings
+    const addQueries = ['4241加3235', '4241 plus 3235', '4241 + 3235'];
+    for (const q of addQueries) {
+      const decision = await routeIntent(q, manifests, { bypassCache: true });
+      expect(decision.selectedServers).toEqual(['calculator']);
+      const tool = decision.toolFilter[0].includedTools[0];
+      expect(tool).toBe('add');
+
+      const args = extractToolArguments(q, 'add', 'calculator');
+      expect(args).toEqual({ a: 4241, b: 3235 });
+
+      const res = (await manager.invokeToolCall('calculator', 'add', args!)) as {
+        result: number;
+      };
+      expect(res.result).toBe(7476);
+    }
+
+    // 3. Divide with Chinese phrasing
+    const divQuery = '4241除以3235';
+    const divDecision = await routeIntent(divQuery, manifests, { bypassCache: true });
+    expect(divDecision.selectedServers).toEqual(['calculator']);
+    expect(divDecision.toolFilter[0].includedTools[0]).toBe('divide');
+
+    const divArgs = extractToolArguments(divQuery, 'divide', 'calculator');
+    expect(divArgs).toEqual({ a: 4241, b: 3235 });
+
+    const divRes = (await manager.invokeToolCall('calculator', 'divide', divArgs!)) as {
+      result: number;
+    };
+    expect(divRes.result).toBeCloseTo(1.311, 2);
+
+    // 4. Notes list
+    const notesQuery = '列出我的笔记';
+    const notesDecision = await routeIntent(notesQuery, manifests, { bypassCache: true });
+    expect(notesDecision.selectedServers).toEqual(['notes']);
+    expect(notesDecision.toolFilter[0].includedTools[0]).toBe('list_notes');
+
+    const notesArgs = extractToolArguments(notesQuery, 'list_notes', 'notes');
+    expect(notesArgs).toEqual({});
+
+    const notesRes = (await manager.invokeToolCall('notes', 'list_notes', notesArgs!)) as Array<any>;
+    expect(Array.isArray(notesRes)).toBe(true);
+    expect(notesRes.length).toBeGreaterThan(0);
+
+    // 5. Tasks list
+    const tasksQuery = '显示我的任务';
+    const tasksDecision = await routeIntent(tasksQuery, manifests, { bypassCache: true });
+    expect(tasksDecision.selectedServers).toEqual(['tasks']);
+    expect(tasksDecision.toolFilter[0].includedTools[0]).toBe('list_tasks');
+
+    const tasksArgs = extractToolArguments(tasksQuery, 'list_tasks', 'tasks');
+    expect(tasksArgs).toEqual({});
+
+    const tasksRes = (await manager.invokeToolCall('tasks', 'list_tasks', tasksArgs!)) as Array<any>;
+    expect(Array.isArray(tasksRes)).toBe(true);
+
+    // 6. Unit conversion across Chinese and English
+    const convQueries = ['100米等于多少英尺', 'Convert 100 meters to feet'];
+    for (const q of convQueries) {
+      const decision = await routeIntent(q, manifests, { bypassCache: true });
+      expect(decision.selectedServers).toEqual(['calculator']);
+      expect(decision.toolFilter[0].includedTools[0]).toBe('convert_units');
+
+      const args = extractToolArguments(q, 'convert_units', 'calculator');
+      expect(args).toEqual({ value: 100, from: 'm', to: 'ft' });
+
+      const res = (await manager.invokeToolCall('calculator', 'convert_units', args!)) as {
+        result: number;
+      };
+      expect(res.result).toBe(328.08399);
+    }
+  });
 });

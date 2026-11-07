@@ -15,20 +15,21 @@ export function hasRecognizedIntent(intent: string): boolean {
   const lower = (intent || '').toLowerCase().trim();
 
   // Notes domain
-  if (/note/i.test(lower)) {
+  if (/note|笔记/i.test(lower)) {
     return true;
   }
 
   // Tasks domain
-  if (/task|todo/i.test(lower)) {
+  if (/task|todo|任务|待办/i.test(lower)) {
     return true;
   }
 
   // Calculator domain
   if (
-    /\d+\s*[+\-*/×÷=]\s*\d+/.test(lower) ||
-    /(\d+)\s*(plus|minus|times|divided by|and|\+|-|\*|\/)\s*(\d+)/i.test(lower) ||
+    /\d+\s*[+\-*/×÷=加减乘除]\s*\d+/.test(lower) ||
+    /(\d+)\s*(plus|minus|times|divided by|and|\+|-|\*|\/|加|减|乘|除以?)\s*(\d+)/i.test(lower) ||
     /\b(calc(ulate|ulator)?|math|arithmetic|convert|conversion|celsius|fahrenheit|meters?|feet|inches|cm|kg|pounds?)\b/i.test(lower) ||
+    /(米|英尺|英寸|千克|公斤|磅|摄氏度|华氏度|换算|计算)/i.test(lower) ||
     /\b(add|sum|multiply|divide|subtract)\s+\d+/i.test(lower)
   ) {
     return true;
@@ -54,20 +55,21 @@ export function simplifiedRoute(intent: string): string[] {
   const lower = (intent || '').toLowerCase().trim();
 
   // Priority 1: Notes domain
-  if (/note/i.test(lower)) {
+  if (/note|笔记/i.test(lower)) {
     return ['notes'];
   }
 
   // Priority 2: Tasks domain
-  if (/task|todo/i.test(lower)) {
+  if (/task|todo|任务|待办/i.test(lower)) {
     return ['tasks'];
   }
 
   // Priority 3: Calculator / math / unit conversion domain
   if (
-    /\d+\s*[+\-*/×÷=]\s*\d+/.test(lower) ||
-    /(\d+)\s*(plus|minus|times|divided by|and|\+|-|\*|\/)\s*(\d+)/i.test(lower) ||
+    /\d+\s*[+\-*/×÷=加减乘除]\s*\d+/.test(lower) ||
+    /(\d+)\s*(plus|minus|times|divided by|and|\+|-|\*|\/|加|减|乘|除以?)\s*(\d+)/i.test(lower) ||
     /\b(calc(ulate|ulator)?|math|arithmetic|convert|conversion|celsius|fahrenheit|meters?|feet|inches|cm|kg|pounds?)\b/i.test(lower) ||
+    /(米|英尺|英寸|千克|公斤|磅|摄氏度|华氏度|换算|计算)/i.test(lower) ||
     /\b(add|sum|multiply|divide|subtract)\s+\d+/i.test(lower)
   ) {
     return ['calculator'];
@@ -101,8 +103,8 @@ export function getFallbackSearchResults(
 
     const tools = manifest.tools || [];
     if (serverID === 'notes') {
-      const isCreate = /add|create|new|write|make/i.test(lower);
-      const isRead = /read|get|view|show|find|search|list|all/i.test(lower);
+      const isCreate = /add|create|new|write|make|新建|创建|添加|写/i.test(lower);
+      const isRead = /read|get|view|show|find|search|list|all|读|看|查|列出|显示|获取|所有/i.test(lower);
 
       if (isCreate) {
         // 新建只留 create_note（排除无 ID 可提取的 read_note/update_note/delete_note 陪跑工具）
@@ -123,8 +125,8 @@ export function getFallbackSearchResults(
         }
       }
     } else if (serverID === 'tasks') {
-      const isComplete = /mark.*(complete|done)|complete|finish|done/i.test(lower);
-      const isCreate = !isComplete && /add|create|new|make/i.test(lower);
+      const isComplete = /mark.*(complete|done)|complete|finish|done|完成/i.test(lower);
+      const isCreate = !isComplete && /add|create|new|make|新建|创建|添加/i.test(lower);
 
       if (isComplete) {
         // 标记完成留 update_task
@@ -152,16 +154,16 @@ export function getFallbackSearchResults(
       let targetTool = 'add';
 
       if (
-        /convert|conversion|\bto\b|\binto\b|meter|feet|foot|inch|kg|pound|celsius|fahrenheit/i.test(lower)
+        /convert|conversion|\bto\b|\binto\b|meter|feet|foot|inch|kg|pound|celsius|fahrenheit|米|英尺|英寸|千克|公斤|磅|摄氏度|华氏度|换算|等于/i.test(lower)
       ) {
         targetTool = 'convert_units';
-      } else if (/\d+\s*-\s*\d+/i.test(lower) || /\b(minus|subtract)\b/i.test(lower) || /-/.test(lower)) {
+      } else if (/\d+\s*-\s*\d+/i.test(lower) || /\b(minus|subtract)\b/i.test(lower) || /-/.test(lower) || /减/.test(lower)) {
         targetTool = 'subtract';
-      } else if (/\d+\s*[*×]\s*\d+/i.test(lower) || /\b(multiply|times)\b/i.test(lower) || /[*×]/.test(lower)) {
+      } else if (/\d+\s*[*×]\s*\d+/i.test(lower) || /\b(multiply|times)\b/i.test(lower) || /[*×]/.test(lower) || /乘/.test(lower)) {
         targetTool = 'multiply';
-      } else if (/\d+\s*[/÷]\s*\d+/i.test(lower) || /\b(divide|divided)\b/i.test(lower) || /[\/÷]/.test(lower)) {
+      } else if (/\d+\s*[/÷]\s*\d+/i.test(lower) || /\b(divide|divided)\b/i.test(lower) || /[\/÷]/.test(lower) || /除/.test(lower)) {
         targetTool = 'divide';
-      } else if (/\d+\s*\+\s*\d+/i.test(lower) || /\b(add|plus|sum)\b/i.test(lower) || /\+/.test(lower)) {
+      } else if (/\d+\s*\+\s*\d+/i.test(lower) || /\b(add|plus|sum)\b/i.test(lower) || /\+/.test(lower) || /加/.test(lower)) {
         targetTool = 'add';
       }
 

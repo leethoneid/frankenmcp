@@ -81,45 +81,44 @@ export function extractToolArguments(
 
   // 3. Calculator Server Patterns
   if (serverID === 'calculator') {
-    if (toolName === 'add') {
-      const match = trimmedQuery.match(/(?:^|[^\d.-])(-?\d+(?:\.\d+)?)\s*\+\s*(-?\d+(?:\.\d+)?)/);
-      if (match) {
-        return { a: parseFloat(match[1]), b: parseFloat(match[2]) };
+    // 四则运算（add/subtract/multiply/divide）：
+    // 不再按运算符符号或单词匹配，按书写顺序取查询里的前两个数字作为 a、b
+    if (['add', 'subtract', 'multiply', 'divide'].includes(toolName)) {
+      const matches = trimmedQuery.match(/\d+(?:\.\d+)?/g);
+      if (matches && matches.length >= 2) {
+        let a = parseFloat(matches[0]);
+        const b = parseFloat(matches[1]);
+        if (trimmedQuery.trim().startsWith('-')) {
+          a = -Math.abs(a);
+        }
+        if (!isNaN(a) && !isNaN(b)) {
+          return { a, b };
+        }
       }
       return null;
     }
 
-    if (toolName === 'subtract') {
-      const match = trimmedQuery.match(/(?:^|[^\d.-])(-?\d+(?:\.\d+)?)\s*-\s*(-?\d+(?:\.\d+)?)/);
-      if (match) {
-        return { a: parseFloat(match[1]), b: parseFloat(match[2]) };
-      }
-      return null;
-    }
-
-    if (toolName === 'multiply') {
-      const match = trimmedQuery.match(/(?:^|[^\d.-])(-?\d+(?:\.\d+)?)\s*[*×]\s*(-?\d+(?:\.\d+)?)/);
-      if (match) {
-        return { a: parseFloat(match[1]), b: parseFloat(match[2]) };
-      }
-      return null;
-    }
-
-    if (toolName === 'divide') {
-      const match = trimmedQuery.match(/(?:^|[^\d.-])(-?\d+(?:\.\d+)?)\s*[/÷]\s*(-?\d+(?:\.\d+)?)/);
-      if (match) {
-        return { a: parseFloat(match[1]), b: parseFloat(match[2]) };
-      }
-      return null;
-    }
-
+    // convert_units：
+    // 取查询里的第一个数字 + 按顺序出现的前两个可识别单位，连接词不再限定 to/into/in
     if (toolName === 'convert_units') {
-      const match = trimmedQuery.match(/(?:convert\s+)?(-?\d+(?:\.\d+)?)\s*([a-zA-Z°]+)\s+(?:to|into|in)\s+([a-zA-Z°]+)/i);
-      if (match) {
-        const val = parseFloat(match[1]);
-        const fromUnit = normalizeUnit(match[2]);
-        const toUnit = normalizeUnit(match[3]);
-        if (!isNaN(val) && fromUnit && toUnit) {
+      const numMatch = trimmedQuery.match(/-?\d+(?:\.\d+)?/);
+      if (!numMatch) {
+        return null;
+      }
+      const val = parseFloat(numMatch[0]);
+      if (isNaN(val)) {
+        return null;
+      }
+
+      // 按顺序提取前两个可识别的单位
+      const unitMatches = trimmedQuery.match(
+        /(?:千克|公斤|摄氏度|华氏度|英尺|英寸|米|磅|meters?|feet|foot|ft|inches?|kilograms?|kg|pounds?|lbs?|celsius|fahrenheit|\b[CFcf]\b)/gi
+      );
+
+      if (unitMatches && unitMatches.length >= 2) {
+        const fromUnit = normalizeUnit(unitMatches[0]);
+        const toUnit = normalizeUnit(unitMatches[1]);
+        if (fromUnit && toUnit) {
           return { value: val, from: fromUnit, to: toUnit };
         }
       }
@@ -152,7 +151,21 @@ function isValidTaskId(id: string): boolean {
  * - Temperature: 'C', 'F'
  */
 function normalizeUnit(unitStr: string): string | null {
-  const u = unitStr.toLowerCase().replace(/[^a-z]/g, '');
+  if (!unitStr) return null;
+  const raw = unitStr.trim();
+  const lower = raw.toLowerCase();
+
+  // Chinese mappings
+  if (raw === '米') return 'm';
+  if (raw === '英尺') return 'ft';
+  if (raw === '英寸') return 'in';
+  if (['千克', '公斤'].includes(raw)) return 'kg';
+  if (raw === '磅') return 'lb';
+  if (['摄氏度', '摄氏'].includes(raw)) return 'C';
+  if (['华氏度', '华氏'].includes(raw)) return 'F';
+
+  // English mappings
+  const u = lower.replace(/[^a-z°]/g, '');
   if (['m', 'meter', 'meters'].includes(u)) return 'm';
   if (['ft', 'foot', 'feet'].includes(u)) return 'ft';
   if (['in', 'inch', 'inches'].includes(u)) return 'in';
