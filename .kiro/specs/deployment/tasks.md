@@ -437,18 +437,18 @@ const allHealthy = onlineDemoServers.length >= 3;
 **Dependencies**: Task 2.4, Task 3.1, Task 3.2
 
 **Acceptance Criteria**:
-- [ ] Deploy to Vercel production from `main` branch
-- [ ] Deployment succeeds without errors in build logs
-- [ ] `/api/health` returns `status: 'healthy'` with 3 connected servers
-- [ ] Playground chat successfully executes queries:
+- [x] Deploy to Vercel production from `main` branch
+- [x] Deployment succeeds without errors in build logs
+- [x] `/api/health` returns `status: 'healthy'` with 3 connected servers
+- [x] Playground chat successfully executes queries:
   - "Add a note about testing" → Creates note
   - "List my notes" → Returns notes (including fixtures)
   - "What is 42 + 58?" → Returns 100
-- [ ] Monster Lab dashboard displays server status with `transport: 'in-process'`
-- [ ] Cold start completes within 3 seconds (first request after deploy)
-- [ ] Warm function completes within 500ms (subsequent requests)
-- [ ] No subprocess-related errors in Vercel logs
-- [ ] Verify with fresh browser (no cache) that demo works without configuration
+- [x] Monster Lab dashboard displays server status with `transport: 'in-process'`
+- [x] Cold start completes within 3 seconds (first request after deploy)
+- [x] Warm function completes within 500ms (subsequent requests)
+- [x] No subprocess-related errors in Vercel logs
+- [x] Verify with fresh browser (no cache) that demo works without configuration
 
 **Estimated Effort**: 2 hours
 
@@ -472,18 +472,18 @@ const allHealthy = onlineDemoServers.length >= 3;
 - `tests/integration/vercel-mode.test.ts` (new)
 
 **Acceptance Criteria**:
-- [ ] `adapter-parity.test.ts` verifies:
+- [x] `adapter-parity.test.ts` verifies:
   - Tool lists match between stdio and in-process
   - `create_note` produces identical structure (stdio vs in-process)
   - `list_notes` returns arrays with same schema
   - Error cases throw identical error messages
-- [ ] `vercel-mode.test.ts` verifies:
+- [x] `vercel-mode.test.ts` verifies:
   - With `VERCEL=1`, manager loads in-process adapters
   - With `VERCEL=undefined`, manager spawns stdio servers
   - Tool invocation succeeds in both modes
   - Initialization time <100ms for in-process mode
-- [ ] All tests pass in CI
-- [ ] Coverage report shows ≥90% coverage for adapter code
+- [x] All tests pass in CI
+- [x] Coverage report shows ≥90% coverage for adapter code
 
 **Estimated Effort**: 2 hours
 
@@ -507,15 +507,15 @@ const allHealthy = onlineDemoServers.length >= 3;
 - `README.zh-CN.md` (modify — synchronize changes)
 
 **Acceptance Criteria**:
-- [ ] README includes Deployment section with:
+- [x] README includes Deployment section with:
   - Architecture explanation (dual-mode, in-process adapters)
   - State persistence behavior (ephemeral on Vercel)
   - "Deploy to Vercel" button
   - Troubleshooting steps (router unavailable, slow cold starts)
-- [ ] Chinese README synchronized with English version
-- [ ] Documentation explains when to use external MCP servers (production persistence)
-- [ ] Example health check response included
-- [ ] Vercel configuration rationale documented
+- [x] Chinese README synchronized with English version
+- [x] Documentation explains when to use external MCP servers (production persistence)
+- [x] Example health check response included
+- [x] Vercel configuration rationale documented
 
 **Estimated Effort**: 1.5 hours
 
