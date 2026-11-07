@@ -308,25 +308,25 @@ export function simplifiedRoute(intent: string): string[] {
 - `src/lib/mcp/server-manager.ts` (modify)
 
 **Acceptance Criteria**:
-- [ ] `MCPServerManager` constructor calls `detectEnvironment()` and logs runtime mode
-- [ ] `connectAll()` method branches on environment:
+- [x] `MCPServerManager` constructor calls `detectEnvironment()` and logs runtime mode
+- [x] `connectAll()` method branches on environment:
   - **Vercel**: Calls `loadInProcessAdapters()`
   - **Local**: Calls `spawnStdioServers()` (existing logic)
-- [ ] `loadInProcessAdapters()` method:
+- [x] `loadInProcessAdapters()` method:
   - Instantiates `NotesAdapter`, `TasksAdapter`, `CalculatorAdapter`
   - Calls `listTools()` on each adapter
   - Stores connections with `connectionType: 'in-process'`
   - Logs successful load with tool count
   - Handles errors gracefully (mark server as unavailable, continue with others)
-- [ ] `invokeToolCall()` method branches on connection type:
+- [x] `invokeToolCall()` method branches on connection type:
   - **in-process**: Calls `adapter.invokeTool(toolName, args)`
   - **stdio**: Uses existing client invocation
-- [ ] `getServerManifests()` includes transport type in manifest (`'stdio'` or `'in-process'`)
-- [ ] Integration test verifies:
+- [x] `getServerManifests()` includes transport type in manifest (`'stdio'` or `'in-process'`)
+- [x] Integration test verifies:
   - With `process.env.VERCEL=1`, loads adapters (no subprocesses)
   - With `process.env.VERCEL` undefined, spawns subprocesses
   - Tool invocation works correctly in both modes
-- [ ] Performance test verifies adapter initialization <100ms
+- [x] Performance test verifies adapter initialization <100ms
 
 **Estimated Effort**: 4 hours
 
