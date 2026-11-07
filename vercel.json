@@ -4,11 +4,9 @@
   "installCommand": "npm install",
   "functions": {
     "src/app/api/**/*.ts": {
-      "memory": 1024,
       "maxDuration": 10
     },
     "app/api/**/*.ts": {
-      "memory": 1024,
       "maxDuration": 10
     }
   }

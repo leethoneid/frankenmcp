@@ -10,6 +10,7 @@ process.env.VERCEL = '1';
 import { MCPServerManager } from '../src/lib/mcp/server-manager.ts';
 import { routeIntent } from '../src/lib/router/adapter.ts';
 import { extractToolArguments } from '../src/lib/server/extractToolArguments.ts';
+import { GET } from '../src/app/api/health/route.ts';
 
 async function runBenchmark() {
   console.log('=== Task 4.4: Performance Benchmarking (Vercel In-Process Mode) ===\n');
@@ -25,17 +26,11 @@ async function runBenchmark() {
   console.log(`[1] Cold Start Duration (Init + 3 In-Process Adapters): ${coldStartMs.toFixed(2)}ms`);
   console.log(`    Connected Servers: ${manifests.map((m) => `${m.id} (${m.transport})`).join(', ')}`);
 
-  // 2. Warm Function Latency (10 Consecutive Requests to /api/health logic)
+  // 2. Warm Health Check Handler Invocations (10 runs calling GET /api/health)
   const warmLatencies = [];
   for (let i = 0; i < 10; i++) {
     const t0 = performance.now();
-    const currentManifests = manager.getServerManifests();
-    const serverStatus = currentManifests.map((m) => ({
-      id: m.id,
-      status: m.status,
-      transport: m.transport,
-      toolCount: m.tools.length,
-    }));
+    const res = await GET();
     const duration = performance.now() - t0;
     warmLatencies.push(duration);
   }
@@ -44,10 +39,11 @@ async function runBenchmark() {
   const minWarm = warmLatencies[0];
   const maxWarm = warmLatencies[warmLatencies.length - 1];
   const avgWarm = warmLatencies.reduce((a, b) => a + b, 0) / warmLatencies.length;
-  const p95Warm = warmLatencies[Math.floor(warmLatencies.length * 0.95)];
+  // With n=10 samples (sorted indices 0..9), p95 (95th percentile) is index 9 (max value)
+  const p95Warm = warmLatencies[Math.min(Math.floor(warmLatencies.length * 0.95), warmLatencies.length - 1)];
 
   console.log(`\n[2] Warm Health Check Invocations (10 runs):`);
-  console.log(`    Min: ${minWarm.toFixed(3)}ms | Avg: ${avgWarm.toFixed(3)}ms | p95: ${p95Warm.toFixed(3)}ms | Max: ${maxWarm.toFixed(3)}ms`);
+  console.log(`    Min: ${minWarm.toFixed(3)}ms | Avg: ${avgWarm.toFixed(3)}ms | p95 (max with n=10): ${p95Warm.toFixed(3)}ms | Max: ${maxWarm.toFixed(3)}ms`);
 
   // 3. End-to-End Query Execution (Routing + Argument Extraction + Tool Dispatch)
   const queries = [
@@ -62,14 +58,24 @@ async function runBenchmark() {
   const queryLatencies = [];
 
   for (const q of queries) {
+    let recordedStats = null;
     const t0 = performance.now();
-    const decision = await routeIntent(q.query, manifests, { bypassCache: true });
+    const decision = await routeIntent(q.query, manifests, {
+      bypassCache: true,
+      onTurnRecorded: (stats) => {
+        recordedStats = stats;
+      },
+    });
     const args = extractToolArguments(q.query, q.expectedTool, q.expectedServer) || {};
     const result = await manager.invokeToolCall(q.expectedServer, q.expectedTool, args);
     const totalMs = performance.now() - t0;
     queryLatencies.push(totalMs);
 
-    console.log(`    - "${q.query}" → ${q.expectedServer}.${q.expectedTool}: ${totalMs.toFixed(2)}ms (routing: ${decision.routingTimeMs}ms)`);
+    const routingMsStr =
+      recordedStats && typeof recordedStats.routingTimeMs === 'number'
+        ? ` (routing: ${recordedStats.routingTimeMs}ms)`
+        : '';
+    console.log(`    - "${q.query}" → ${q.expectedServer}.${q.expectedTool}: ${totalMs.toFixed(2)}ms${routingMsStr}`);
   }
 
   const avgQuery = queryLatencies.reduce((a, b) => a + b, 0) / queryLatencies.length;
