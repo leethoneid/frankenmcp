@@ -628,4 +628,3 @@ This document breaks down the router-core feature into discrete, testable tasks.
 ## Changes from Previous Versions
 
 _Initial version._
-
