@@ -1,7 +1,7 @@
 /**
  * Phase 7 - Task 7.2: Error Handling Integration Tests
  *
- * Requirements: FR-1.7, FR-2.5, NFR-2.1, Military Rule 1 & Rule 2.7 from AGENTS.md (Fail-Loud)
+ * Requirements: FR-1.7, FR-2.5, NFR-2.1 (Fail-Loud Error Handling)
  *
  * Verifies that the system consistently and loudly fails when encountering faults:
  * 1. Router spawn failure throws RouterUnavailableError without silent mock fallback.

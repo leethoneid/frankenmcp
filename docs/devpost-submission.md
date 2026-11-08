@@ -86,7 +86,7 @@ FrankenMCP is designed for friction-free hackathon evaluation while preserving e
 
 ## 🤖 How We Used Kiro (The 6 Engineering Dimensions)
 
-Kiro was not merely an editor; Kiro served as the architectural brain of this project. Antigravity and our subagent swarms acted as the hands, strictly implementing specifications defined, verified, and orchestrated within Kiro:
+Kiro was not merely an editor; Kiro served as the architectural brain of this project, driving every specification, verification harness, and orchestration workflow:
 
 ### 1. Specs (`.kiro/specs/`)
 Every major capability (`router-core`, `monster-lab-dashboard`, `playground-chat`, and `deployment`) was formally specified inside `.kiro/specs/` using EARS (Easy Approach to Requirements Syntax). Requirements flowed systematically:

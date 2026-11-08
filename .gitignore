@@ -40,7 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# local agent rules & audit reports (keep locally, never push to repo)
+# local internal development rules, plans & audit reports (keep locally, never push to repo)
 /AGENTS.md
 /VERIFICATION-REPORT.md
 /FINAL-AUDIT-REPORT.md
+/docs/build-plan.md
+/docs/deployment-verification.md

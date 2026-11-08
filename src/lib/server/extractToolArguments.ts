@@ -155,7 +155,7 @@ function normalizeUnit(unitStr: string): string | null {
   const raw = unitStr.trim();
   const lower = raw.toLowerCase();
 
-  // 暂不支持厘米/毫米换算，明确返回 null（AGENTS.md 2.7 宁可报错也不错算）
+  // Unsupported units (cm/mm) explicitly return null to fail loud rather than mis-mapping to meters
   if (['厘米', '毫米'].includes(raw)) return null;
 
   // Chinese mappings

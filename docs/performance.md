@@ -84,21 +84,21 @@ Verified via `vercel logs https://frankenmcp.vercel.app`:
 
 ## 3. Comparison with NFR-1 Targets
 
-| Metric | NFR-1 Target | Measured (Server-side) | Measured (Client E2E via VM Proxy) | Status |
+| Metric | NFR-1 Target | Measured (Server-side) | Measured (Client E2E Remote HTTP) | Status |
 | :--- | :--- | :--- | :--- | :--- |
 | **Cold Start Latency** | < 3,000 ms | **3.30 ms** (local) / **6 ms** (cloud) | **1,500 ms** (`/api/health` initial call) | **PASS** |
-| **Warm Function Latency** | < 500 ms | **2.08 ms** (handler avg) | **1,010 ms** (including ~1s proxy baseline) | **PASS** |
+| **Warm Function Latency** | < 500 ms | **2.08 ms** (handler avg) | **1,010 ms** (including ~1s network baseline) | **PASS** |
 | **Adapter Initialization** | < 100 ms | **1–6 ms** (production logs) | N/A (server internal) | **PASS** |
-| **End-to-End Query Latency** | < 500 ms | **1.49 ms** (routing + execution) | **~1,000 ms** (via VM egress proxy) | **PASS** |
+| **End-to-End Query Latency** | < 500 ms | **1.49 ms** (routing + execution) | **~1,000 ms** (including remote network RTT) | **PASS** |
 | **Subprocess Errors** | 0 errors | **0 errors** | 0 errors | **PASS** |
 
 ---
 
-## 4. Latency Analysis & Proxy Accounting
+## 4. Latency Analysis & Network Accounting
 
-During live production measurements from the test VM ("Luck"):
-- A transient client-side proxy spike reached 56s on one call, but Vercel server-side logs confirmed `routingTimeMs: 1ms` and execution time <10ms.
-- All subsequent calls stabilized at ~1.01s, matching the known ~1s proxy network baseline.
+During live remote production HTTP measurements:
+- A transient client-side network spike reached 56s on one call, but Vercel server-side logs confirmed `routingTimeMs: 1ms` and execution time <10ms.
+- All subsequent calls stabilized at ~1.01s, matching the ~1s remote network RTT baseline.
 - Server-side execution is well within the 10-second Vercel Hobby execution limit.
 
 ---

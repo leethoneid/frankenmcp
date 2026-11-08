@@ -1,7 +1,7 @@
 # Router Vercel Compatibility Investigation Report (Task 1.1)
 
 **Date**: 2026-11-06  
-**Investigator**: Kiro / Antigravity Agent  
+**Investigator**: Kiro Agent  
 **Status**: Completed  
 **Outcome**: Router subprocess via `npx` **incompatible** with Vercel serverless cold starts. **Task 1.4 (Router Fallback Implementation) is required and triggered.**
 

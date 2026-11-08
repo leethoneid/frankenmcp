@@ -23,7 +23,7 @@ When creating or modifying demo servers, follow these strict rules:
 1. **Native ES Module (`.mjs`)**:
    Always use pure JavaScript with `.mjs` extension. This ensures child processes can be spawned directly by `MCPServerManager` without a build or TypeScript compilation step.
 2. **Labeled Demo Data (`[DEMO]`)**:
-   Per AGENTS.md Rule 2.7, all pre-seeded fixture data MUST contain the `[DEMO]` prefix so it is visually transparent to reviewers.
+   All pre-seeded fixture data MUST contain the `[DEMO]` prefix so it is visually transparent to reviewers.
 3. **Fail-Loud Input Validation**:
    Validate tool inputs explicitly. Throw errors for missing required arguments, zero divisions, or non-existent IDs instead of failing silently.
 4. **Stdio Protocol**:
