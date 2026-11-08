@@ -93,7 +93,7 @@ frankenmcp/
   - Fail loud on connection errors (no silent mock fallbacks)
 
 ### 3. Demo Servers (`src/mcp-servers/`)
-- **Purpose**: Self-contained MCP servers for zero-config demos
+- **Purpose**: Self-contained MCP servers for zero-config demos (built-in demo MCP servers: notes, tasks, calculator)
 - **Responsibilities**:
   - Implement standard MCP protocol (stdio transport)
   - Provide realistic tool schemas

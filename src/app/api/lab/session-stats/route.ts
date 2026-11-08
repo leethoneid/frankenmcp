@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getSessionStats } from '@/lib/router/stats';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const stats = getSessionStats();

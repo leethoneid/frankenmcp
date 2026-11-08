@@ -204,3 +204,93 @@ export function formatTokenSavings(tokens: number | null | undefined): string {
   }
   return `${tokens} tokens`;
 }
+
+/**
+ * Browser sessionStorage key used to bridge real Playground routing turns
+ * across stateless serverless function instances.
+ */
+export const SESSION_TURNS_STORAGE_KEY = 'frankenmcp_session_turns';
+
+/**
+ * Read recorded TurnStatistics from browser sessionStorage if available.
+ */
+export function readSessionStorageTurns(): TurnStatistics[] {
+  if (typeof window === 'undefined' || !window.sessionStorage) {
+    return [];
+  }
+  try {
+    const raw = window.sessionStorage.getItem(SESSION_TURNS_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(
+      (t): t is TurnStatistics =>
+        Boolean(t) &&
+        typeof t.turnID === 'string' &&
+        typeof t.toolsLoaded === 'number' &&
+        typeof t.toolsTrimmed === 'number' &&
+        typeof t.estimatedTokensSaved === 'number' &&
+        typeof t.routingTimeMs === 'number'
+    );
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Deduplicate and merge server-side turns with browser sessionStorage turns by turnID.
+ */
+export function mergeTurnsByTurnId(
+  serverTurns: TurnStatistics[],
+  storageTurns: TurnStatistics[]
+): TurnStatistics[] {
+  const byId = new Map<string, TurnStatistics>();
+  for (const t of serverTurns || []) {
+    if (t && typeof t.turnID === 'string') {
+      byId.set(t.turnID, t);
+    }
+  }
+  for (const t of storageTurns || []) {
+    if (t && typeof t.turnID === 'string') {
+      byId.set(t.turnID, t);
+    }
+  }
+  return Array.from(byId.values()).sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+}
+
+/**
+ * Merge server-side SessionStatistics with browser sessionStorage turns,
+ * deduplicating by turnID and recomputing aggregate totals from real turns.
+ */
+export function mergeSessionStats(
+  serverStats: SessionStatistics,
+  storageTurns: TurnStatistics[]
+): SessionStatistics {
+  if (!storageTurns || storageTurns.length === 0) {
+    return serverStats;
+  }
+
+  const mergedTurns = mergeTurnsByTurnId(serverStats?.turns || [], storageTurns);
+  let totalToolsLoaded = 0;
+  let totalToolsTrimmed = 0;
+  let totalTokensSaved = 0;
+  let totalRoutingTimeMs = 0;
+
+  for (const turn of mergedTurns) {
+    totalToolsLoaded += turn.toolsLoaded;
+    totalToolsTrimmed += turn.toolsTrimmed;
+    totalTokensSaved += turn.estimatedTokensSaved;
+    totalRoutingTimeMs += turn.routingTimeMs;
+  }
+
+  const averageRoutingTimeMs =
+    mergedTurns.length === 0 ? 0 : Math.round(totalRoutingTimeMs / mergedTurns.length);
+
+  return {
+    turns: mergedTurns,
+    totalToolsLoaded,
+    totalToolsTrimmed,
+    totalTokensSaved,
+    averageRoutingTimeMs,
+  };
+}

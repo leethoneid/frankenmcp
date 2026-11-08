@@ -1,7 +1,11 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
-import ChatContainer, { sendChatQuery } from '@/app/playground/components/ChatContainer';
+import ChatContainer, {
+  sendChatQuery,
+  appendTurnToSessionStorage,
+  SESSION_TURNS_STORAGE_KEY,
+} from '@/app/playground/components/ChatContainer';
 import InputBar from '@/app/playground/components/InputBar';
 import ConversationHistory from '@/app/playground/components/ConversationHistory';
 import type { Turn } from '@/app/playground/types';
@@ -236,6 +240,119 @@ describe('Playground Chat - Task 3.4: ChatContainer Component', () => {
       expect(html).toContain('Add a note about the meeting');
       expect(html).toContain('Show my tasks');
       expect(html).toContain('What is 42 + 58?');
+    });
+  });
+
+  describe('appendTurnToSessionStorage', () => {
+    const originalWindow = (globalThis as any).window;
+
+    afterEach(() => {
+      if (originalWindow === undefined) {
+        delete (globalThis as any).window;
+      } else {
+        (globalThis as any).window = originalWindow;
+      }
+    });
+
+    it('exports expected SESSION_TURNS_STORAGE_KEY', () => {
+      expect(SESSION_TURNS_STORAGE_KEY).toBe('frankenmcp_session_turns');
+    });
+
+    it('ignores turns without routing information', () => {
+      let setCalled = false;
+      (globalThis as any).window = {
+        sessionStorage: {
+          getItem: () => null,
+          setItem: () => {
+            setCalled = true;
+          },
+        },
+      };
+
+      appendTurnToSessionStorage({
+        id: 'turn-no-routing',
+        timestamp: Date.now(),
+        userQuery: 'hello',
+      } as Turn);
+
+      expect(setCalled).toBe(false);
+    });
+
+    it('writes valid turn with routing to sessionStorage and deduplicates by turnID', () => {
+      const storage: Record<string, string> = {};
+      (globalThis as any).window = {
+        sessionStorage: {
+          getItem: (key: string) => storage[key] || null,
+          setItem: (key: string, val: string) => {
+            storage[key] = val;
+          },
+        },
+      };
+
+      const turn1: Turn = {
+        id: 'turn-abc',
+        timestamp: 1000,
+        userQuery: 'What is 10 + 20?',
+        routing: {
+          selectedServers: ['calculator'],
+          toolsLoaded: 1,
+          toolsTrimmed: 4,
+          estimatedTokensSaved: 120,
+          routingTimeMs: 15,
+          toolFilter: [{ serverID: 'calculator', includedTools: ['add'] }],
+          reasoning: 'Arithmetic',
+        },
+        toolResults: [
+          {
+            serverID: 'calculator',
+            toolName: 'add',
+            status: 'success',
+            result: { sum: 30 },
+          },
+        ],
+      };
+
+      appendTurnToSessionStorage(turn1);
+
+      expect(storage[SESSION_TURNS_STORAGE_KEY]).toBeDefined();
+      let stored = JSON.parse(storage[SESSION_TURNS_STORAGE_KEY]);
+      expect(stored).toHaveLength(1);
+      expect(stored[0].turnID).toBe('turn-abc');
+      expect(stored[0].intent).toBe('What is 10 + 20?');
+      expect(stored[0].toolsLoaded).toBe(1);
+      expect(stored[0].toolsTrimmed).toBe(4);
+      expect(stored[0].estimatedTokensSaved).toBe(120);
+
+      // Append second turn with same id (updated)
+      const turn1Updated: Turn = {
+        ...turn1,
+        userQuery: 'What is 10 + 20? (updated)',
+      };
+      appendTurnToSessionStorage(turn1Updated);
+
+      stored = JSON.parse(storage[SESSION_TURNS_STORAGE_KEY]);
+      expect(stored).toHaveLength(1);
+      expect(stored[0].turnID).toBe('turn-abc');
+      expect(stored[0].intent).toBe('What is 10 + 20? (updated)');
+
+      // Append different turn
+      const turn2: Turn = {
+        id: 'turn-xyz',
+        timestamp: 2000,
+        userQuery: 'Show notes',
+        routing: {
+          selectedServers: ['notes'],
+          toolsLoaded: 2,
+          toolsTrimmed: 3,
+          estimatedTokensSaved: 180,
+          routingTimeMs: 25,
+        },
+      };
+      appendTurnToSessionStorage(turn2);
+
+      stored = JSON.parse(storage[SESSION_TURNS_STORAGE_KEY]);
+      expect(stored).toHaveLength(2);
+      expect(stored.map((t: any) => t.turnID)).toEqual(['turn-abc', 'turn-xyz']);
     });
   });
 });

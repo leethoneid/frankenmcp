@@ -17,6 +17,11 @@ export interface RoutingSummary {
   estimatedTokensSaved: number;
   /** Execution latency of the routing process in milliseconds. */
   routingTimeMs: number;
+  /** Per-server tool inclusion filters for this turn. */
+  toolFilter?: {
+    serverID: string;
+    includedTools: string[];
+  }[];
   /** Optional explanation or rationale behind the server selection. */
   reasoning?: string;
 }

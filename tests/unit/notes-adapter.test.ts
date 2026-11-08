@@ -10,9 +10,9 @@ describe('Task 2.1: Notes Core & In-Process Adapter', () => {
 
       expect(notes).toHaveLength(3);
       expect(notes.map((n) => n.title)).toEqual([
-        'Lab Supply Checklist',
-        'Architecture Blueprint',
-        'Project Kickoff',
+        '[DEMO] Lab Supply Checklist',
+        '[DEMO] Architecture Blueprint',
+        '[DEMO] Project Kickoff',
       ]);
 
       // All fixtures contain [DEMO] tag
@@ -40,7 +40,7 @@ describe('Task 2.1: Notes Core & In-Process Adapter', () => {
 
       // Read
       const note1 = core.readNote('note-1');
-      expect(note1.title).toBe('Project Kickoff');
+      expect(note1.title).toBe('[DEMO] Project Kickoff');
 
       // Update
       const updated = core.updateNote('note-1', 'Updated Title', 'Updated Content');

@@ -19,6 +19,15 @@ export async function ensureServersInitialized(): Promise<void> {
   }
 
   const manager = MCPServerManager.getInstance();
+  if (
+    manager.getServerStatus('notes') === 'connected' &&
+    manager.getServerStatus('tasks') === 'connected' &&
+    manager.getServerStatus('calculator') === 'connected'
+  ) {
+    initialized = true;
+    return;
+  }
+
   const configPath = path.resolve(process.cwd(), '.kiro', 'settings', 'mcp.json');
   try {
     manager.loadAndRegisterConfig(configPath);

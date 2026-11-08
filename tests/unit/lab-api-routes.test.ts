@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as statsModule from '@/lib/router/stats';
 import { MCPServerManager } from '@/lib/mcp/server-manager';
-import { GET as getSessionStatsRoute } from '@/app/api/lab/session-stats/route';
-import { GET as getServerStatusRoute } from '@/app/api/lab/server-status/route';
+import { GET as getSessionStatsRoute, dynamic as sessionStatsDynamic } from '@/app/api/lab/session-stats/route';
+import { GET as getServerStatusRoute, dynamic as serverStatusDynamic } from '@/app/api/lab/server-status/route';
+import { GET as getMetricsRoute, dynamic as metricsDynamic } from '@/app/api/metrics/route';
 import type { SessionStatistics, ServerManifest } from '@/lib/router/types';
 
 describe('Phase 2 - Lab API Routes Unit Tests', () => {
@@ -134,6 +135,34 @@ describe('Phase 2 - Lab API Routes Unit Tests', () => {
       const data = await response.json();
       expect(data).toHaveProperty('error');
       expect(data.error).toBe('Manifest retrieval failed');
+    });
+  });
+
+  describe('GET /api/metrics route', () => {
+    it('returns 200 and session stats via /api/metrics', async () => {
+      const mockStats: SessionStatistics = {
+        totalToolsLoaded: 3,
+        totalToolsTrimmed: 7,
+        totalTokensSaved: 800,
+        averageRoutingTimeMs: 20,
+        turns: [],
+      };
+
+      vi.spyOn(statsModule, 'getSessionStats').mockReturnValue(mockStats);
+
+      const response = await getMetricsRoute();
+      expect(response.status).toBe(200);
+
+      const data = await response.json();
+      expect(data).toEqual({ stats: mockStats });
+    });
+  });
+
+  describe('Route segment configs export dynamic = force-dynamic', () => {
+    it('exports dynamic force-dynamic on session-stats, server-status, and metrics routes', () => {
+      expect(sessionStatsDynamic).toBe('force-dynamic');
+      expect(serverStatusDynamic).toBe('force-dynamic');
+      expect(metricsDynamic).toBe('force-dynamic');
     });
   });
 });

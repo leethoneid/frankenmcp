@@ -19,6 +19,7 @@ import {
   RouterUnavailableError,
   AllServersUnavailableError,
 } from '@/lib/router/types';
+import { getSessionStats, resetSessionStats } from '@/lib/router/stats';
 import { MCPClient } from '@/lib/mcp/client';
 
 describe('Phase 3 - Task 3.1 & 3.3 & 3.4: Router Adapter Unit Tests', () => {
@@ -215,6 +216,25 @@ describe('Phase 3 - Task 3.1 & 3.3 & 3.4: Router Adapter Unit Tests', () => {
       // Bypass cache
       await routeIntent('find my note', dummyServers, { searchFn, bypassCache: true });
       expect(searchFn).toHaveBeenCalledTimes(2);
+    });
+
+    it('Issue B1 Regression: records a new turn in session stats on cache hit (one turn per real query)', async () => {
+      resetSessionStats();
+      const searchFn = vi.fn(async () => [
+        { tool: 'add', server: 'calculator', score: 0.95, description: 'Add numbers' },
+      ]);
+
+      // First call (cache miss)
+      await routeIntent('What is 42 + 58?', dummyServers, { searchFn });
+      expect(getSessionStats().turns).toHaveLength(1);
+
+      // Second identical call (cache hit) must still record a turn in session stats
+      await routeIntent('What is 42 + 58?', dummyServers, { searchFn });
+      expect(searchFn).toHaveBeenCalledTimes(1);
+      const stats = getSessionStats();
+      expect(stats.turns).toHaveLength(2);
+      expect(stats.turns[0].turnID).not.toBe(stats.turns[1].turnID);
+      expect(stats.totalToolsLoaded).toBe(2);
     });
 
     it('clears routing cache via clearRoutingCache', async () => {

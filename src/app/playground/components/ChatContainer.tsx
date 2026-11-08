@@ -16,6 +16,68 @@ import ConversationHistory from './ConversationHistory';
 import InputBar from './InputBar';
 
 /**
+ * Browser sessionStorage key for persisting real routing turns across pages.
+ */
+export const SESSION_TURNS_STORAGE_KEY = 'frankenmcp_session_turns';
+
+/**
+ * Appends a completed Playground turn's real routing decision to browser sessionStorage,
+ * deduplicating by turn ID so Monster Lab (/lab) can merge client and server session turns.
+ */
+export function appendTurnToSessionStorage(turn: Turn): void {
+  if (!turn || !turn.routing || typeof window === 'undefined' || !window.sessionStorage) {
+    return;
+  }
+  try {
+    const raw = window.sessionStorage.getItem(SESSION_TURNS_STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    const existing = Array.isArray(parsed) ? parsed : [];
+
+    const fallbackFilterMap = new Map<string, string[]>();
+    if (Array.isArray(turn.toolResults)) {
+      for (const tr of turn.toolResults) {
+        if (tr.serverID && tr.toolName) {
+          const list = fallbackFilterMap.get(tr.serverID) || [];
+          if (!list.includes(tr.toolName)) {
+            list.push(tr.toolName);
+          }
+          fallbackFilterMap.set(tr.serverID, list);
+        }
+      }
+    }
+    const derivedFilter = Array.from(fallbackFilterMap.entries()).map(
+      ([serverID, includedTools]) => ({
+        serverID,
+        includedTools,
+      })
+    );
+
+    const turnRecord = {
+      turnID: turn.id,
+      timestamp: turn.timestamp,
+      intent: turn.userQuery,
+      selectedServers: Array.isArray(turn.routing.selectedServers)
+        ? turn.routing.selectedServers
+        : [],
+      toolsLoaded: Number(turn.routing.toolsLoaded) || 0,
+      toolsTrimmed: Number(turn.routing.toolsTrimmed) || 0,
+      estimatedTokensSaved: Number(turn.routing.estimatedTokensSaved) || 0,
+      routingTimeMs: Number(turn.routing.routingTimeMs) || 0,
+      toolFilter: Array.isArray(turn.routing.toolFilter)
+        ? turn.routing.toolFilter
+        : derivedFilter,
+      ...(turn.routing.reasoning !== undefined ? { reasoning: turn.routing.reasoning } : {}),
+    };
+
+    const deduplicated = existing.filter((item) => item && item.turnID !== turnRecord.turnID);
+    deduplicated.push(turnRecord);
+    window.sessionStorage.setItem(SESSION_TURNS_STORAGE_KEY, JSON.stringify(deduplicated));
+  } catch {
+    // Ignore sessionStorage errors in restricted or SSR environments
+  }
+}
+
+/**
  * Props for the ChatContainer component.
  */
 export interface ChatContainerProps {
@@ -68,6 +130,7 @@ export async function sendChatQuery(
     }
 
     const turn: Turn = await response.json();
+    appendTurnToSessionStorage(turn);
     return { turn };
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : 'Unknown communication error';
@@ -105,6 +168,7 @@ export default function ChatContainer({
       const result = await sendChatQuery(apiEndpoint, query);
 
       if (result.turn) {
+        appendTurnToSessionStorage(result.turn);
         setTurns((prev) => [...prev, result.turn!]);
         setInputValue('');
       } else if (result.error) {

@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "MCP Server Schema Snapshot",
+      "trigger": "PostFileSave",
+      "matcher": "\\.kiro[\\\\/]settings[\\\\/]mcp\\.json$",
+      "action": {
+        "type": "command",
+        "command": "node -e \"const fs=require('fs');const cfg=JSON.parse(fs.readFileSync('.kiro/settings/mcp.json','utf8'));const servers=Object.keys(cfg.mcpServers);console.log('=== MCP Server Snapshot ===');console.log('Servers:',servers.join(', '));console.log('Total servers:',servers.length);console.log('Expected tools: ~15 (5 per server)');servers.forEach(s=>{console.log('- '+s+': '+cfg.mcpServers[s].command+' '+cfg.mcpServers[s].args.join(' '));});\"",
+        "timeout": 10
+      }
+    }
+  ]
+}

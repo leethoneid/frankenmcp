@@ -78,7 +78,7 @@ export class NotesCore {
     const fixtures = [
       {
         id: 'note-1',
-        title: 'Project Kickoff',
+        title: '[DEMO] Project Kickoff',
         content: '[DEMO] Welcome to FrankenMCP Monster Lab. Heterogeneous MCP routing is live.',
         created: now - 3600000,
         createdAt: now - 3600000,
@@ -86,7 +86,7 @@ export class NotesCore {
       },
       {
         id: 'note-2',
-        title: 'Architecture Blueprint',
+        title: '[DEMO] Architecture Blueprint',
         content: '[DEMO] Dynamic router trims unnecessary tool definitions per turn to save LLM context.',
         created: now - 1800000,
         createdAt: now - 1800000,
@@ -94,7 +94,7 @@ export class NotesCore {
       },
       {
         id: 'note-3',
-        title: 'Lab Supply Checklist',
+        title: '[DEMO] Lab Supply Checklist',
         content: '[DEMO] Electrodes, lightning rod ground cables, test tubes, and spare CPU cores.',
         created: now - 600000,
         createdAt: now - 600000,

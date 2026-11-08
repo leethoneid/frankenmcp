@@ -382,6 +382,20 @@ export async function routeIntent(
     // Refresh LRU position
     routingCache.delete(cacheKey);
     routingCache.set(cacheKey, cached);
+
+    const stats = calculateTurnStats(
+      options.turnID || `turn-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      intent,
+      cached,
+      availableServers,
+      0
+    );
+    recordTurn(stats);
+
+    if (options.onTurnRecorded) {
+      options.onTurnRecorded(stats);
+    }
+
     return cached;
   }
 

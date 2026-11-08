@@ -35,7 +35,7 @@ describe('Phase 5 - Demo MCP Servers Unit Tests', () => {
 
       const readRes = (await client.callTool('read_note', { id: 'note-1' })) as { content: Array<{ text: string }> };
       const note1 = JSON.parse(readRes.content[0].text);
-      expect(note1.title).toBe('Project Kickoff');
+      expect(note1.title).toBe('[DEMO] Project Kickoff');
       expect(note1.content).toContain('[DEMO]');
 
       await client.disconnect();

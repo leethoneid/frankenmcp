@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import {
@@ -9,9 +9,13 @@ import {
   computeTurnStats,
   formatTokenSavings,
   getRecordedTurnsCount,
+  SESSION_TURNS_STORAGE_KEY,
+  readSessionStorageTurns,
+  mergeTurnsByTurnId,
+  mergeSessionStats,
 } from '@/lib/router/stats';
 import { StatsDisplay } from '@/components/StatsDisplay';
-import { TurnStatistics, ToolSchema, ServerManifest, RoutingDecision } from '@/lib/router/types';
+import { TurnStatistics, SessionStatistics, ToolSchema, ServerManifest, RoutingDecision } from '@/lib/router/types';
 
 describe('Phase 4 - Task 4.1: Statistics Calculation', () => {
   beforeEach(() => {
@@ -293,5 +297,162 @@ describe('Phase 4 - Task 4.2: Statistics Display Fail-Safe', () => {
     const session = getSessionStats();
     expect(session.turns[0].toolFilter).toEqual(turn.toolFilter);
     expect(session.turns[0].reasoning).toBe(turn.reasoning);
+  });
+
+  describe('SessionStorage Turn Persistence & Merge Operations', () => {
+    const originalWindow = (globalThis as any).window;
+
+    afterEach(() => {
+      if (originalWindow === undefined) {
+        delete (globalThis as any).window;
+      } else {
+        (globalThis as any).window = originalWindow;
+      }
+    });
+
+    it('exports expected SESSION_TURNS_STORAGE_KEY', () => {
+      expect(SESSION_TURNS_STORAGE_KEY).toBe('frankenmcp_session_turns');
+    });
+
+    it('readSessionStorageTurns returns empty array when window is undefined', () => {
+      delete (globalThis as any).window;
+      expect(readSessionStorageTurns()).toEqual([]);
+    });
+
+    it('readSessionStorageTurns reads and filters valid TurnStatistics from sessionStorage', () => {
+      const mockStorage: Record<string, string> = {
+        [SESSION_TURNS_STORAGE_KEY]: JSON.stringify([
+          {
+            turnID: 'turn-client-1',
+            timestamp: 1000,
+            intent: 'What is 5 + 5?',
+            selectedServers: ['calculator'],
+            toolsLoaded: 1,
+            toolsTrimmed: 4,
+            estimatedTokensSaved: 120,
+            routingTimeMs: 15,
+            toolFilter: [{ serverID: 'calculator', includedTools: ['add'] }],
+          },
+          {
+            // invalid turn missing toolsLoaded
+            turnID: 'turn-invalid',
+            toolsTrimmed: 2,
+          },
+        ]),
+      };
+
+      (globalThis as any).window = {
+        sessionStorage: {
+          getItem: (key: string) => mockStorage[key] || null,
+          setItem: (key: string, val: string) => {
+            mockStorage[key] = val;
+          },
+        },
+      };
+
+      const result = readSessionStorageTurns();
+      expect(result).toHaveLength(1);
+      expect(result[0].turnID).toBe('turn-client-1');
+      expect(result[0].toolsLoaded).toBe(1);
+    });
+
+    it('mergeTurnsByTurnId merges and deduplicates turns by turnID, sorting by timestamp', () => {
+      const serverTurn1: TurnStatistics = {
+        turnID: 'turn-1',
+        timestamp: 1000,
+        intent: 'server intent 1',
+        selectedServers: ['notes'],
+        toolsLoaded: 2,
+        toolsTrimmed: 3,
+        estimatedTokensSaved: 100,
+        routingTimeMs: 20,
+        toolFilter: [{ serverID: 'notes', includedTools: ['read_note', 'create_note'] }],
+      };
+
+      const clientTurn1Updated: TurnStatistics = {
+        turnID: 'turn-1', // duplicate ID
+        timestamp: 1000,
+        intent: 'client intent 1 updated',
+        selectedServers: ['notes'],
+        toolsLoaded: 2,
+        toolsTrimmed: 3,
+        estimatedTokensSaved: 100,
+        routingTimeMs: 20,
+        toolFilter: [{ serverID: 'notes', includedTools: ['read_note', 'create_note'] }],
+      };
+
+      const clientTurn2: TurnStatistics = {
+        turnID: 'turn-2',
+        timestamp: 2000,
+        intent: 'client intent 2',
+        selectedServers: ['calculator'],
+        toolsLoaded: 1,
+        toolsTrimmed: 4,
+        estimatedTokensSaved: 200,
+        routingTimeMs: 10,
+        toolFilter: [{ serverID: 'calculator', includedTools: ['add'] }],
+      };
+
+      const merged = mergeTurnsByTurnId([serverTurn1], [clientTurn1Updated, clientTurn2]);
+      expect(merged).toHaveLength(2);
+      expect(merged.map((t) => t.turnID)).toEqual(['turn-1', 'turn-2']);
+      expect(merged[0].intent).toBe('client intent 1 updated');
+    });
+
+    it('mergeSessionStats combines server and sessionStorage turns, recalculating aggregate metrics', () => {
+      const initialServerStats: SessionStatistics = {
+        turns: [
+          {
+            turnID: 'turn-srv-1',
+            timestamp: 100,
+            intent: 'srv query',
+            selectedServers: ['notes'],
+            toolsLoaded: 2,
+            toolsTrimmed: 3,
+            estimatedTokensSaved: 150,
+            routingTimeMs: 30,
+            toolFilter: [{ serverID: 'notes', includedTools: ['read_note'] }],
+          },
+        ],
+        totalToolsLoaded: 2,
+        totalToolsTrimmed: 3,
+        totalTokensSaved: 150,
+        averageRoutingTimeMs: 30,
+      };
+
+      const storageTurns: TurnStatistics[] = [
+        {
+          turnID: 'turn-cli-2',
+          timestamp: 200,
+          intent: 'cli query',
+          selectedServers: ['calculator'],
+          toolsLoaded: 1,
+          toolsTrimmed: 4,
+          estimatedTokensSaved: 250,
+          routingTimeMs: 10,
+          toolFilter: [{ serverID: 'calculator', includedTools: ['add'] }],
+        },
+      ];
+
+      const mergedStats = mergeSessionStats(initialServerStats, storageTurns);
+      expect(mergedStats.turns).toHaveLength(2);
+      expect(mergedStats.totalToolsLoaded).toBe(3); // 2 + 1
+      expect(mergedStats.totalToolsTrimmed).toBe(7); // 3 + 4
+      expect(mergedStats.totalTokensSaved).toBe(400); // 150 + 250
+      expect(mergedStats.averageRoutingTimeMs).toBe(20); // (30 + 10) / 2
+    });
+
+    it('mergeSessionStats returns unmodified serverStats if storageTurns is empty', () => {
+      const initialServerStats: SessionStatistics = {
+        turns: [],
+        totalToolsLoaded: 0,
+        totalToolsTrimmed: 0,
+        totalTokensSaved: 0,
+        averageRoutingTimeMs: 0,
+      };
+
+      const result = mergeSessionStats(initialServerStats, []);
+      expect(result).toBe(initialServerStats);
+    });
   });
 });

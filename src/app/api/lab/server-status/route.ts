@@ -1,8 +1,13 @@
 import { NextResponse } from 'next/server';
 import { MCPServerManager } from '@/lib/mcp/server-manager';
+import { ensureServersInitialized } from '@/lib/server/init';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
+    await ensureServersInitialized();
+
     const manager = MCPServerManager.getInstance();
 
     // Actively check server health before returning manifests

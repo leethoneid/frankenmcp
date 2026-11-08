@@ -9,6 +9,7 @@
 
 import { useState, useEffect } from 'react';
 import type { TurnStatistics } from '@/lib/router/types';
+import { readSessionStorageTurns, mergeTurnsByTurnId } from '@/lib/router/stats';
 import TurnCard from './TurnCard';
 
 /**
@@ -31,13 +32,19 @@ export default function TurnHistoryPanel({ initialTurns, allServerTools }: TurnH
   const [turns, setTurns] = useState<TurnStatistics[]>(initialTurns || []);
 
   useEffect(() => {
+    const localTurns = readSessionStorageTurns();
+    if (localTurns.length > 0) {
+      setTurns((prev) => mergeTurnsByTurnId(prev, localTurns));
+    }
+
     const interval = setInterval(async () => {
       try {
         const response = await fetch('/api/lab/session-stats');
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
         if (data && data.stats && Array.isArray(data.stats.turns)) {
-          setTurns(data.stats.turns);
+          const currentLocalTurns = readSessionStorageTurns();
+          setTurns(mergeTurnsByTurnId(data.stats.turns, currentLocalTurns));
         }
       } catch (error) {
         console.error('Turn history poll failed:', error);

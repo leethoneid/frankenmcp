@@ -9,6 +9,7 @@
 
 import { useState, useEffect } from 'react';
 import type { SessionStatistics } from '@/lib/router/types';
+import { readSessionStorageTurns, mergeSessionStats } from '@/lib/router/stats';
 import MetricCard from './MetricCard';
 
 /**
@@ -32,13 +33,19 @@ export default function StatsPanel({ initialStats, initialError = null }: StatsP
   const [pollError, setPollError] = useState<string | null>(initialError);
 
   useEffect(() => {
+    const localTurns = readSessionStorageTurns();
+    if (localTurns.length > 0) {
+      setStats((prev) => mergeSessionStats(prev, localTurns));
+    }
+
     const interval = setInterval(async () => {
       try {
         const response = await fetch('/api/lab/session-stats');
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
         if (data && data.stats) {
-          setStats(data.stats);
+          const currentLocalTurns = readSessionStorageTurns();
+          setStats(mergeSessionStats(data.stats, currentLocalTurns));
           setPollError(null);
         }
       } catch (error) {
