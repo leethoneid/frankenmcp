@@ -448,7 +448,7 @@ const allHealthy = onlineDemoServers.length >= 3;
 - [x] Cold start completes within 3 seconds (first request after deploy)
 - [x] Warm function completes within 500ms (subsequent requests)
 - [x] No subprocess-related errors in Vercel logs
-- [ ] Verify with fresh browser (no cache) that demo works without configuration
+- [x] Verify with fresh browser (no cache) that demo works without configuration
 
 **Estimated Effort**: 2 hours
 
