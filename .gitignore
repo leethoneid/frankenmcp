@@ -40,4 +40,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-.vercel
+# local agent rules & audit reports (keep locally, never push to repo)
+/AGENTS.md
+/VERIFICATION-REPORT.md
+/FINAL-AUDIT-REPORT.md
