@@ -43,7 +43,7 @@ In strict adherence to the *Truth-in-Advertising* and *No-Fake-Success* engineer
   - `"What is 42 + 58?"`: Trims 4 tools, saving **284 tokens** (`calculator:add` loaded).
   - `"Show my tasks"`: Trims 4 tools, saving **298 tokens** (`tasks:list_tasks` loaded).
   - Out-of-bounds queries like `"What is the capital of France?"`: Hits the protective fallback wall, loading **0 tools** and trimming 12 tools, saving **840 tokens** with zero hallucinated tool calls.
-- **Comprehensive Quality Fence**: The entire codebase passes **306+ automated unit, integration, and property-based tests**, including 3 suites of 100 fast-check random runs each.
+- **Comprehensive Quality Fence**: The entire codebase passes **318 automated unit, integration, and property-based tests**, including 3 suites of 100 fast-check random runs each.
 
 ---
 
@@ -127,7 +127,7 @@ During testing of compound multilingual queries, we discovered that queries like
 FrankenMCP strictly complies with Kiroween 2026 hackathon guidelines regarding pre-existing work and open-source licensing:
 - **MIT License**: The FrankenMCP repository is licensed 100% under the standard, permissive MIT License.
 - **Prior Work Disclosure**: The underlying core routing algorithm is derived from `leethoneid/mcp-dynamic-router`, an existing open-source repository created by the author prior to the hackathon (licensed under PolyForm Noncommercial in its own upstream repository).
-- **New Work Verification**: In accordance with the New Project Rule, all application code, Next.js 16 App Router web interfaces, the Monster Lab telemetry dashboard, serverless adapters, the 3 standalone demo MCP servers (`notes`, `tasks`, `calculator`), the comprehensive test suites (306+ tests), and all documentation were conceived, designed, and built completely from scratch during the hackathon period (October 30, 2026 to December 4, 2026).
+- **New Work Verification**: In accordance with the New Project Rule, all application code, Next.js 16 App Router web interfaces, the Monster Lab telemetry dashboard, serverless adapters, the 3 standalone demo MCP servers (`notes`, `tasks`, `calculator`), the comprehensive test suites (318 tests), and all documentation were conceived, designed, and built completely from scratch during the hackathon period (October 30, 2026 to December 4, 2026).
 
 ---
 
