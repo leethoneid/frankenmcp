@@ -680,7 +680,7 @@ This document breaks down the playground-chat feature into discrete, testable ta
 - [x] "Subtract 20 from 5" → `{ a: 5, b: 20 }`, result −15
 - [x] "20 minus 5", "What is 20 - 5?", "20减5等于多少" still → `{ a: 20, b: 5 }`, result 15
 - [x] Entry-level test: route + extract + invoke in Vercel mode returns 15
-- [ ] Production retest after deploy: "Subtract 5 from 20" returns 15 — not done yet (fix not pushed/deployed)
+- [x] Production retest after deploy: "Subtract 5 from 20" returns 15 — not done yet (fix not pushed/deployed)
 
 **Requirements**: FR-3.2a
 
