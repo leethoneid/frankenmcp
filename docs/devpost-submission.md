@@ -1,7 +1,7 @@
 # FrankenMCP — Devpost Hackathon Submission Copy
 
 > **Category**: Frankenstein (Kiroween 2026)  
-> **Tagline**: Stitches heterogeneous MCP servers into a unified dynamic routing nervous center, trimming 232–840 tokens of schema overhead per turn with a live Monster Lab transparency dashboard.  
+> **Tagline**: Stitches heterogeneous MCP servers into a unified dynamic routing nervous center, trimming up to 840 tokens of schema overhead per turn (measured live; savings vary by query) with a live Monster Lab transparency dashboard.  
 > **Live Demo**: [https://frankenmcp.vercel.app](https://frankenmcp.vercel.app)  
 > **Open Source Repository**: [https://github.com/leethoneid/frankenmcp](https://github.com/leethoneid/frankenmcp)  
 > **License**: MIT  
@@ -43,7 +43,8 @@ In strict adherence to the *Truth-in-Advertising* and *No-Fake-Success* engineer
   - `"What is 42 + 58?"`: Trims 4 tools, saving **284 tokens** (`calculator:add` loaded).
   - `"Show my tasks"`: Trims 4 tools, saving **298 tokens** (`tasks:list_tasks` loaded).
   - Out-of-bounds queries like `"What is the capital of France?"`: Hits the protective fallback wall, loading **0 tools** and trimming 12 tools, saving **840 tokens** with zero hallucinated tool calls.
-- **Comprehensive Quality Fence**: The entire codebase passes **318 automated unit, integration, and property-based tests**, including 3 suites of 100 fast-check random runs each.
+  - Savings vary by query: `"Create a note titled Hello"` saves 220 tokens — below the old 232 floor, which is why the tagline no longer states a range.
+- **Comprehensive Quality Fence**: The entire codebase passes **322 automated unit, integration, and property-based tests**, including 3 suites of 100 fast-check random runs each.
 
 ---
 
@@ -90,26 +91,26 @@ Kiro was not merely an editor; Kiro served as the architectural brain of this pr
 
 ### 1. Specs (`.kiro/specs/`)
 Every major capability (`router-core`, `monster-lab-dashboard`, `playground-chat`, and `deployment`) was formally specified inside `.kiro/specs/` using EARS (Easy Approach to Requirements Syntax). Requirements flowed systematically:
-`requirements.md` (formal requirement IDs like `FR-1.1`, `NFR-3.2`) $\rightarrow$ `design.md` $\rightarrow$ `tasks.md` $\rightarrow$ `acceptance-validation.md`.
+`requirements.md` (formal requirement IDs like `FR-1.1`, `NFR-3.2`) $\rightarrow$ `design.md` $\rightarrow$ `tasks.md` (with `acceptance-validation.md` for `monster-lab-dashboard` only).
 These numbered requirements directly governed our error classification matrix, timeout boundaries, and deterministic token calculation formulas.
 
 ### 2. Steering (`.kiro/steering/`)
 We anchored our engineering constraints within `.kiro/steering/`:
 - `product.md`: Defined the Frankenstein product ethos and user value proposition.
-- `tech.md`: Mandated the dual-mode transport architecture, Node ≥20 baseline, and TypeScript strictness.
+- `tech.md`: Fixed the stack and standards: TypeScript strict mode, Next.js App Router, Node ≥20, Vitest with fast-check for the three PBT invariants (≥100 cases each), and fail-closed security defaults (no default API keys, header-only tokens, no wildcard CORS).
 - `structure.md`: Enforced strict directory boundaries, physical isolation between demo fixtures and core logic, mandatory `[DEMO]` prefix labeling for synthetic data, and the absolute *Fail-Loud (No Fake Success)* mandate. For instance, when given unsupported units like `"100厘米等于多少英寸"`, the system immediately fails loudly with `Unable to extract arguments for convert_units` rather than silently forging plausible-looking fake numbers.
 
 ### 3. Hooks (`.kiro/hooks/`)
 Hook definitions were authored and configured in `.kiro/hooks/`:
-- `.kiro/hooks/schema-snapshot-on-mcp-change.json`: Configured to target configuration snapshot generation when `.kiro/settings/mcp.json` changes.
-- `.kiro/hooks/typescript-typecheck-on-save.json`: Configured to target `tsc --noEmit` type-checking when TypeScript files are saved.
-- **Verification Status (Pending Runtime Trigger Verification)**: During diagnostic verification (alongside a temporary `test-session-start.json` hook), Kiro IDE validated the JSON hook formats and confirmed in startup logs that all 3 hooks were read and registered on new session initialization (`hooks.reload.loaded read:3 / registered:3`). However, runtime trigger execution (both the `SessionStart` test `echo` and on-save `tsc` invocation) produced no execution entries in Kiro Logs — the hooks registered successfully, while actual trigger execution has not yet been observed and remains **Pending Verification** once Kiro credit quota resets.
+- `.kiro/hooks/schema-snapshot-on-mcp-change.json`: Configured to trigger when `.kiro/settings/mcp.json` changes. Its command only prints the expected tool count and does not write a snapshot file.
+- `.kiro/hooks/typescript-typecheck-on-save.json`: Configured to run `tsc --noEmit` on `PostFileSave` for TypeScript files. Verified 2026-11-10: the trigger fires only when the Kiro Agent's tools write a file (confirmed via `ContextualHookInvoked` in Kiro Logs right after an Agent-created temp `.ts` file); manual Ctrl+S in the editor does not invoke it — the extension's `onDidSaveTextDocument` listeners handle UI state and spec validation only. Command-hook output is suppressed (`sendStdout:false`, `sendStderr:false`), so `tsc` errors are silent there; manual-save coverage is provided by a VS Code `tsc --noEmit --watch` background task (`.vscode/tasks.json`, auto-starts on folder open; VS Code asks for permission on first folder open before auto-starting it), with errors in the Problems panel.
+- **Verification Status (Verified 2026-11-10)**: Kiro IDE validated the hook JSON formats and confirmed in startup logs that both hooks are read and registered on new session initialization (`hooks.reload.loaded read:2 / registered:2`; an earlier `read:3` count included a temporary `test-session-start.json` hook since removed). Runtime trigger execution was confirmed: an Agent-created temp `.ts` file produced `ContextualHookInvoked` in Kiro Logs immediately after the write. Reading the `kiro-agent` extension source (v1.1.787) confirmed `PostFileSave` is only reachable from the Agent tool executor (`firePostFileHooks`) — manual Ctrl+S never reaches the hooks.
 
 ### 4. MCP Settings (`.kiro/settings/mcp.json`)
 The central nervous configuration for the project resides in `.kiro/settings/mcp.json`. It pre-configures the `notes`, `tasks`, and `calculator` MCP servers over `stdio`. This file serves a dual purpose: it allows the Kiro IDE to mount and debug the servers directly during development, while acting as the single source of truth for the application's runtime `MCPServerManager`.
 
 ### 5. Agents (`.kiro/agents/router-orchestrator.json`)
-We configured a dedicated agent profile, `router-orchestrator.json`, within `.kiro/agents/`. This definition encapsulates the multi-server coordination logic, tying together the three heterogeneous server endpoints and `.kiro/steering/` architectural rules into a specialized agent persona capable of reasoning across disparate tool sets.
+We put `router-orchestrator` to real work: it audited `src/lib/router/fallback.ts` against the 15 tools in `.kiro/settings/mcp.json`. The online keyword/regex fallback reaches 10 of 15 tools — all 5 calculator tools plus `create_note`, `list_notes`, `create_task`, `list_tasks`, and `update_task`. Five tools are never selected online — `read_note`, `update_note`, `delete_note`, `read_task`, `delete_task` — because they need an explicit ID that a query cannot supply. `update_task` works when the query names the ID, e.g. "Mark task 1 as done". One honest limitation surfaced: "Write a note about X" routes to `create_note`, but argument extraction only recognizes add/create, so it fails loudly instead of guessing; left as a documented limitation.
 
 ### 6. Property-Based Testing (`tests/pbt/`) & Bug Hunting Stories
 Rather than relying solely on happy-path unit tests, we used `fast-check` to implement 3 comprehensive Property-Based Testing (PBT) suites (100 randomized test iterations each), directly tagged to their corresponding EARS requirement numbers:
@@ -117,8 +118,8 @@ Rather than relying solely on happy-path unit tests, we used `fast-check` to imp
 2. **Determinism & Order-Invariance** (`determinism.test.ts` $\rightarrow$ `FR-2.6, NFR-3.3`): Proves that identical user queries and server sets always generate the exact same routing decision, completely invariant to the order in which servers were registered.
 3. **Roundtrip Schema Fidelity** (`fidelity.test.ts` $\rightarrow$ `FR-2.7, NFR-3.4`): Proves that schema filtering never mutates original tool schemas in place.
 
-**Real Bug Caught by Rigorous Invariant Testing**:
-During testing of compound multilingual queries, we discovered that queries like `"47474乘87587等于多少"` triggered a branch collision: the Chinese character `"等于"` (equals) was being greedily captured by the unit conversion parser, causing the router to misroute arithmetic multiplication to `convert_units` and fail. Thanks to our behavioral verification suite, we caught and fixed this branch priority defect (Commit `1bcd42c`), ensuring arithmetic operations are prioritized before unit conversions.
+**What the suites actually caught**:
+During testing of compound multilingual queries, we discovered that queries like `"47474乘87587等于多少"` triggered a branch collision: the Chinese character `"等于"` (equals) was being greedily captured by the unit conversion parser, causing the router to misroute arithmetic multiplication to `convert_units` and fail. An integration regression test caught it (`Step 9 Regression: prioritizes arithmetic over unit conversion when queries contain 等于`, commit `850efe7`, `fix(router): check arithmetic branches before unit conversion`). The three PBT invariant suites held throughout development with 0 failures — they guard the invariants; this bug was caught by the integration suite.
 
 ---
 
@@ -127,7 +128,7 @@ During testing of compound multilingual queries, we discovered that queries like
 FrankenMCP strictly complies with Kiroween 2026 hackathon guidelines regarding pre-existing work and open-source licensing:
 - **MIT License**: The FrankenMCP repository is licensed 100% under the standard, permissive MIT License.
 - **Prior Work Disclosure**: The underlying core routing algorithm is derived from `leethoneid/mcp-dynamic-router`, an existing open-source repository created by the author prior to the hackathon (licensed under PolyForm Noncommercial in its own upstream repository).
-- **New Work Verification**: In accordance with the New Project Rule, all application code, Next.js 16 App Router web interfaces, the Monster Lab telemetry dashboard, serverless adapters, the 3 standalone demo MCP servers (`notes`, `tasks`, `calculator`), the comprehensive test suites (318 tests), and all documentation were conceived, designed, and built completely from scratch during the hackathon period (October 30, 2026 to December 4, 2026).
+- **New Work Verification**: In accordance with the New Project Rule, all application code, Next.js 16 App Router web interfaces, the Monster Lab telemetry dashboard, serverless adapters, the 3 standalone demo MCP servers (`notes`, `tasks`, `calculator`), the comprehensive test suites (322 tests), and all documentation were conceived, designed, and built completely from scratch during the hackathon period (October 30, 2026 to December 4, 2026).
 
 ---
 

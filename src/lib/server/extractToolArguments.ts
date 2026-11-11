@@ -91,6 +91,13 @@ export function extractToolArguments(
         if (trimmedQuery.trim().startsWith('-')) {
           a = -Math.abs(a);
         }
+        // FR-3.2a："subtract X from Y" 表示 Y - X，需交换书写顺序
+        if (
+          toolName === 'subtract' &&
+          /subtract\s+\d+(?:\.\d+)?\s+from\s+\d+(?:\.\d+)?/i.test(trimmedQuery)
+        ) {
+          return { a: b, b: a };
+        }
         if (!isNaN(a) && !isNaN(b)) {
           return { a, b };
         }

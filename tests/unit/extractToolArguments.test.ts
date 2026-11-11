@@ -246,4 +246,21 @@ describe('Playground Chat - Task 3.2: Tool Argument Extraction Module', () => {
       });
     });
   });
+
+  // Validates playground-chat FR-3.2a (Task 9.1)
+  describe('Task 9.1 Regression: "subtract X from Y" operand order', () => {
+    it('maps "Subtract 5 from 20" to a=20, b=5', () => {
+      expect(extractToolArguments('Subtract 5 from 20', 'subtract', 'calculator')).toEqual({ a: 20, b: 5 });
+    });
+
+    it('maps "Subtract 20 from 5" to a=5, b=20', () => {
+      expect(extractToolArguments('Subtract 20 from 5', 'subtract', 'calculator')).toEqual({ a: 5, b: 20 });
+    });
+
+    it('keeps written order for forms that were already correct', () => {
+      expect(extractToolArguments('20 minus 5', 'subtract', 'calculator')).toEqual({ a: 20, b: 5 });
+      expect(extractToolArguments('What is 20 - 5?', 'subtract', 'calculator')).toEqual({ a: 20, b: 5 });
+      expect(extractToolArguments('20减5等于多少', 'subtract', 'calculator')).toEqual({ a: 20, b: 5 });
+    });
+  });
 });

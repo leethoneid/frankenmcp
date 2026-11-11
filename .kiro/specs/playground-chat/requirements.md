@@ -51,6 +51,8 @@ This specification uses **EARS (Easy Approach to Requirements Syntax)** format f
 
 **FR-3.2** — WHEN tool arguments cannot be derived (no pattern matches), THEN the system SHALL display an error: "Unable to extract arguments for [tool]" and NOT execute that tool.
 
+**FR-3.2a** — WHEN the routed tool is `subtract` AND the query has the form "subtract X from Y", THEN the system SHALL derive `a = Y` and `b = X` (so "Subtract 5 from 20" computes 20 − 5 = 15). Queries in written order ("20 minus 5", "20 - 5", "20减5") SHALL keep `a` = first number, `b` = second number.
+
 **FR-3.3** — WHEN tool arguments are derived successfully, THEN the system SHALL execute tool calls via server-side invocation for each selected tool.
 
 **FR-3.4** — WHEN tool execution starts, THEN the system SHALL display a loading indicator with the tool name and server ID.
@@ -193,4 +195,4 @@ This specification uses **EARS (Easy Approach to Requirements Syntax)** format f
 
 ## Changes from Previous Versions
 
-_Initial version._
+- 2026-11-10: Added FR-3.2a. Bug found during polish review: "Subtract 5 from 20" returned −15 with status success, because subtract took the first two numbers in written order.

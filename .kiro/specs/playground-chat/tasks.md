@@ -667,6 +667,29 @@ This document breaks down the playground-chat feature into discrete, testable ta
 
 ---
 
+## Phase 9: Polish Fixes
+
+### Task 9.1: Fix Reverse-Order Subtraction ("subtract X from Y")
+
+**Description**: `extractToolArguments` took the first two numbers in written order for every arithmetic tool, so "Subtract 5 from 20" returned −15 with status success. Handle the "subtract X from Y" form for the `subtract` tool only.
+
+**Acceptance Criteria**:
+- [x] Regression tests written first and shown failing on the old code (AGENTS.md 2.10)
+  - Run on old code, 2026-11-10 (`npx vitest --run … -t "Task 9.1"`): `Tests 3 failed | 1 passed`. Failures: `expected { a: 5, b: 20 } to deeply equal { a: 20, b: 5 }`, `expected { a: 20, b: 5 } to deeply equal { a: 5, b: 20 }`, `Subtract 5 from 20: expected -15 to be 15`. After the fix: `Tests 35 passed` for the two files; full suite 47 files / 322 tests passed.
+- [x] "Subtract 5 from 20" → `{ a: 20, b: 5 }`, result 15
+- [x] "Subtract 20 from 5" → `{ a: 5, b: 20 }`, result −15
+- [x] "20 minus 5", "What is 20 - 5?", "20减5等于多少" still → `{ a: 20, b: 5 }`, result 15
+- [x] Entry-level test: route + extract + invoke in Vercel mode returns 15
+- [ ] Production retest after deploy: "Subtract 5 from 20" returns 15 — not done yet (fix not pushed/deployed)
+
+**Requirements**: FR-3.2a
+
+**Dependencies**: Task 3.2
+
+**Effort**: S
+
+---
+
 ## Summary
 
 **Total Tasks**: 28  
@@ -720,9 +743,10 @@ This document breaks down the playground-chat feature into discrete, testable ta
 | 7.3 | FR-1.5, NFR-3.1 | — | No |
 | 8.1 | Military Rule 3 | — | No |
 | 8.2 | NFR-1.1, NFR-1.2, NFR-1.3 | — | No |
+| 9.1 | FR-3.2a | — | No |
 
 ---
 
 ## Changes from Previous Versions
 
-_Initial version._
+- 2026-11-10: Added Phase 9 / Task 9.1 (reverse-order subtraction fix, FR-3.2a).

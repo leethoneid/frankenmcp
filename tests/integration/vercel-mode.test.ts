@@ -251,4 +251,31 @@ describe('Task 4.2: Vercel Mode Integration Tests', () => {
     };
     expect(addRes.result).toBe(15);
   });
+
+  // Validates playground-chat FR-3.2a (Task 9.1): route → extract → invoke
+  it('Task 9.1 Regression: "subtract X from Y" computes Y - X end to end', async () => {
+    process.env.VERCEL = '1';
+
+    const manager = MCPServerManager.getInstance();
+    await manager.connectAll();
+    const manifests = manager.getServerManifests();
+
+    const cases: Array<[string, number]> = [
+      ['Subtract 5 from 20', 15],
+      ['Subtract 20 from 5', -15],
+      ['20 minus 5', 15],
+      ['What is 20 - 5?', 15],
+      ['20减5等于多少', 15],
+    ];
+
+    for (const [query, expected] of cases) {
+      const decision = await routeIntent(query, manifests, { bypassCache: true });
+      expect(decision.selectedServers).toEqual(['calculator']);
+      expect(decision.toolFilter[0].includedTools).toEqual(['subtract']);
+      const args = extractToolArguments(query, 'subtract', 'calculator');
+      expect(args).not.toBeNull();
+      const res = (await manager.invokeToolCall('calculator', 'subtract', args!)) as { result: number };
+      expect(res.result, query).toBe(expected);
+    }
+  });
 });
